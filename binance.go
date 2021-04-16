@@ -14,7 +14,7 @@ func (a *BinanceSpotAdapter) GetOrderData() (*TradeEventData, *sharederrs.APIErr
 }
 
 //PlaceOrder ..
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder) (*struct{}, *sharederrs.APIError) {
+func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError) {
 	//TODO
 	return nil, nil
 }

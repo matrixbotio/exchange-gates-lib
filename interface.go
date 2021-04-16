@@ -7,7 +7,7 @@ import (
 //ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
 	GetOrderData() (*TradeEventData, *sharederrs.APIError)
-	PlaceOrder(order BotOrder) (*struct{}, *sharederrs.APIError)
+	PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError)
 	GetAccountData() (*struct{}, *sharederrs.APIError)
 	GetPairLastPrice() (float64, *sharederrs.APIError)
 	CancelPairOrder() *sharederrs.APIError

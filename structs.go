@@ -18,3 +18,11 @@ type TradeEventData struct {
 	OrderFilledQty float64 //event executed qty
 	Status         string  //used in bot.getOrderData
 }
+
+//CreateOrderResponse ..
+type CreateOrderResponse struct {
+	OrderID       int64
+	ClientOrderID string
+	OrigQuantity  float64
+	Price         float64
+}
