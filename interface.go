@@ -6,12 +6,12 @@ import (
 
 //ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
-	getOrderData() (*TradeEventData, *sharederrs.APIError)
-	placeOrder(order BotOrder) (*struct{}, *sharederrs.APIError)
-	getAccountData() (*struct{}, *sharederrs.APIError)
-	getPairLastPrice() (float64, *sharederrs.APIError)
-	cancelPairOrder() *sharederrs.APIError
-	cancelPairOrders() *sharederrs.APIError
-	getPairOpenOrders() ([]*struct{}, *sharederrs.APIError)
-	verifyAPIKeys() *sharederrs.APIError
+	GetOrderData() (*TradeEventData, *sharederrs.APIError)
+	PlaceOrder(order BotOrder) (*struct{}, *sharederrs.APIError)
+	GetAccountData() (*struct{}, *sharederrs.APIError)
+	GetPairLastPrice() (float64, *sharederrs.APIError)
+	CancelPairOrder() *sharederrs.APIError
+	CancelPairOrders() *sharederrs.APIError
+	GetPairOpenOrders() ([]*struct{}, *sharederrs.APIError)
+	VerifyAPIKeys() *sharederrs.APIError
 }
