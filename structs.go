@@ -39,3 +39,10 @@ type AccountData struct {
 	CanTrade bool
 	Balances []Balance
 }
+
+//Order data
+type Order struct {
+	OrderID       int64
+	ClientOrderID string
+	Status        string
+}

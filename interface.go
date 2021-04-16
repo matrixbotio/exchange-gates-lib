@@ -8,10 +8,10 @@ import (
 type ExchangeInterface interface {
 	GetOrderData() (*TradeEventData, *sharederrs.APIError)
 	PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError)
-	GetAccountData() (*struct{}, *sharederrs.APIError)
+	GetAccountData() (*AccountData, *sharederrs.APIError)
 	GetPairLastPrice() (float64, *sharederrs.APIError)
 	CancelPairOrder() *sharederrs.APIError
 	CancelPairOrders() *sharederrs.APIError
-	GetPairOpenOrders() ([]*struct{}, *sharederrs.APIError)
+	GetPairOpenOrders() ([]*Order, *sharederrs.APIError)
 	VerifyAPIKeys() *sharederrs.APIError
 }
