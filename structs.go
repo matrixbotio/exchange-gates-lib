@@ -26,3 +26,16 @@ type CreateOrderResponse struct {
 	OrigQuantity  float64
 	Price         float64
 }
+
+//Balance - Trading pair balance
+type Balance struct {
+	Asset  string
+	Free   float64
+	Locked float64
+}
+
+//AccountData & balances
+type AccountData struct {
+	CanTrade bool
+	Balances []Balance
+}
