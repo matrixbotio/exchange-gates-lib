@@ -12,3 +12,8 @@ func newExchangeAdapter(name string, exchangeID int) *ExchangeAdapter {
 		Name:       name,
 	}
 }
+
+//ExchangeAdapters - map of all supported exchanges
+var ExchangeAdapters map[int]*ExchangeAdapter = map[int]*ExchangeAdapter{
+	1: NewBinanceSpotAdapter(),
+}
