@@ -11,9 +11,9 @@ type ExchangeInterface interface {
 	PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError)
 	GetAccountData() (*AccountData, *sharederrs.APIError)
 	GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError)
-	CancelPairOrder() *sharederrs.APIError
-	CancelPairOrders() *sharederrs.APIError
-	GetPairOpenOrders() ([]*Order, *sharederrs.APIError)
+	CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError
+	CancelPairOrders(pairSymbol string) *sharederrs.APIError
+	GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError)
 	VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError
 	GetPairs() ([]*ExchangePairData, *sharederrs.APIError)
 }

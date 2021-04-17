@@ -125,19 +125,48 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, *shar
 }
 
 //CancelPairOrder ..
-func (a *BinanceSpotAdapter) CancelPairOrder() *sharederrs.APIError {
+func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError {
 	//TODO
 	return nil
 }
 
-//CancelPairOrders ..
-func (a *BinanceSpotAdapter) CancelPairOrders() *sharederrs.APIError {
-	//TODO
+//CancelPairOrders - cancel pair all orders
+func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) *sharederrs.APIError {
+	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
+		Symbol(pairSymbol).Do(context.Background())
+	if clientErr != nil {
+		log.Println("failed to cancel all orders, " + clientErr.Error())
+		log.Println("let's try cancel orders manualy..")
+		//handle error
+		if strings.Contains(clientErr.Error(), "Unknown order sent") {
+			/*canceling all orders failed,
+			let's try to request a list of them and cancel them individually*/
+			orders, err := a.GetPairOpenOrders(pairSymbol)
+			if err != nil {
+				// =(
+				fmt.Println("[DEBUG] error while b.getOpenOrders(): " + err.Message)
+				return err
+			}
+			if len(orders) == 0 {
+				//orders already cancelled
+				return nil
+			}
+			for _, order := range orders {
+				err := a.CancelPairOrder(pairSymbol, order.OrderID)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		log.Println("[DEBUG] service error: " + clientErr.Error())
+		return sharederrs.ServiceReqFailedErr.SetMessage(clientErr.Error()).SetTrace()
+	}
 	return nil
 }
 
 //GetPairOpenOrders ..
-func (a *BinanceSpotAdapter) GetPairOpenOrders() ([]*Order, *sharederrs.APIError) {
+func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError) {
 	//TODO
 	return nil, nil
 }

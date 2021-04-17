@@ -36,12 +36,12 @@ func (a *ExchangeAdapter) GetPairLastPrice(pairSymbol string) (float64, *sharede
 }
 
 //CancelPairOrder ..
-func (a *ExchangeAdapter) CancelPairOrder() *sharederrs.APIError {
+func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError {
 	return nil
 }
 
 //CancelPairOrders ..
-func (a *ExchangeAdapter) CancelPairOrders() *sharederrs.APIError {
+func (a *ExchangeAdapter) CancelPairOrders(pairSymbol string) *sharederrs.APIError {
 	return nil
 }
 
@@ -51,7 +51,7 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*Trade
 }
 
 //GetPairOpenOrders ..
-func (a *ExchangeAdapter) GetPairOpenOrders() ([]*Order, *sharederrs.APIError) {
+func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError) {
 	//TODO
 	return nil, nil
 }
