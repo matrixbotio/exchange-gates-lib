@@ -123,9 +123,13 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, *shar
 	return price, nil
 }
 
-//CancelPairOrder ..
+//CancelPairOrder - cancel one exchange pair order by ID
 func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError {
-	//TODO
+	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+		OrderID(orderID).Do(context.Background())
+	if clientErr != nil {
+		return sharederrs.ServiceReqFailedErr.M(clientErr.Error()).SetTrace()
+	}
 	return nil
 }
 
