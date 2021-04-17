@@ -3,7 +3,6 @@ package matrixgates
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -83,12 +82,12 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, *sharederrs.APIErro
 		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
 		if convErr != nil {
 			balanceFree = 0
-			log.Println("failed to parse free balance: " + convErr.Error())
+			//log.Println("failed to parse free balance: " + convErr.Error())
 		}
 		balanceLocked, convErr := strconv.ParseFloat(binanceBalanceData.Locked, 64)
 		if convErr != nil {
 			balanceLocked = 0
-			log.Println("failed to parse locked balance: " + convErr.Error())
+			//log.Println("failed to parse locked balance: " + convErr.Error())
 		}
 		balances = append(balances, Balance{
 			Asset:  binanceBalanceData.Asset,
@@ -135,8 +134,8 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) *sharederrs.API
 	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
 		Symbol(pairSymbol).Do(context.Background())
 	if clientErr != nil {
-		log.Println("failed to cancel all orders, " + clientErr.Error())
-		log.Println("let's try cancel orders manualy..")
+		//log.Println("failed to cancel all orders, " + clientErr.Error())
+		//log.Println("let's try cancel orders manualy..")
 		//handle error
 		if strings.Contains(clientErr.Error(), "Unknown order sent") {
 			/*canceling all orders failed,
@@ -159,7 +158,7 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) *sharederrs.API
 			}
 			return nil
 		}
-		log.Println("[DEBUG] service error: " + clientErr.Error())
+		//log.Println("[DEBUG] service error: " + clientErr.Error())
 		return sharederrs.ServiceReqFailedErr.SetMessage(clientErr.Error()).SetTrace()
 	}
 	return nil
