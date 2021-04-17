@@ -17,7 +17,14 @@ type BinanceSpotAdapter struct {
 }
 
 func NewBinanceSpotAdapter() *ExchangeAdapter {
-	return newExchangeAdapter("Binance Spot", 1)
+	adapter := newExchangeAdapter("Binance Spot", 1)
+	return adapter
+}
+
+//Connect to exchange
+func (a *BinanceSpotAdapter) Connect() *sharederrs.APIError {
+	//TODO
+	return nil
 }
 
 //GetOrderData ..
@@ -83,8 +90,22 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders() ([]*struct{}, *sharederrs.APIEr
 }
 
 //VerifyAPIKeys ..
-func (a *BinanceSpotAdapter) VerifyAPIKeys() *sharederrs.APIError {
-	//TODO
+func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError {
+	accountService, err := a.binanceAPI.NewGetAccountService().Do(context.Background())
+	if err != nil {
+		return sharederrs.ServiceReqFailedErr.
+			SetMessage(err.Error()).SetTrace()
+	}
+	if !accountService.CanTrade {
+		return sharederrs.ServiceNoAccess.
+			SetMessage("Your API key does not have permission to trade, change its restrictions").SetTrace()
+	}
+
+	err = a.binanceAPI.NewPingService().Do(context.Background())
+	if err != nil {
+		return sharederrs.ServiceDisconnectedErr.
+			SetMessage("failed to connect to the trade, please try again later").SetTrace()
+	}
 	return nil
 }
 

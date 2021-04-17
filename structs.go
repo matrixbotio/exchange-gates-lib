@@ -66,3 +66,30 @@ type ExchangePairData struct {
 	AllowedSpot    bool    `json:"allowedSpot"`
 	InUse          bool    `json:"inUse"`
 }
+
+//APICredentialsType - API credentials type ^ↀᴥↀ^
+type APICredentialsType string
+
+//APIKeypair - data for authorization via public and private keys
+type APIKeypair struct {
+	Public string
+	Secret string
+}
+
+//APIPassword - password authentication
+type APIPassword string
+
+//APIEmail - email authentication
+type APIEmail string
+
+//APICredentialsTypeKeypair - public and private key pair
+var APICredentialsTypeKeypair APICredentialsType = "keypair"
+
+//APICredentials - data for authorization to the exchange API
+type APICredentials struct {
+	Type APICredentialsType
+
+	Keypair  APIKeypair
+	Password APIPassword
+	Email    APIEmail
+}
