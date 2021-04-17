@@ -14,4 +14,5 @@ type ExchangeInterface interface {
 	CancelPairOrders() *sharederrs.APIError
 	GetPairOpenOrders() ([]*Order, *sharederrs.APIError)
 	VerifyAPIKeys() *sharederrs.APIError
+	GetPairs() *sharederrs.APIError
 }
