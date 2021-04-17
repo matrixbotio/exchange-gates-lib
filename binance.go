@@ -13,7 +13,7 @@ type BinanceSpotAdapter struct {
 	ExchangeAdapter
 }
 
-var newBinanceSpotAdapter = newExchangeAdapter("Binance Spot", 1)
+var NewBinanceSpotAdapter = newExchangeAdapter("Binance Spot", 1)
 
 //GetOrderData ..
 func (a *BinanceSpotAdapter) GetOrderData() (*TradeEventData, *sharederrs.APIError) {
