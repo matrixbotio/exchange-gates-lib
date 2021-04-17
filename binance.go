@@ -3,6 +3,7 @@ package matrixgates
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -66,10 +67,37 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder) (*CreateOrderResponse, *
 	return nil, nil
 }
 
-//GetAccountData ..
+//GetAccountData - get account data ^ↀᴥↀ^
 func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, *sharederrs.APIError) {
-	//TODO
-	return nil, nil
+	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
+	if clientErr != nil {
+		return nil, sharederrs.DataInvalidErr.
+			M("failed to send request to trade, " + clientErr.Error()).SetTrace()
+	}
+	accountDataResult := AccountData{
+		CanTrade: binanceAccountData.CanTrade,
+	}
+	balances := []Balance{}
+	for _, binanceBalanceData := range binanceAccountData.Balances {
+		//convert strings to float64
+		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
+		if convErr != nil {
+			balanceFree = 0
+			log.Println("failed to parse free balance: " + convErr.Error())
+		}
+		balanceLocked, convErr := strconv.ParseFloat(binanceBalanceData.Locked, 64)
+		if convErr != nil {
+			balanceLocked = 0
+			log.Println("failed to parse locked balance: " + convErr.Error())
+		}
+		balances = append(balances, Balance{
+			Asset:  binanceBalanceData.Asset,
+			Free:   balanceFree,
+			Locked: balanceLocked,
+		})
+	}
+	accountDataResult.Balances = balances
+	return &accountDataResult, nil
 }
 
 //GetPairLastPrice - get pair last price ^ↀᴥↀ^
