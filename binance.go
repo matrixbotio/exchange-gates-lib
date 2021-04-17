@@ -60,7 +60,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder) (*CreateOrderResponse, *
 }
 
 //GetAccountData ..
-func (a *BinanceSpotAdapter) GetAccountData(order BotOrder) (*struct{}, *sharederrs.APIError) {
+func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, *sharederrs.APIError) {
 	//TODO
 	return nil, nil
 }
@@ -84,7 +84,7 @@ func (a *BinanceSpotAdapter) CancelPairOrders() *sharederrs.APIError {
 }
 
 //GetPairOpenOrders ..
-func (a *BinanceSpotAdapter) GetPairOpenOrders() ([]*struct{}, *sharederrs.APIError) {
+func (a *BinanceSpotAdapter) GetPairOpenOrders() ([]*Order, *sharederrs.APIError) {
 	//TODO
 	return nil, nil
 }
