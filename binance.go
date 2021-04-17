@@ -2,7 +2,9 @@ package matrixgates
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/adshao/go-binance/v2"
 	sharederrs "github.com/matrixbotio/shared-errors"
@@ -11,6 +13,7 @@ import (
 //BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
+	binanceAPI *binance.Client
 }
 
 func NewBinanceSpotAdapter() *ExchangeAdapter {
@@ -18,9 +21,29 @@ func NewBinanceSpotAdapter() *ExchangeAdapter {
 }
 
 //GetOrderData ..
-func (a *BinanceSpotAdapter) GetOrderData() (*TradeEventData, *sharederrs.APIError) {
-	//TODO
-	return nil, nil
+func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError) {
+	tradeData := TradeEventData{
+		OrderID: orderID,
+	}
+	//order status: NEW, PARTIALLY_FILLED, FILLED, CANCELED, PENDING_CANCEL, REJECTED, EXPIRED
+	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
+		OrderID(orderID).Do(context.Background())
+
+	if err != nil {
+		if strings.Contains(err.Error(), "Order does not exist") {
+			fmt.Println("[CHECK] order " + strconv.FormatInt(orderID, 10) + " doesn't exists")
+			tradeData.Status = "UNKNOWN"
+			return &tradeData, nil
+		}
+		return nil, sharederrs.ServiceReqFailedErr.SetMessage(err.Error()).SetTrace()
+	}
+	orderFilledQty, convErr := strconv.ParseFloat(orderResponse.ExecutedQuantity, 64)
+	if convErr != nil {
+		return nil, sharederrs.DataHandleErr.M("failed to parse order filled qty: " + convErr.Error()).SetTrace()
+	}
+	tradeData.OrderAwaitQty = orderFilledQty
+	tradeData.Status = string(orderResponse.Status)
+	return &tradeData, nil
 }
 
 //PlaceOrder ..
@@ -67,8 +90,7 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys() *sharederrs.APIError {
 
 //GetPairs get all Binance pairs
 func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIError) {
-	client := binance.NewClient("", "")
-	service := client.NewExchangeInfoService()
+	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
 		return nil, sharederrs.ServiceDisconnectedErr.
