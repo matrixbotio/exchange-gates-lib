@@ -16,15 +16,22 @@ type BinanceSpotAdapter struct {
 	binanceAPI *binance.Client
 }
 
+//NewBinanceSpotAdapter - create binance exchange adapter
 func NewBinanceSpotAdapter() *ExchangeAdapter {
 	adapter := newExchangeAdapter("Binance Spot", 1)
 	return adapter
 }
 
 //Connect to exchange
-func (a *BinanceSpotAdapter) Connect() *sharederrs.APIError {
-	//TODO
-	return nil
+func (a *BinanceSpotAdapter) Connect(credentials APICredentials) *sharederrs.APIError {
+	switch credentials.Type {
+	default:
+		return sharederrs.DataInvalidErr
+	case APICredentialsTypeKeypair:
+		a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
+		break
+	}
+	return a.ping()
 }
 
 //GetOrderData ..
@@ -89,6 +96,15 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders() ([]*Order, *sharederrs.APIError
 	return nil, nil
 }
 
+func (a *BinanceSpotAdapter) ping() *sharederrs.APIError {
+	err := a.binanceAPI.NewPingService().Do(context.Background())
+	if err != nil {
+		return sharederrs.ServiceDisconnectedErr.
+			SetMessage("failed to connect to the trade, please try again later").SetTrace()
+	}
+	return nil
+}
+
 //VerifyAPIKeys ..
 func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError {
 	accountService, err := a.binanceAPI.NewGetAccountService().Do(context.Background())
@@ -100,13 +116,7 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharede
 		return sharederrs.ServiceNoAccess.
 			SetMessage("Your API key does not have permission to trade, change its restrictions").SetTrace()
 	}
-
-	err = a.binanceAPI.NewPingService().Do(context.Background())
-	if err != nil {
-		return sharederrs.ServiceDisconnectedErr.
-			SetMessage("failed to connect to the trade, please try again later").SetTrace()
-	}
-	return nil
+	return a.ping()
 }
 
 //GetPairs get all Binance pairs
