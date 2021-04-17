@@ -10,7 +10,7 @@ type ExchangeInterface interface {
 	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError)
 	PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError)
 	GetAccountData() (*AccountData, *sharederrs.APIError)
-	GetPairLastPrice() (float64, *sharederrs.APIError)
+	GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError)
 	CancelPairOrder() *sharederrs.APIError
 	CancelPairOrders() *sharederrs.APIError
 	GetPairOpenOrders() ([]*Order, *sharederrs.APIError)

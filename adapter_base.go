@@ -31,7 +31,7 @@ func (a *ExchangeAdapter) GetAccountData() (*AccountData, *sharederrs.APIError) 
 }
 
 //GetPairLastPrice ..
-func (a *ExchangeAdapter) GetPairLastPrice() (float64, *sharederrs.APIError) {
+func (a *ExchangeAdapter) GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError) {
 	return 0, nil
 }
 

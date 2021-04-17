@@ -72,10 +72,28 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, *sharederrs.APIErro
 	return nil, nil
 }
 
-//GetPairLastPrice ..
-func (a *BinanceSpotAdapter) GetPairLastPrice() (float64, *sharederrs.APIError) {
-	//TODO
-	return 0, nil
+//GetPairLastPrice - get pair last price ^ↀᴥↀ^
+func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError) {
+	tickerService := a.binanceAPI.NewListPricesService()
+	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
+	if srvErr != nil {
+		return 0, sharederrs.ServiceReqFailedErr.
+			SetMessage("failed to request last price, " + srvErr.Error()).SetTrace()
+	}
+	//until just brute force. need to be done faster
+	var price float64 = 0
+	var parseErr error
+	for _, p := range prices {
+		if p.Symbol == pairSymbol {
+			price, parseErr = strconv.ParseFloat(p.Price, 64)
+			if parseErr != nil {
+				return 0, sharederrs.DataHandleErr.
+					M("failed to parse " + p.Price + " as float").SetTrace()
+			}
+			break
+		}
+	}
+	return price, nil
 }
 
 //CancelPairOrder ..
