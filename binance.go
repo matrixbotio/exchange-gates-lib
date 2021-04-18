@@ -60,10 +60,69 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Tr
 	return &tradeData, nil
 }
 
-//PlaceOrder ..
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError) {
-	//TODO
-	return nil, nil
+//PlaceOrder - place order on exchange
+func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError) {
+	var orderSide binance.SideType
+	{
+		//move this block to another location?
+		switch order.Type {
+		default:
+			return nil, sharederrs.DataInvalidErr.M("unknown strategy given for order").SetTrace()
+		case "buy":
+			orderSide = binance.SideTypeBuy
+			break
+		case "sell":
+			orderSide = binance.SideTypeSell
+		}
+	}
+
+	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
+	var quantityStr string = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
+	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
+	var rateStr string = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
+
+	//check lot size
+	if order.Qty < pairLimits.MinQty {
+		fmt.Print("pair min qty: ", pairLimits.MinQty, ", order qty: ")
+		fmt.Println(order.Qty)
+		return nil, sharederrs.BotOrderInvalidErr.
+			M("insufficient amount to open an order in this pair").SetTrace()
+	}
+	if order.Qty > pairLimits.MaxQty {
+		return nil, sharederrs.BotOrderInvalidErr.
+			M("too much amount to open an order in this pair").SetTrace()
+	}
+	if order.Price < pairLimits.MinPrice {
+		return nil, sharederrs.BotOrderInvalidErr.
+			M("insufficient price to open an order in this pair").SetTrace()
+	}
+
+	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
+		Side(orderSide).Type(binance.OrderTypeLimit).
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(quantityStr).
+		Price(rateStr).Do(context.Background())
+	if err != nil {
+		return nil, sharederrs.ServiceReqFailedErr.M("failed to create order, " + err.Error()).SetTrace()
+	}
+
+	//parse qty & price from order response
+	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
+	if convErr != nil {
+		return nil, sharederrs.DataHandleErr.
+			M("failed to parse order origQty, " + convErr.Error()).SetTrace()
+	}
+	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
+	if convErr != nil {
+		return nil, sharederrs.DataHandleErr.
+			M("failed to parse order price, " + convErr.Error()).SetTrace()
+	}
+
+	return &CreateOrderResponse{
+		OrderID:       orderRes.OrderID,
+		ClientOrderID: orderRes.ClientOrderID,
+		OrigQuantity:  orderResOrigQty,
+		Price:         orderResPrice,
+	}, nil
 }
 
 //GetAccountData - get account data ^ↀᴥↀ^

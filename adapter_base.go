@@ -20,8 +20,8 @@ func (a *ExchangeAdapter) Connect(credentials APICredentials) *sharederrs.APIErr
 	return nil
 }
 
-//PlaceOrder ..
-func (a *ExchangeAdapter) PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError) {
+//PlaceOrder - place order on exchange
+func (a *ExchangeAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError) {
 	return nil, nil
 }
 

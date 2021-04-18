@@ -8,7 +8,7 @@ import (
 type ExchangeInterface interface {
 	Connect(credentials APICredentials) *sharederrs.APIError
 	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError)
-	PlaceOrder(order BotOrder) (*CreateOrderResponse, *sharederrs.APIError)
+	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError)
 	GetAccountData() (*AccountData, *sharederrs.APIError)
 	GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError)
 	CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError
