@@ -17,9 +17,8 @@ type BinanceSpotAdapter struct {
 }
 
 //NewBinanceSpotAdapter - create binance exchange adapter
-func NewBinanceSpotAdapter() *ExchangeAdapter {
-	adapter := newExchangeAdapter("Binance Spot", 1)
-	return adapter
+func NewBinanceSpotAdapter() *BinanceSpotAdapter {
+	return &BinanceSpotAdapter{}
 }
 
 //Connect to exchange
