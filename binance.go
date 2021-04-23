@@ -337,8 +337,7 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 
 //GetMarketDataWorker - create new market data worker
 func (a *BinanceSpotAdapter) GetMarketDataWorker() IMarketDataWorker {
-	//TODO
-	return nil
+	return &MarketDataWorkerBinance{}
 }
 
 //MarketDataWorkerBinance - MarketDataWorker for binance

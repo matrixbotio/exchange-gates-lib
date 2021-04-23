@@ -7,7 +7,7 @@ type MarketDataWorker struct {
 	WsChannels *WorkerChannels
 }
 
-// WorkerChannels - channels to control the worker
+// WorkerChannels - channels container to control the worker
 type WorkerChannels struct {
 	WsBookDone chan struct{}
 	WsBookStop chan struct{}
