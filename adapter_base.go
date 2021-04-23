@@ -65,3 +65,8 @@ func (a *ExchangeAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIError)
 func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError {
 	return nil
 }
+
+//GetMarketDataWorker - create empty market data worker
+func (a *ExchangeAdapter) GetMarketDataWorker() IMarketDataWorker {
+	return nil
+}

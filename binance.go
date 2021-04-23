@@ -335,3 +335,41 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 	}
 	return pairs, nil
 }
+
+//GetMarketDataWorker - create new market data worker
+func (a *BinanceSpotAdapter) GetMarketDataWorker() IMarketDataWorker {
+	//TODO
+	return nil
+}
+
+//MarketDataWorkerBinance - MarketDataWorker for binance
+type MarketDataWorkerBinance struct {
+	MarketDataWorker
+}
+
+func newBinanceMarketDataWorker() *MarketDataWorkerBinance {
+	return &MarketDataWorkerBinance{}
+}
+
+//SubscribeToBookEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
+func (w *MarketDataWorkerBinance) SubscribeToBookEvents(
+	eventCallback func(event MDWBookEvent),
+	errorHandler func(err *sharederrs.APIError),
+) *sharederrs.APIError {
+	wsBookHandler := func(event *binance.WsBookTickerEvent) {
+		if event != nil {
+			wEvent := MDWBookEvent(*event)
+			eventCallback(wEvent)
+		}
+	}
+	wsErrHandler := func(err error) {
+		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
+	}
+	var openWsErr error
+	w.WsChannels = new(WorkerChannels)
+	w.WsChannels.WsBookDone, w.WsChannels.WsBookStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
+	if openWsErr != nil {
+		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
+	}
+	return nil
+}
