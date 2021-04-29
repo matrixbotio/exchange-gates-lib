@@ -337,26 +337,26 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 
 //GetMarketDataWorker - create new market data worker
 func (a *BinanceSpotAdapter) GetMarketDataWorker() IPriceWorker {
-	return &MarketDataWorkerBinance{}
+	return &PriceWorkerBinance{}
 }
 
-//MarketDataWorkerBinance - MarketDataWorker for binance
-type MarketDataWorkerBinance struct {
+//PriceWorkerBinance - MarketDataWorker for binance
+type PriceWorkerBinance struct {
 	PriceWorker
 }
 
-func newBinanceMarketDataWorker() *MarketDataWorkerBinance {
-	return &MarketDataWorkerBinance{}
+func newBinanceMarketDataWorker() *PriceWorkerBinance {
+	return &PriceWorkerBinance{}
 }
 
-//SubscribeToBookEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
-func (w *MarketDataWorkerBinance) SubscribeToBookEvents(
-	eventCallback func(event MDWBookEvent),
+//SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
+func (w *PriceWorkerBinance) SubscribeToPriceEvents(
+	eventCallback func(event PriceEvent),
 	errorHandler func(err *sharederrs.APIError),
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
-			wEvent := MDWBookEvent(*event)
+			wEvent := PriceEvent(*event)
 			eventCallback(wEvent)
 		}
 	}

@@ -15,14 +15,14 @@ type WorkerChannels struct {
 
 // IPriceWorker - MarketDataWorker interface
 type IPriceWorker interface {
-	SubscribeToBookEvents(
-		eventCallback func(event MDWBookEvent),
+	SubscribeToPriceEvents(
+		eventCallback func(event PriceEvent),
 		errorHandler func(err *sharederrs.APIError),
 	) *sharederrs.APIError
 }
 
-// MDWBookEvent - data on changes in trade data in the market
-type MDWBookEvent struct {
+// PriceEvent - data on changes in trade data in the market
+type PriceEvent struct {
 	UpdateID     int64  `json:"u"`
 	Symbol       string `json:"s"`
 	BestBidPrice string `json:"b"`
