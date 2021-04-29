@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"./workers"
 	"github.com/adshao/go-binance/v2"
 	sharederrs "github.com/matrixbotio/shared-errors"
 )
@@ -336,13 +337,13 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 }
 
 //GetMarketDataWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetMarketDataWorker() IPriceWorker {
+func (a *BinanceSpotAdapter) GetMarketDataWorker() workers.IPriceWorker {
 	return &PriceWorkerBinance{}
 }
 
 //PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
-	PriceWorker
+	workers.PriceWorker
 }
 
 func newBinanceMarketDataWorker() *PriceWorkerBinance {
@@ -351,12 +352,12 @@ func newBinanceMarketDataWorker() *PriceWorkerBinance {
 
 //SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
-	eventCallback func(event PriceEvent),
+	eventCallback func(event workers.PriceEvent),
 	errorHandler func(err *sharederrs.APIError),
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
-			wEvent := PriceEvent(*event)
+			wEvent := workers.PriceEvent(*event)
 			eventCallback(wEvent)
 		}
 	}
@@ -364,7 +365,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
 	}
 	var openWsErr error
-	w.WsChannels = new(WorkerChannels)
+	w.WsChannels = new(workers.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
 	if openWsErr != nil {
 		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())

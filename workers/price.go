@@ -1,4 +1,4 @@
-package matrixgates
+package workers
 
 import sharederrs "github.com/matrixbotio/shared-errors"
 

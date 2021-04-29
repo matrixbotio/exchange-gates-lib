@@ -1,6 +1,7 @@
 package matrixgates
 
 import (
+	"./workers"
 	sharederrs "github.com/matrixbotio/shared-errors"
 )
 
@@ -16,7 +17,7 @@ type ExchangeInterface interface {
 	GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError)
 	VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError
 	GetPairs() ([]*ExchangePairData, *sharederrs.APIError)
-	GetMarketDataWorker() IPriceWorker
+	GetMarketDataWorker() workers.IPriceWorker
 }
 
 //ExchangeAdapters - map of all supported exchanges

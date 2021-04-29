@@ -1,6 +1,9 @@
 package matrixgates
 
-import sharederrs "github.com/matrixbotio/shared-errors"
+import (
+	"./workers"
+	sharederrs "github.com/matrixbotio/shared-errors"
+)
 
 // ExchangeAdapter - abstract universal exchange adapter
 type ExchangeAdapter struct {
@@ -69,6 +72,6 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs
 }
 
 // GetMarketDataWorker - create empty market data worker
-func (a *ExchangeAdapter) GetMarketDataWorker() IPriceWorker {
+func (a *ExchangeAdapter) GetMarketDataWorker() workers.IPriceWorker {
 	return nil
 }
