@@ -365,7 +365,7 @@ func (w *MarketDataWorkerBinance) SubscribeToBookEvents(
 	}
 	var openWsErr error
 	w.WsChannels = new(WorkerChannels)
-	w.WsChannels.WsBookDone, w.WsChannels.WsBookStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
 	if openWsErr != nil {
 		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
 	}
