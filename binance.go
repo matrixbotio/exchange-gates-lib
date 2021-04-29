@@ -336,13 +336,13 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 }
 
 //GetMarketDataWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetMarketDataWorker() IMarketDataWorker {
+func (a *BinanceSpotAdapter) GetMarketDataWorker() IPriceWorker {
 	return &MarketDataWorkerBinance{}
 }
 
 //MarketDataWorkerBinance - MarketDataWorker for binance
 type MarketDataWorkerBinance struct {
-	MarketDataWorker
+	PriceWorker
 }
 
 func newBinanceMarketDataWorker() *MarketDataWorkerBinance {

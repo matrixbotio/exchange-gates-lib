@@ -2,8 +2,8 @@ package matrixgates
 
 import sharederrs "github.com/matrixbotio/shared-errors"
 
-// MarketDataWorker - a worker interface based on data from a specific market, such as quotes
-type MarketDataWorker struct {
+// PriceWorker - a worker interface based on data from a specific market, such as quotes
+type PriceWorker struct {
 	WsChannels *WorkerChannels
 }
 
@@ -13,8 +13,8 @@ type WorkerChannels struct {
 	WsBookStop chan struct{}
 }
 
-// IMarketDataWorker - MarketDataWorker interface
-type IMarketDataWorker interface {
+// IPriceWorker - MarketDataWorker interface
+type IPriceWorker interface {
 	SubscribeToBookEvents(
 		eventCallback func(event MDWBookEvent),
 		errorHandler func(err *sharederrs.APIError),
@@ -30,5 +30,3 @@ type MDWBookEvent struct {
 	BestAskPrice string `json:"a"`
 	BestAskQty   string `json:"A"`
 }
-
-// Placeholders
