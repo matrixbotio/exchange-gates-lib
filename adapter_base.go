@@ -1,8 +1,11 @@
 package matrixgates
 
-import sharederrs "github.com/matrixbotio/shared-errors"
+import (
+	"./workers"
+	sharederrs "github.com/matrixbotio/shared-errors"
+)
 
-//ExchangeAdapter - abstract universal exchange adapter
+// ExchangeAdapter - abstract universal exchange adapter
 type ExchangeAdapter struct {
 	ExchangeID int
 	Name       string
@@ -15,58 +18,65 @@ func newExchangeAdapter(name string, exchangeID int) *ExchangeAdapter {
 	}
 }
 
-//Connect to exchange
+// Placeholders
+
+// Connect to exchange
 func (a *ExchangeAdapter) Connect(credentials APICredentials) *sharederrs.APIError {
 	return nil
 }
 
-//PlaceOrder - place order on exchange
+// PlaceOrder - place order on exchange
 func (a *ExchangeAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError) {
 	return nil, nil
 }
 
-//GetAccountData ..
+// GetAccountData ..
 func (a *ExchangeAdapter) GetAccountData() (*AccountData, *sharederrs.APIError) {
 	return nil, nil
 }
 
-//GetPairLastPrice ..
+// GetPairLastPrice ..
 func (a *ExchangeAdapter) GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError) {
 	return 0, nil
 }
 
-//CancelPairOrder ..
+// CancelPairOrder ..
 func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError {
 	return nil
 }
 
-//CancelPairOrders ..
+// CancelPairOrders ..
 func (a *ExchangeAdapter) CancelPairOrders(pairSymbol string) *sharederrs.APIError {
 	return nil
 }
 
-//GetOrderData ..
+// GetOrderData ..
 func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError) {
 	return nil, nil
 }
 
-//GetPairOpenOrders ..
+// GetPairOpenOrders ..
 func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError) {
-	//TODO
+	// TODO
 	return nil, nil
 }
 
-//GetPairs get all Binance pairs
+// GetPairs get all Binance pairs
 func (a *ExchangeAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIError) {
 	return nil, nil
 }
 
-//VerifyAPIKeys ..
+// VerifyAPIKeys ..
 func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError {
 	return nil
 }
 
-//GetMarketDataWorker - create empty market data worker
-func (a *ExchangeAdapter) GetMarketDataWorker() IMarketDataWorker {
+// GetPriceWorker - create empty market data worker
+func (a *ExchangeAdapter) GetPriceWorker() workers.IPriceWorker {
+	return nil
+}
+
+// GetCandleWorker - create empty market candle worker
+func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
 	return nil
 }

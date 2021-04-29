@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"./workers"
 	"github.com/adshao/go-binance/v2"
 	sharederrs "github.com/matrixbotio/shared-errors"
 )
@@ -335,28 +336,42 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 	return pairs, nil
 }
 
-//GetMarketDataWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetMarketDataWorker() IMarketDataWorker {
-	return &MarketDataWorkerBinance{}
+/*
+                    _
+                   | |
+__      _____  _ __| | _____ _ __ ___
+\ \ /\ / / _ \| '__| |/ / _ \ '__/ __|
+ \ V  V / (_) | |  |   <  __/ |  \__ \
+  \_/\_/ \___/|_|  |_|\_\___|_|  |___/
+
+*/
+
+//PriceWorkerBinance - MarketDataWorker for binance
+type PriceWorkerBinance struct {
+	workers.PriceWorker
 }
 
-//MarketDataWorkerBinance - MarketDataWorker for binance
-type MarketDataWorkerBinance struct {
-	MarketDataWorker
+//GetPriceWorker - create new market data worker
+func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
+	return &PriceWorkerBinance{}
 }
 
-func newBinanceMarketDataWorker() *MarketDataWorkerBinance {
-	return &MarketDataWorkerBinance{}
+func newBinancePriceWorker() *PriceWorkerBinance {
+	return &PriceWorkerBinance{}
 }
 
-//SubscribeToBookEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
-func (w *MarketDataWorkerBinance) SubscribeToBookEvents(
-	eventCallback func(event MDWBookEvent),
+//SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
+func (w *PriceWorkerBinance) SubscribeToPriceEvents(
+	eventCallback func(event workers.PriceEvent),
 	errorHandler func(err *sharederrs.APIError),
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
-			wEvent := MDWBookEvent(*event)
+			wEvent := workers.PriceEvent{
+				Symbol: event.Symbol,
+				Ask:    event.BestAskPrice,
+				Bid:    event.BestBidPrice,
+			}
 			eventCallback(wEvent)
 		}
 	}
@@ -364,8 +379,63 @@ func (w *MarketDataWorkerBinance) SubscribeToBookEvents(
 		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
 	}
 	var openWsErr error
-	w.WsChannels = new(WorkerChannels)
-	w.WsChannels.WsBookDone, w.WsChannels.WsBookStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
+	w.WsChannels = new(workers.WorkerChannels)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
+	if openWsErr != nil {
+		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
+	}
+	return nil
+}
+
+//CandleWorkerBinance - MarketDataWorker for binance
+type CandleWorkerBinance struct {
+	workers.CandleWorker
+}
+
+//GetCandleWorker - create new market candle worker
+func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
+	return &CandleWorkerBinance{}
+}
+
+func newBinanceCandleWorker() *CandleWorkerBinance {
+	return &CandleWorkerBinance{}
+}
+
+//SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
+func (w *CandleWorkerBinance) SubscribeToCandleEvents(
+	pairSymbols []string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err *sharederrs.APIError),
+) *sharederrs.APIError {
+	timeInterval := "1m"
+	symbolIntervalsMap := make(map[string]string)
+	for _, symbol := range pairSymbols {
+		symbolIntervalsMap[symbol] = timeInterval
+	}
+
+	wsCandleHandler := func(event *binance.WsKlineEvent) {
+		if event != nil {
+			wEvent := workers.CandleEvent{
+				Symbol: event.Symbol,
+				Candle: workers.CandleData{
+					StartTime: event.Kline.StartTime,
+					EndTime:   event.Kline.EndTime,
+					Interval:  event.Kline.Interval,
+					Open:      event.Kline.Open,
+					Close:     event.Kline.Close,
+					High:      event.Kline.High,
+					Low:       event.Kline.Low,
+				},
+			}
+			eventCallback(wEvent)
+		}
+	}
+	wsErrHandler := func(err error) {
+		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
+	}
+	var openWsErr error
+	w.WsChannels = new(workers.WorkerChannels)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(symbolIntervalsMap, wsCandleHandler, wsErrHandler)
 	if openWsErr != nil {
 		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
 	}
