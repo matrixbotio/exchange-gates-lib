@@ -10,7 +10,7 @@ type CandleWorker struct {
 // ICandleWorker - interface for CandleWorker
 type ICandleWorker interface {
 	SubscribeToCandleEvents(
-		pairs []string,
+		pairSymbols []string,
 		eventCallback func(event CandleEvent),
 		errorHandler func(err *sharederrs.APIError),
 	) *sharederrs.APIError
@@ -18,7 +18,7 @@ type ICandleWorker interface {
 
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
-	Event  string     `json:"e"`
+	//Event  string     `json:"e"`
 	Symbol string     `json:"s"`
 	Candle CandleData `json:"k"`
 }

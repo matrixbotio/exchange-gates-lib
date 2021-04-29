@@ -7,6 +7,7 @@ import (
 
 //ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
+	// Methods
 	Connect(credentials APICredentials) *sharederrs.APIError
 	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError)
 	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError)
@@ -17,7 +18,9 @@ type ExchangeInterface interface {
 	GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError)
 	VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError
 	GetPairs() ([]*ExchangePairData, *sharederrs.APIError)
+	// Workers
 	GetPriceWorker() workers.IPriceWorker
+	GetCandleWorker() workers.ICandleWorker
 }
 
 //ExchangeAdapters - map of all supported exchanges

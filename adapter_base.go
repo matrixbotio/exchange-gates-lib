@@ -75,3 +75,8 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs
 func (a *ExchangeAdapter) GetPriceWorker() workers.IPriceWorker {
 	return nil
 }
+
+// GetCandleWorker - create empty market candle worker
+func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
+	return nil
+}

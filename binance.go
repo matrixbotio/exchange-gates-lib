@@ -346,17 +346,17 @@ __      _____  _ __| | _____ _ __ ___
 
 */
 
-//GetPriceWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
-	return &PriceWorkerBinance{}
-}
-
 //PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
 	workers.PriceWorker
 }
 
-func newBinanceMarketDataWorker() *PriceWorkerBinance {
+//GetPriceWorker - create new market data worker
+func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
+	return &PriceWorkerBinance{}
+}
+
+func newBinancePriceWorker() *PriceWorkerBinance {
 	return &PriceWorkerBinance{}
 }
 
@@ -367,7 +367,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
-			wEvent := workers.PriceEvent(*event)
+			wEvent := workers.PriceEvent(*event) // TODO: copy fields instead convert
 			eventCallback(wEvent)
 		}
 	}
@@ -375,8 +375,63 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
 	}
 	var openWsErr error
-	w.WsChannels = new(workers.WorkerChannels) //TODO: copy fields instead convert
+	w.WsChannels = new(workers.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
+	if openWsErr != nil {
+		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
+	}
+	return nil
+}
+
+//CandleWorkerBinance - MarketDataWorker for binance
+type CandleWorkerBinance struct {
+	workers.CandleWorker
+}
+
+//GetCandleWorker - create new market candle worker
+func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
+	return &CandleWorkerBinance{}
+}
+
+func newBinanceCandleWorker() *CandleWorkerBinance {
+	return &CandleWorkerBinance{}
+}
+
+//SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
+func (w *CandleWorkerBinance) SubscribeToCandleEvents(
+	pairSymbols []string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err *sharederrs.APIError),
+) *sharederrs.APIError {
+	timeInterval := "1m"
+	symbolIntervalsMap := make(map[string]string)
+	for _, symbol := range pairSymbols {
+		symbolIntervalsMap[symbol] = timeInterval
+	}
+
+	wsCandleHandler := func(event *binance.WsKlineEvent) {
+		if event != nil {
+			wEvent := workers.CandleEvent{
+				Symbol: event.Symbol,
+				Candle: workers.CandleData{
+					StartTime: event.Kline.StartTime,
+					EndTime:   event.Kline.EndTime,
+					Interval:  event.Kline.Interval,
+					Open:      event.Kline.Open,
+					Close:     event.Kline.Close,
+					High:      event.Kline.High,
+					Low:       event.Kline.Low,
+				},
+			}
+			eventCallback(wEvent)
+		}
+	}
+	wsErrHandler := func(err error) {
+		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
+	}
+	var openWsErr error
+	w.WsChannels = new(workers.WorkerChannels)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(symbolIntervalsMap, wsCandleHandler, wsErrHandler)
 	if openWsErr != nil {
 		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())
 	}
