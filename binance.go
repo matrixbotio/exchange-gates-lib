@@ -365,7 +365,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		errorHandler(sharederrs.ServiceReqFailedErr.M(err.Error()))
 	}
 	var openWsErr error
-	w.WsChannels = new(workers.WorkerChannels)
+	w.WsChannels = new(workers.WorkerChannels) //TODO: copy fields instead convert
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
 	if openWsErr != nil {
 		return sharederrs.ServiceReqFailedErr.M(openWsErr.Error())

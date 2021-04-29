@@ -7,13 +7,7 @@ type PriceWorker struct {
 	WsChannels *WorkerChannels
 }
 
-// WorkerChannels - channels container to control the worker
-type WorkerChannels struct {
-	WsDone chan struct{}
-	WsStop chan struct{}
-}
-
-// IPriceWorker - MarketDataWorker interface
+// IPriceWorker - interface for PriceWorker
 type IPriceWorker interface {
 	SubscribeToPriceEvents(
 		eventCallback func(event PriceEvent),
