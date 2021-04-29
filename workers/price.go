@@ -17,10 +17,10 @@ type IPriceWorker interface {
 
 // PriceEvent - data on changes in trade data in the market
 type PriceEvent struct {
-	UpdateID     int64  `json:"u"`
-	Symbol       string `json:"s"`
-	BestBidPrice string `json:"b"`
-	BestBidQty   string `json:"B"`
-	BestAskPrice string `json:"a"`
-	BestAskQty   string `json:"A"`
+	Symbol string `json:"s"`
+	Ask    string `json:"a"`
+	Bid    string `json:"b"`
+
+	//BestBidQty   string `json:"B"`
+	//BestAskQty   string `json:"A"`
 }

@@ -367,7 +367,11 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
-			wEvent := workers.PriceEvent(*event) // TODO: copy fields instead convert
+			wEvent := workers.PriceEvent{
+				Symbol: event.Symbol,
+				Ask:    event.BestAskPrice,
+				Bid:    event.BestBidPrice,
+			}
 			eventCallback(wEvent)
 		}
 	}
