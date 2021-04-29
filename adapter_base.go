@@ -1,7 +1,7 @@
 package matrixgates
 
 import (
-	"./workers"
+	"github.com/matrixbotio/exchange-gates/workers"
 	sharederrs "github.com/matrixbotio/shared-errors"
 )
 
