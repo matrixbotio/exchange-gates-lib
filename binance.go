@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"./workers"
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates/workers"
 	sharederrs "github.com/matrixbotio/shared-errors"
 )
 
