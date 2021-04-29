@@ -71,7 +71,7 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) *sharederrs
 	return nil
 }
 
-// GetMarketDataWorker - create empty market data worker
-func (a *ExchangeAdapter) GetMarketDataWorker() workers.IPriceWorker {
+// GetPriceWorker - create empty market data worker
+func (a *ExchangeAdapter) GetPriceWorker() workers.IPriceWorker {
 	return nil
 }

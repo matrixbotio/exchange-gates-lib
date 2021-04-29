@@ -336,8 +336,18 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, *sharederrs.APIErr
 	return pairs, nil
 }
 
-//GetMarketDataWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetMarketDataWorker() workers.IPriceWorker {
+/*
+                    _
+                   | |
+__      _____  _ __| | _____ _ __ ___
+\ \ /\ / / _ \| '__| |/ / _ \ '__/ __|
+ \ V  V / (_) | |  |   <  __/ |  \__ \
+  \_/\_/ \___/|_|  |_|\_\___|_|  |___/
+
+*/
+
+//GetPriceWorker - create new market data worker
+func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
 	return &PriceWorkerBinance{}
 }
 
