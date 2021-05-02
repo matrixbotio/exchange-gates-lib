@@ -32,5 +32,6 @@ type CandleData struct {
 	Close     string `json:"c"`
 	High      string `json:"h"`
 	Low       string `json:"l"`
+	Volume    string `json:"v"`
 	//IsFinal              bool   `json:"x"`
 }
