@@ -370,7 +370,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		if event != nil {
 			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
 			if convErr != nil {
-				// ignore event. TOQ?
+				// ignore event
 				log.Println(convErr)
 				return
 			}
@@ -428,27 +428,24 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 
 	wsCandleHandler := func(event *binance.WsKlineEvent) {
 		if event != nil {
-			eventKOpen, err1 := strconv.ParseFloat(event.Kline.Open, 64)
-			eventKClose, err2 := strconv.ParseFloat(event.Kline.Close, 64)
-			eventKHigh, err3 := strconv.ParseFloat(event.Kline.High, 64)
-			eventKLow, err4 := strconv.ParseFloat(event.Kline.Low, 64)
-			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
-				//ignore event. TOQ?
-				return
-			}
-
 			wEvent := workers.CandleEvent{
 				Symbol: event.Symbol,
 				Candle: workers.CandleData{
 					StartTime: event.Kline.StartTime,
 					EndTime:   event.Kline.EndTime,
 					Interval:  event.Kline.Interval,
-					Open:      eventKOpen,
-					Close:     eventKClose,
-					High:      eventKHigh,
-					Low:       eventKLow,
 				},
 			}
+
+			errs := make([]error, 4)
+			wEvent.Candle.Open, errs[0] = strconv.ParseFloat(event.Kline.Open, 64)
+			wEvent.Candle.Close, errs[1] = strconv.ParseFloat(event.Kline.Close, 64)
+			wEvent.Candle.High, errs[2] = strconv.ParseFloat(event.Kline.High, 64)
+			wEvent.Candle.Low, errs[3] = strconv.ParseFloat(event.Kline.Low, 64)
+			if LogNotNilError(errs) {
+				return
+			}
+
 			eventCallback(wEvent)
 		}
 	}
