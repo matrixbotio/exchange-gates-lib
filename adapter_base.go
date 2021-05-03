@@ -9,8 +9,10 @@ import (
 type ExchangeAdapter struct {
 	ExchangeID int
 	Name       string
+	Tag        string
 }
 
+// deprecated
 func newExchangeAdapter(name string, exchangeID int) *ExchangeAdapter {
 	return &ExchangeAdapter{
 		ExchangeID: exchangeID,
