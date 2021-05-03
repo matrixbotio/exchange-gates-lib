@@ -25,13 +25,13 @@ type CandleEvent struct {
 
 // CandleData - trading candle
 type CandleData struct {
-	StartTime int64  `json:"t"`
-	EndTime   int64  `json:"T"`
-	Interval  string `json:"i"`
-	Open      string `json:"o"`
-	Close     string `json:"c"`
-	High      string `json:"h"`
-	Low       string `json:"l"`
-	Volume    string `json:"v"`
+	StartTime int64   `json:"t"`
+	EndTime   int64   `json:"T"`
+	Interval  string  `json:"i"`
+	Open      float64 `json:"o"`
+	Close     float64 `json:"c"`
+	High      float64 `json:"h"`
+	Low       float64 `json:"l"`
+	Volume    float64 `json:"v"`
 	//IsFinal              bool   `json:"x"`
 }

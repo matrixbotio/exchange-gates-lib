@@ -425,16 +425,25 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 
 	wsCandleHandler := func(event *binance.WsKlineEvent) {
 		if event != nil {
+			eventKOpen, err1 := strconv.ParseFloat(event.Kline.Open, 64)
+			eventKClose, err2 := strconv.ParseFloat(event.Kline.Close, 64)
+			eventKHigh, err3 := strconv.ParseFloat(event.Kline.High, 64)
+			eventKLow, err4 := strconv.ParseFloat(event.Kline.Low, 64)
+			if err1 != nil || err2 != nil || err3 != nil || err4 != nil {
+				//ignore event. TOQ?
+				return
+			}
+
 			wEvent := workers.CandleEvent{
 				Symbol: event.Symbol,
 				Candle: workers.CandleData{
 					StartTime: event.Kline.StartTime,
 					EndTime:   event.Kline.EndTime,
 					Interval:  event.Kline.Interval,
-					Open:      event.Kline.Open,
-					Close:     event.Kline.Close,
-					High:      event.Kline.High,
-					Low:       event.Kline.Low,
+					Open:      eventKOpen,
+					Close:     eventKClose,
+					High:      eventKHigh,
+					Low:       eventKLow,
 				},
 			}
 			eventCallback(wEvent)
