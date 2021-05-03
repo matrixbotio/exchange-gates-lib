@@ -367,10 +367,20 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
+			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
+			if convErr != nil {
+				// ignore event. TOQ?
+				return
+			}
+			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
+			if convErr != nil {
+				// ignore event
+				return
+			}
 			wEvent := workers.PriceEvent{
 				Symbol: event.Symbol,
-				Ask:    event.BestAskPrice,
-				Bid:    event.BestBidPrice,
+				Ask:    eventAsk,
+				Bid:    eventBid,
 			}
 			eventCallback(wEvent)
 		}
