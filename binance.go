@@ -3,6 +3,7 @@ package matrixgates
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -372,10 +373,22 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 ) *sharederrs.APIError {
 	wsBookHandler := func(event *binance.WsBookTickerEvent) {
 		if event != nil {
+			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
+			if convErr != nil {
+				// ignore event
+				log.Println(convErr)
+				return
+			}
+			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
+			if convErr != nil {
+				// ignore event
+				log.Println(convErr)
+				return
+			}
 			wEvent := workers.PriceEvent{
 				Symbol: event.Symbol,
-				Ask:    event.BestAskPrice,
-				Bid:    event.BestBidPrice,
+				Ask:    eventAsk,
+				Bid:    eventBid,
 			}
 			eventCallback(wEvent)
 		}
@@ -426,12 +439,18 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 					StartTime: event.Kline.StartTime,
 					EndTime:   event.Kline.EndTime,
 					Interval:  event.Kline.Interval,
-					Open:      event.Kline.Open,
-					Close:     event.Kline.Close,
-					High:      event.Kline.High,
-					Low:       event.Kline.Low,
 				},
 			}
+
+			errs := make([]error, 4)
+			wEvent.Candle.Open, errs[0] = strconv.ParseFloat(event.Kline.Open, 64)
+			wEvent.Candle.Close, errs[1] = strconv.ParseFloat(event.Kline.Close, 64)
+			wEvent.Candle.High, errs[2] = strconv.ParseFloat(event.Kline.High, 64)
+			wEvent.Candle.Low, errs[3] = strconv.ParseFloat(event.Kline.Low, 64)
+			if LogNotNilError(errs) {
+				return
+			}
+
 			eventCallback(wEvent)
 		}
 	}
