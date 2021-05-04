@@ -4,7 +4,8 @@ import sharederrs "github.com/matrixbotio/shared-errors"
 
 // PriceWorker - a worker interface based on data from a specific market, such as quotes
 type PriceWorker struct {
-	WsChannels *WorkerChannels
+	ExchangeTag string
+	WsChannels  *WorkerChannels
 }
 
 // IPriceWorker - interface for PriceWorker

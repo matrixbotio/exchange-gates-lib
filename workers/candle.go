@@ -1,10 +1,13 @@
 package workers
 
-import sharederrs "github.com/matrixbotio/shared-errors"
+import (
+	sharederrs "github.com/matrixbotio/shared-errors"
+)
 
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
-	WsChannels *WorkerChannels
+	ExchangeTag string
+	WsChannels  *WorkerChannels
 }
 
 // ICandleWorker - interface for CandleWorker

@@ -21,6 +21,7 @@ type BinanceSpotAdapter struct {
 func NewBinanceSpotAdapter() *BinanceSpotAdapter {
 	a := BinanceSpotAdapter{}
 	a.Name = "Binance Spot"
+	a.Tag = "binance-spot"
 	return &a
 }
 
@@ -355,7 +356,9 @@ type PriceWorkerBinance struct {
 
 //GetPriceWorker - create new market data worker
 func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
-	return &PriceWorkerBinance{}
+	w := PriceWorkerBinance{}
+	w.PriceWorker.ExchangeTag = a.Tag
+	return &w
 }
 
 func newBinancePriceWorker() *PriceWorkerBinance {
