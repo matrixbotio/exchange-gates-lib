@@ -1,0 +1,43 @@
+name: Review assigning
+
+on:
+  workflow_run:
+    workflows:
+      - Test
+    types:
+      - completed
+  pull_request_review:
+
+jobs:
+  reviews:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'failure' }}
+    steps:
+
+      - name: Get GitHub organization name
+        id: org
+        run: |
+          IFS=/ read -a org_repo <<< "$GITHUB_REPOSITORY"
+          echo ::set-output name=org::${org_repo[0]}
+
+      - name: Download review scheme
+        uses: octokit/request-action@v2.x
+        id: scheme
+        with:
+          route: GET /repos/${{ steps.org.outputs.org }}/wiki/contents/review-scheme.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_CI_TOKEN }}
+
+      - name: Get raw review scheme file
+        run: |
+          mkdir -p /home/runner/work/_temp/_github_home
+          cat - <<EOF | base64 -d > /home/runner/work/_temp/_github_home/review-scheme.yml
+          ${{ fromJson(steps.scheme.outputs.data).content }}
+          EOF
+
+      - name: Set reviewers or merge
+        uses: KaMeHb-UA/auto-review-action@v3
+        with:
+          scheme-file: /github/home/review-scheme.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_CI_TOKEN }}
