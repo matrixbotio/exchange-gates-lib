@@ -33,7 +33,6 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) *sharederrs.API
 		return sharederrs.DataInvalidErr
 	case APICredentialsTypeKeypair:
 		a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
-		break
 	}
 	return a.ping()
 }
@@ -74,7 +73,6 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 			return nil, sharederrs.DataInvalidErr.M("unknown strategy given for order").SetTrace()
 		case "buy":
 			orderSide = binance.SideTypeBuy
-			break
 		case "sell":
 			orderSide = binance.SideTypeSell
 		}
@@ -362,10 +360,6 @@ func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
 	return &w
 }
 
-func newBinancePriceWorker() *PriceWorkerBinance {
-	return &PriceWorkerBinance{}
-}
-
 //SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	eventCallback func(event workers.PriceEvent),
@@ -412,10 +406,6 @@ type CandleWorkerBinance struct {
 
 //GetCandleWorker - create new market candle worker
 func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
-	return &CandleWorkerBinance{}
-}
-
-func newBinanceCandleWorker() *CandleWorkerBinance {
 	return &CandleWorkerBinance{}
 }
 
