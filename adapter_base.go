@@ -12,14 +12,6 @@ type ExchangeAdapter struct {
 	Tag        string
 }
 
-// deprecated
-func newExchangeAdapter(name string, exchangeID int) *ExchangeAdapter {
-	return &ExchangeAdapter{
-		ExchangeID: exchangeID,
-		Name:       name,
-	}
-}
-
 // Placeholders
 
 // Connect to exchange
