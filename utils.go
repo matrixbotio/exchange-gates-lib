@@ -3,6 +3,8 @@ package matrixgates
 import (
 	"log"
 	"math"
+
+	"github.com/go-stack/stack"
 )
 
 //GetFloatPrecision returns the number of decimal places in a float
@@ -19,4 +21,13 @@ func LogNotNilError(errs []error) bool {
 		}
 	}
 	return false
+}
+
+// GetTrace - get stack string
+func GetTrace() string {
+	stackTrace := stack.Trace()
+	if stackTrace == nil || len(stackTrace) == 0 {
+		return ""
+	}
+	return stack.Trace().TrimRuntime().String()
 }
