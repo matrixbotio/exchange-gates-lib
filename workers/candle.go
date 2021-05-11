@@ -1,9 +1,5 @@
 package workers
 
-import (
-	sharederrs "github.com/matrixbotio/shared-errors"
-)
-
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
 	ExchangeTag string
@@ -15,8 +11,8 @@ type ICandleWorker interface {
 	SubscribeToCandleEvents(
 		pairSymbols []string,
 		eventCallback func(event CandleEvent),
-		errorHandler func(err *sharederrs.APIError),
-	) *sharederrs.APIError
+		errorHandler func(err error),
+	) error
 }
 
 // CandleEvent - changes in trading candles for a specific pair

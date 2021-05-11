@@ -2,22 +2,21 @@ package matrixgates
 
 import (
 	"github.com/matrixbotio/exchange-gates/workers"
-	sharederrs "github.com/matrixbotio/shared-errors"
 )
 
 //ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
 	// Methods
-	Connect(credentials APICredentials) *sharederrs.APIError
-	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, *sharederrs.APIError)
-	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *sharederrs.APIError)
-	GetAccountData() (*AccountData, *sharederrs.APIError)
-	GetPairLastPrice(pairSymbol string) (float64, *sharederrs.APIError)
-	CancelPairOrder(pairSymbol string, orderID int64) *sharederrs.APIError
-	CancelPairOrders(pairSymbol string) *sharederrs.APIError
-	GetPairOpenOrders(pairSymbol string) ([]*Order, *sharederrs.APIError)
-	VerifyAPIKeys(keyPublic, keySecret string) *sharederrs.APIError
-	GetPairs() ([]*ExchangePairData, *sharederrs.APIError)
+	Connect(credentials APICredentials) error
+	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error)
+	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error)
+	GetAccountData() (*AccountData, error)
+	GetPairLastPrice(pairSymbol string) (float64, error)
+	CancelPairOrder(pairSymbol string, orderID int64) error
+	CancelPairOrders(pairSymbol string) error
+	GetPairOpenOrders(pairSymbol string) ([]*Order, error)
+	VerifyAPIKeys(keyPublic, keySecret string) error
+	GetPairs() ([]*ExchangePairData, error)
 	// Workers
 	GetPriceWorker() workers.IPriceWorker
 	GetCandleWorker() workers.ICandleWorker

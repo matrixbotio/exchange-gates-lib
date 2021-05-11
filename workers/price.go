@@ -1,7 +1,5 @@
 package workers
 
-import sharederrs "github.com/matrixbotio/shared-errors"
-
 // PriceWorker - a worker interface based on data from a specific market, such as quotes
 type PriceWorker struct {
 	ExchangeTag string
@@ -12,8 +10,8 @@ type PriceWorker struct {
 type IPriceWorker interface {
 	SubscribeToPriceEvents(
 		eventCallback func(event PriceEvent),
-		errorHandler func(err *sharederrs.APIError),
-	) *sharederrs.APIError
+		errorHandler func(err error),
+	) error
 }
 
 // PriceEvent - data on changes in trade data in the market
