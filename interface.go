@@ -6,6 +6,11 @@ import (
 
 //ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
+	// Adapter
+	GetName() string
+	GetTag() string
+	GetID() int
+
 	// Methods
 	Connect(credentials APICredentials) error
 	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error)
