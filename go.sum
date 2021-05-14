@@ -15,10 +15,6 @@ github.com/kr/pretty v0.2.0/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfn
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/matrixbotio/exchange-gates v0.0.0-20210504104545-db6c4a4a6fc7 h1:KRObAYwy26bBv6A3HxV+Lx/bFYN/4Qby3Xslo3RpCTs=
-github.com/matrixbotio/exchange-gates v0.0.0-20210504104545-db6c4a4a6fc7/go.mod h1:BUoqcK/7fyh+z99pDG8LOdKMPoh13X7e0lku9wvcKaA=
-github.com/matrixbotio/shared-errors v0.0.0-20210417122509-a0e580dc64e7 h1:WvopA85kOdq+DuHNLQXxlRUMcm2g8vcuhuYkXONEzcE=
-github.com/matrixbotio/shared-errors v0.0.0-20210417122509-a0e580dc64e7/go.mod h1:It4U2x6mBS4uLRXnoE77l9Lq4ECKkOgJ4IfWKeD30bQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
