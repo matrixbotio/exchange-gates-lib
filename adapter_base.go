@@ -11,6 +11,21 @@ type ExchangeAdapter struct {
 	Tag        string
 }
 
+// GetName - get exchange adapter name
+func (a *ExchangeAdapter) GetName() string {
+	return a.Name
+}
+
+// GetTag - get exchange adapter tag
+func (a *BinanceSpotAdapter) GetTag() string {
+	return a.Tag
+}
+
+// GetID - get exchange adapter name
+func (a *BinanceSpotAdapter) GetID() int {
+	return a.ExchangeID
+}
+
 // Placeholders
 
 // Connect to exchange
