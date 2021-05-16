@@ -14,6 +14,15 @@ type IPriceWorker interface {
 	) error
 }
 
+// SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange (placeholder)
+func (w *PriceWorker) SubscribeToPriceEvents(
+	eventCallback func(event PriceEvent),
+	errorHandler func(err error),
+) error {
+	// placeholder
+	return nil
+}
+
 // PriceEvent - data on changes in trade data in the market
 type PriceEvent struct {
 	Symbol string  `json:"s"`

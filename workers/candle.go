@@ -15,6 +15,16 @@ type ICandleWorker interface {
 	) error
 }
 
+// SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange (placeholder)
+func (w *CandleWorker) SubscribeToCandleEvents(
+	pairSymbols []string,
+	eventCallback func(event CandleEvent),
+	errorHandler func(err error),
+) error {
+	// placeholder
+	return nil
+}
+
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
 	//Event  string     `json:"e"`
