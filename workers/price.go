@@ -19,7 +19,4 @@ type PriceEvent struct {
 	Symbol string  `json:"symbol"`
 	Ask    float64 `json:"ask"`
 	Bid    float64 `json:"bid"`
-
-	//BestBidQty   string `json:"B"`
-	//BestAskQty   string `json:"A"`
 }

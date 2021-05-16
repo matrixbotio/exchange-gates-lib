@@ -17,20 +17,18 @@ type ICandleWorker interface {
 
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
-	//Event  string     `json:"e"`
 	Symbol string     `json:"symbol"`
 	Candle CandleData `json:"candle"`
 }
 
 // CandleData - trading candle
 type CandleData struct {
-	StartTime int64   `json:"start"`
-	EndTime   int64   `json:"end"`
+	StartTime int64   `json:"startTime"`
+	EndTime   int64   `json:"endTime"`
 	Interval  string  `json:"interval"`
 	Open      float64 `json:"open"`
 	Close     float64 `json:"close"`
 	High      float64 `json:"high"`
 	Low       float64 `json:"low"`
 	Volume    float64 `json:"volume"`
-	//IsFinal              bool   `json:"x"`
 }
