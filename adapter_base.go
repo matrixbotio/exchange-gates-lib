@@ -17,7 +17,7 @@ func (a *ExchangeAdapter) GetName() string {
 }
 
 // GetTag - get exchange adapter tag
-func (a *BinanceSpotAdapter) GetTag() string {
+func (a *ExchangeAdapter) GetTag() string {
 	return a.Tag
 }
 
@@ -81,10 +81,14 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 
 // GetPriceWorker - create empty market data worker
 func (a *ExchangeAdapter) GetPriceWorker() workers.IPriceWorker {
-	return nil
+	w := workers.PriceWorker{}
+	w.ExchangeTag = a.GetTag()
+	return &w
 }
 
 // GetCandleWorker - create empty market candle worker
 func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
-	return nil
+	w := workers.CandleWorker{}
+	w.ExchangeTag = a.GetTag()
+	return &w
 }

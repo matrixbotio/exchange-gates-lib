@@ -400,7 +400,9 @@ type CandleWorkerBinance struct {
 
 //GetCandleWorker - create new market candle worker
 func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
-	return &CandleWorkerBinance{}
+	w := CandleWorkerBinance{}
+	w.ExchangeTag = a.GetTag()
+	return &w
 }
 
 //SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
