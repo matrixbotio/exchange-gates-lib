@@ -428,11 +428,12 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 				},
 			}
 
-			errs := make([]error, 4)
+			errs := make([]error, 5)
 			wEvent.Candle.Open, errs[0] = strconv.ParseFloat(event.Kline.Open, 64)
 			wEvent.Candle.Close, errs[1] = strconv.ParseFloat(event.Kline.Close, 64)
 			wEvent.Candle.High, errs[2] = strconv.ParseFloat(event.Kline.High, 64)
 			wEvent.Candle.Low, errs[3] = strconv.ParseFloat(event.Kline.Low, 64)
+			wEvent.Candle.Volume, errs[4] = strconv.ParseFloat(event.Kline.Volume, 64)
 			if LogNotNilError(errs) {
 				return
 			}
