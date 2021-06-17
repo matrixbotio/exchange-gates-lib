@@ -419,6 +419,11 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 
 	wsCandleHandler := func(event *binance.WsKlineEvent) {
 		if event != nil {
+			// fix endTime
+			if strings.HasSuffix(strconv.FormatInt(event.Kline.EndTime, 10), "999") {
+				event.Kline.EndTime++
+			}
+
 			wEvent := workers.CandleEvent{
 				Symbol: event.Symbol,
 				Candle: workers.CandleData{
