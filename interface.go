@@ -25,6 +25,7 @@ type ExchangeInterface interface {
 	// Workers
 	GetPriceWorker() workers.IPriceWorker
 	GetCandleWorker() workers.ICandleWorker
+	GetTradeEventsWorker() workers.ITradeEventWorker
 }
 
 //ExchangeAdapters - map of all supported exchanges
