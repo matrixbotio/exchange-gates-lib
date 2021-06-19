@@ -457,3 +457,57 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	}
 	return nil
 }
+
+//TradeEventWorkerBinance - TradeEventWorker for binance
+type TradeEventWorkerBinance struct {
+	workers.TradeEventWorker
+}
+
+//GetTradeEventsWorker - create new market candle worker
+func (a *BinanceSpotAdapter) GetTradeEventsWorker() workers.ITradeEventWorker {
+	w := TradeEventWorkerBinance{}
+	w.ExchangeTag = a.GetTag()
+	return &w
+}
+
+//SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
+func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
+	symbol string,
+	eventCallback func(event workers.TradeEvent),
+	errorHandler func(err error),
+) error {
+
+	wsErrHandler := func(err error) {
+		errorHandler(errors.New("service request failed: " + err.Error()))
+	}
+
+	wsTradeHandler := func(event *binance.WsTradeEvent) {
+		if event != nil {
+			// fix event.Time
+			if strings.HasSuffix(strconv.FormatInt(event.Time, 10), "999") {
+				event.Time++
+			}
+			wEvent := workers.TradeEvent{
+				Time:          event.Time,
+				Symbol:        event.Symbol,
+				BuyerOrderID:  event.BuyerOrderID,
+				SellerOrderID: event.SellerOrderID,
+			}
+			errs := make([]error, 2)
+			wEvent.Price, errs[0] = strconv.ParseFloat(event.Price, 64)
+			wEvent.Quantity, errs[0] = strconv.ParseFloat(event.Quantity, 64)
+			if LogNotNilError(errs) {
+				return
+			}
+			eventCallback(wEvent)
+		}
+	}
+
+	var openWsErr error
+	w.WsChannels = new(workers.WorkerChannels)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
+	if openWsErr != nil {
+		return errors.New("failed to subscribe to trade events: " + openWsErr.Error())
+	}
+	return nil
+}
