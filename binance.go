@@ -241,16 +241,17 @@ func (a *BinanceSpotAdapter) ping() error {
 	return nil
 }
 
-//VerifyAPIKeys ..
+// VerifyAPIKeys - create new exchange client & attempt to get account data
 func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
-	accountService, err := a.binanceAPI.NewGetAccountService().Do(context.Background())
+	newClient := binance.NewClient(keyPublic, keySecret)
+	accountService, err := newClient.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		return errors.New("service request failed: " + err.Error() + ", stack: " + GetTrace())
+		return errors.New("invalid api key")
 	}
 	if !accountService.CanTrade {
 		return errors.New("service no access: Your API key does not have permission to trade, change its restrictions")
 	}
-	return a.ping()
+	return nil
 }
 
 //GetPairs get all Binance pairs
