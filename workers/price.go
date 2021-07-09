@@ -33,8 +33,7 @@ func (w *PriceWorker) GetExchangeTag() string {
 // Stop listening ws events
 func (w *PriceWorker) Stop() {
 	go func() {
-		<-w.WsChannels.WsStop
-		close(w.WsChannels.WsDone)
+		w.WsChannels.WsStop <- struct{}{}
 	}()
 }
 

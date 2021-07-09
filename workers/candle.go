@@ -35,8 +35,7 @@ func (w *CandleWorker) GetExchangeTag() string {
 // Stop listening ws events
 func (w *CandleWorker) Stop() {
 	go func() {
-		<-w.WsChannels.WsStop
-		close(w.WsChannels.WsDone)
+		w.WsChannels.WsStop <- struct{}{}
 	}()
 }
 
