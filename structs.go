@@ -15,16 +15,16 @@ type BotOrder struct {
 //TradeEventData - container for bot trading new event data
 type TradeEventData struct {
 	OrderID        int64   `json:"orderID"`
-	OrderAwaitQty  float64 `json:"await_qty"`  //initial order qty
-	OrderFilledQty float64 `json:"filled_qty"` //event executed qty
-	Status         string  `json:"status"`     //used in bot.getOrderData
+	OrderAwaitQty  float64 `json:"awaitQty"`  //initial order qty
+	OrderFilledQty float64 `json:"filledQty"` //event executed qty
+	Status         string  `json:"status"`    //used in bot.getOrderData
 }
 
 //CreateOrderResponse ..
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
-	OrigQuantity  float64 `json:"orig_qty"`
+	OrigQuantity  float64 `json:"origQty"`
 	Price         float64 `json:"price"`
 }
 
