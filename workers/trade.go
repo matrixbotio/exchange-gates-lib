@@ -14,6 +14,7 @@ type ITradeEventWorker interface {
 		errorHandler func(err error),
 	) error
 	GetExchangeTag() string
+	Stop()
 }
 
 // SubscribeToTradeEvents - websocket subscription to pair trade events
@@ -30,12 +31,20 @@ func (w *TradeEventWorker) GetExchangeTag() string {
 	return w.ExchangeTag
 }
 
+// Stop listening ws events
+func (w *TradeEventWorker) Stop() {
+	go func() {
+		<-w.WsChannels.WsStop
+		close(w.WsChannels.WsDone)
+	}()
+}
+
 // TradeEvent - data on a executed order in a trading pair
 type TradeEvent struct {
-	Time          int64  `json:"time"`
-	Symbol        string `json:"symbol"`
+	Time          int64   `json:"time"`
+	Symbol        string  `json:"symbol"`
 	Price         float64 `json:"price"`
 	Quantity      float64 `json:"quantity"`
-	BuyerOrderID  int64  `json:"buyerID"`
-	SellerOrderID int64  `json:"sellerID"`
+	BuyerOrderID  int64   `json:"buyerID"`
+	SellerOrderID int64   `json:"sellerID"`
 }
