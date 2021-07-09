@@ -14,6 +14,7 @@ type ICandleWorker interface {
 		errorHandler func(err error),
 	) error
 	GetExchangeTag() string
+	Stop()
 }
 
 // SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange (placeholder)
@@ -29,6 +30,14 @@ func (w *CandleWorker) SubscribeToCandleEvents(
 // GetExchangeTag - get worker exchange tag from exchange adapter
 func (w *CandleWorker) GetExchangeTag() string {
 	return w.ExchangeTag
+}
+
+// Stop listening ws events
+func (w *CandleWorker) Stop() {
+	go func() {
+		<-w.WsChannels.WsStop
+		close(w.WsChannels.WsDone)
+	}()
 }
 
 // CandleEvent - changes in trading candles for a specific pair
