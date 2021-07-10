@@ -13,6 +13,7 @@ type IPriceWorker interface {
 		errorHandler func(err error),
 	) error
 	GetExchangeTag() string
+	Stop()
 }
 
 // SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange (placeholder)
@@ -27,6 +28,13 @@ func (w *PriceWorker) SubscribeToPriceEvents(
 // GetExchangeTag - get worker exchange tag from exchange adapter
 func (w *PriceWorker) GetExchangeTag() string {
 	return w.ExchangeTag
+}
+
+// Stop listening ws events
+func (w *PriceWorker) Stop() {
+	go func() {
+		w.WsChannels.WsStop <- struct{}{}
+	}()
 }
 
 // PriceEvent - data on changes in trade data in the market
