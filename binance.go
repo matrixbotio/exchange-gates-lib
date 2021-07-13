@@ -13,6 +13,16 @@ import (
 	"github.com/matrixbotio/exchange-gates/workers"
 )
 
+const (
+	pairDefaultMinQty    = 0.001
+	pairDefaultMaxQty    = 99999.99
+	pairDefaultMinPrice  = 0.000001
+	pairDefaultQtyStep   = 0.001
+	pairDefaultPriceStep = 0.000001
+
+	candlesInterval = "1m"
+)
+
 //BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
@@ -293,11 +303,11 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		QuotePrecision: symbolData.QuotePrecision,
 		Status:         symbolData.Status,
 		Symbol:         symbolData.Symbol,
-		MinQty:         0.001,
-		MaxQty:         99999.99,
-		MinPrice:       0.000001,
-		QtyStep:        0.001,
-		PriceStep:      0.000001,
+		MinQty:         pairDefaultMinQty,
+		MaxQty:         pairDefaultMaxQty,
+		MinPrice:       pairDefaultMinPrice,
+		QtyStep:        pairDefaultQtyStep,
+		PriceStep:      pairDefaultPriceStep,
 		AllowedMargin:  symbolData.IsMarginTradingAllowed,
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
@@ -311,7 +321,7 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 			return nil, errors.New("data handle error: " + err.Error())
 		}
 		if minQty == 0 {
-			minQty = 0.001
+			minQty = pairDefaultMinQty
 		}
 
 		pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
@@ -338,7 +348,7 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 			return nil, errors.New("data handle error: " + err.Error())
 		}
 		if pairData.MinPrice == 0 {
-			pairData.MinPrice = 0.000001
+			pairData.MinPrice = pairDefaultMinPrice
 		}
 		priceStepRaw := symbolData.PriceFilter().TickSize
 		pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
@@ -450,10 +460,9 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	timeInterval := "1m"
 	symbolIntervalsMap := make(map[string]string)
 	for _, symbol := range pairSymbols {
-		symbolIntervalsMap[symbol] = timeInterval
+		symbolIntervalsMap[symbol] = candlesInterval
 	}
 
 	wsCandleHandler := func(event *binance.WsKlineEvent) {
