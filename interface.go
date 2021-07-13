@@ -16,12 +16,14 @@ type ExchangeInterface interface {
 	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error)
 	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error)
 	GetAccountData() (*AccountData, error)
+	GetPairData(pairSymbol string) (*ExchangePairData, error)
 	GetPairLastPrice(pairSymbol string) (float64, error)
 	CancelPairOrder(pairSymbol string, orderID int64) error
 	CancelPairOrders(pairSymbol string) error
 	GetPairOpenOrders(pairSymbol string) ([]*Order, error)
 	VerifyAPIKeys(keyPublic, keySecret string) error
 	GetPairs() ([]*ExchangePairData, error)
+
 	// Workers
 	GetPriceWorker() workers.IPriceWorker
 	GetCandleWorker() workers.ICandleWorker

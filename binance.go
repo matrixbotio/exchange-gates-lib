@@ -227,10 +227,38 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 	return nil
 }
 
-//GetPairOpenOrders ..
+// GetPairData - get pair data & limits
+func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (*ExchangePairData, error) {
+	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().Symbol(pairSymbol).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	// find pairSymbol
+	for _, symbolData := range exchangeInfo.Symbols {
+		return a.getExchangePairData(symbolData)
+	}
+
+	return nil, errors.New("data for " + pairSymbol + " pair not found")
+}
+
+//GetPairOpenOrders - get open orders array
 func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, error) {
-	//TODO
-	return nil, nil
+	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().Symbol(pairSymbol).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	orders := []*Order{}
+	for _, orderRaw := range ordersRaw {
+		orders = append(orders, &Order{
+			OrderID:       orderRaw.OrderID,
+			ClientOrderID: orderRaw.ClientOrderID,
+			Status:        string(orderRaw.Status),
+		})
+	}
+
+	return orders, nil
 }
 
 func (a *BinanceSpotAdapter) ping() error {
@@ -254,6 +282,76 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	return nil
 }
 
+// convert binance.Symbol to ExchangePairData
+func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*ExchangePairData, error) {
+	var err error
+	pairData := ExchangePairData{
+		ExchangeID:     a.ExchangeID,
+		BaseAsset:      symbolData.BaseAsset,
+		BasePrecision:  symbolData.BaseAssetPrecision,
+		QuoteAsset:     symbolData.QuoteAsset,
+		QuotePrecision: symbolData.QuotePrecision,
+		Status:         symbolData.Status,
+		Symbol:         symbolData.Symbol,
+		MinQty:         0.001,
+		MaxQty:         99999.99,
+		MinPrice:       0.000001,
+		QtyStep:        0.001,
+		PriceStep:      0.000001,
+		AllowedMargin:  symbolData.IsMarginTradingAllowed,
+		AllowedSpot:    symbolData.IsSpotTradingAllowed,
+	}
+
+	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
+	if marketLotSizeFilter != nil {
+		minQtyRaw := marketLotSizeFilter.MinQuantity
+		maxQtyRaw := marketLotSizeFilter.MaxQuantity
+		minQty, err := strconv.ParseFloat(minQtyRaw, 64)
+		if err != nil {
+			return nil, errors.New("data handle error: " + err.Error())
+		}
+		if minQty == 0 {
+			minQty = 0.001
+		}
+
+		pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
+		if err != nil {
+			return nil, errors.New("data handle error" + err.Error())
+		}
+
+		qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
+		pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
+		if err != nil {
+			return nil, errors.New("data handle error: " + err.Error())
+		}
+		if pairData.QtyStep == 0 {
+			pairData.QtyStep = minQty
+		}
+	}
+
+	priceFilter := symbolData.PriceFilter()
+	if priceFilter != nil {
+		//add max price?
+		minPriceRaw := priceFilter.MinPrice
+		pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
+		if err != nil {
+			return nil, errors.New("data handle error: " + err.Error())
+		}
+		if pairData.MinPrice == 0 {
+			pairData.MinPrice = 0.000001
+		}
+		priceStepRaw := symbolData.PriceFilter().TickSize
+		pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
+		if err != nil {
+			return nil, errors.New("data handle error: " + err.Error())
+		}
+		if pairData.PriceStep == 0 {
+			pairData.PriceStep = pairData.MinPrice
+		}
+	}
+	return &pairData, nil
+}
+
 //GetPairs get all Binance pairs
 func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
@@ -264,71 +362,11 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 
 	pairs := []*ExchangePairData{}
 	for _, symbolData := range res.Symbols {
-		pairData := ExchangePairData{
-			ExchangeID:     a.ExchangeID,
-			BaseAsset:      symbolData.BaseAsset,
-			BasePrecision:  symbolData.BaseAssetPrecision,
-			QuoteAsset:     symbolData.QuoteAsset,
-			QuotePrecision: symbolData.QuotePrecision,
-			Status:         symbolData.Status,
-			Symbol:         symbolData.Symbol,
-			MinQty:         0.001,
-			MaxQty:         99999.99,
-			MinPrice:       0.000001,
-			QtyStep:        0.001,
-			PriceStep:      0.000001,
-			AllowedMargin:  symbolData.IsMarginTradingAllowed,
-			AllowedSpot:    symbolData.IsSpotTradingAllowed,
+		pairData, err := a.getExchangePairData(symbolData)
+		if err != nil {
+			return nil, err
 		}
-
-		marketLotSizeFilter := symbolData.MarketLotSizeFilter()
-		if marketLotSizeFilter != nil {
-			minQtyRaw := marketLotSizeFilter.MinQuantity
-			maxQtyRaw := marketLotSizeFilter.MaxQuantity
-			minQty, err := strconv.ParseFloat(minQtyRaw, 64)
-			if err != nil {
-				return nil, errors.New("data handle error: " + err.Error())
-			}
-			if minQty == 0 {
-				minQty = 0.001
-			}
-
-			pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
-			if err != nil {
-				return nil, errors.New("data handle error" + err.Error())
-			}
-
-			qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
-			pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
-			if err != nil {
-				return nil, errors.New("data handle error: " + err.Error())
-			}
-			if pairData.QtyStep == 0 {
-				pairData.QtyStep = minQty
-			}
-		}
-
-		priceFilter := symbolData.PriceFilter()
-		if priceFilter != nil {
-			//add max price?
-			minPriceRaw := priceFilter.MinPrice
-			pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
-			if err != nil {
-				return nil, errors.New("data handle error: " + err.Error())
-			}
-			if pairData.MinPrice == 0 {
-				pairData.MinPrice = 0.000001
-			}
-			priceStepRaw := symbolData.PriceFilter().TickSize
-			pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
-			if err != nil {
-				return nil, errors.New("data handle error: " + err.Error())
-			}
-			if pairData.PriceStep == 0 {
-				pairData.PriceStep = pairData.MinPrice
-			}
-		}
-		pairs = append(pairs, &pairData)
+		pairs = append(pairs, pairData)
 	}
 	return pairs, nil
 }
