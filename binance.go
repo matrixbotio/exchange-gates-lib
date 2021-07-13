@@ -341,7 +341,6 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 
 	priceFilter := symbolData.PriceFilter()
 	if priceFilter != nil {
-		//add max price?
 		minPriceRaw := priceFilter.MinPrice
 		pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
 		if err != nil {
