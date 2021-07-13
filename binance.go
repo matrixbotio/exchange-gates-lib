@@ -294,7 +294,6 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 
 // convert binance.Symbol to ExchangePairData
 func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*ExchangePairData, error) {
-	var err error
 	pairData := ExchangePairData{
 		ExchangeID:     a.ExchangeID,
 		BaseAsset:      symbolData.BaseAsset,
@@ -312,53 +311,73 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
 
-	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
-	if marketLotSizeFilter != nil {
-		minQtyRaw := marketLotSizeFilter.MinQuantity
-		maxQtyRaw := marketLotSizeFilter.MaxQuantity
-		minQty, err := strconv.ParseFloat(minQtyRaw, 64)
-		if err != nil {
-			return nil, errors.New("data handle error: " + err.Error())
-		}
-		if minQty == 0 {
-			minQty = pairDefaultMinQty
-		}
-
-		pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
-		if err != nil {
-			return nil, errors.New("data handle error" + err.Error())
-		}
-
-		qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
-		pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
-		if err != nil {
-			return nil, errors.New("data handle error: " + err.Error())
-		}
-		if pairData.QtyStep == 0 {
-			pairData.QtyStep = minQty
-		}
+	err := binanceParseLotSizeFilter(&symbolData, &pairData)
+	if err != nil {
+		return nil, err
 	}
 
-	priceFilter := symbolData.PriceFilter()
-	if priceFilter != nil {
-		minPriceRaw := priceFilter.MinPrice
-		pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
-		if err != nil {
-			return nil, errors.New("data handle error: " + err.Error())
-		}
-		if pairData.MinPrice == 0 {
-			pairData.MinPrice = pairDefaultMinPrice
-		}
-		priceStepRaw := symbolData.PriceFilter().TickSize
-		pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
-		if err != nil {
-			return nil, errors.New("data handle error: " + err.Error())
-		}
-		if pairData.PriceStep == 0 {
-			pairData.PriceStep = pairData.MinPrice
-		}
+	err = binanceParsePriceFilter(&symbolData, &pairData)
+	if err != nil {
+		return nil, err
 	}
+
 	return &pairData, nil
+}
+
+func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
+	var err error
+	priceFilter := symbolData.PriceFilter()
+	if priceFilter == nil {
+		return errors.New("failed to get price filter for symbol data")
+	}
+	minPriceRaw := priceFilter.MinPrice
+	pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
+	if err != nil {
+		return errors.New("data handle error: " + err.Error())
+	}
+	if pairData.MinPrice == 0 {
+		pairData.MinPrice = pairDefaultMinPrice
+	}
+	priceStepRaw := symbolData.PriceFilter().TickSize
+	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
+	if err != nil {
+		return errors.New("data handle error: " + err.Error())
+	}
+	if pairData.PriceStep == 0 {
+		pairData.PriceStep = pairData.MinPrice
+	}
+	return nil
+}
+
+func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
+	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
+	if marketLotSizeFilter == nil {
+		return errors.New("failed to get market lot size filter for symbol data")
+	}
+	minQtyRaw := marketLotSizeFilter.MinQuantity
+	maxQtyRaw := marketLotSizeFilter.MaxQuantity
+	minQty, err := strconv.ParseFloat(minQtyRaw, 64)
+	if err != nil {
+		return errors.New("data handle error: " + err.Error())
+	}
+	if minQty == 0 {
+		minQty = pairDefaultMinQty
+	}
+
+	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
+	if err != nil {
+		return errors.New("data handle error" + err.Error())
+	}
+
+	qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
+	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
+	if err != nil {
+		return errors.New("data handle error: " + err.Error())
+	}
+	if pairData.QtyStep == 0 {
+		pairData.QtyStep = minQty
+	}
+	return nil
 }
 
 //GetPairs get all Binance pairs
