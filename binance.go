@@ -428,20 +428,18 @@ func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, 
 			}
 		}
 	}
-	if pairBalanceData.BaseAsset == nil || pairBalanceData.QuoteAsset == nil {
-		if pairBalanceData.BaseAsset == nil {
-			pairBalanceData.BaseAsset = &AssetBalance{
-				Ticker: pair.BaseTicker,
-				Free:   0,
-				Locked: 0,
-			}
+	if pairBalanceData.BaseAsset == nil {
+		pairBalanceData.BaseAsset = &AssetBalance{
+			Ticker: pair.BaseTicker,
+			Free:   0,
+			Locked: 0,
 		}
-		if pairBalanceData.QuoteAsset == nil {
-			pairBalanceData.QuoteAsset = &AssetBalance{
-				Ticker: pair.QuoteTicker,
-				Free:   0,
-				Locked: 0,
-			}
+	}
+	if pairBalanceData.QuoteAsset == nil {
+		pairBalanceData.QuoteAsset = &AssetBalance{
+			Ticker: pair.QuoteTicker,
+			Free:   0,
+			Locked: 0,
 		}
 	}
 	return pairBalanceData, nil
