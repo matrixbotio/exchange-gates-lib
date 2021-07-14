@@ -415,15 +415,15 @@ func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, 
 				Locked: balanceData.Locked,
 			}
 			if balanceData.Asset == pair.BaseTicker {
-				//founded base asset
+				// base asset found
 				pairBalanceData.BaseAsset = assetBalanceData
 			}
 			if balanceData.Asset == pair.QuoteTicker {
-				//founded quote asset
+				// quote asset found
 				pairBalanceData.QuoteAsset = assetBalanceData
 			}
 			if pairBalanceData.BaseAsset != nil && pairBalanceData.QuoteAsset != nil {
-				//assets founded
+				// found
 				break
 			}
 		}
