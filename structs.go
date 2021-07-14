@@ -14,38 +14,38 @@ type BotOrder struct {
 
 //TradeEventData - container for bot trading new event data
 type TradeEventData struct {
-	OrderID        int64
-	OrderAwaitQty  float64 //initial order qty
-	OrderFilledQty float64 //event executed qty
-	Status         string  //used in bot.getOrderData
+	OrderID        int64   `json:"orderID"`
+	OrderAwaitQty  float64 `json:"awaitQty"`  //initial order qty
+	OrderFilledQty float64 `json:"filledQty"` //event executed qty
+	Status         string  `json:"status"`    //used in bot.getOrderData
 }
 
 //CreateOrderResponse ..
 type CreateOrderResponse struct {
-	OrderID       int64
-	ClientOrderID string
-	OrigQuantity  float64
-	Price         float64
+	OrderID       int64   `json:"orderID"`
+	ClientOrderID string  `json:"clientOrderID"`
+	OrigQuantity  float64 `json:"origQty"`
+	Price         float64 `json:"price"`
 }
 
 //Balance - Trading pair balance
 type Balance struct {
-	Asset  string
-	Free   float64
-	Locked float64
+	Asset  string  `json:"asset"`
+	Free   float64 `json:"free"`
+	Locked float64 `json:"locked"`
 }
 
 //AccountData & balances
 type AccountData struct {
-	CanTrade bool
-	Balances []Balance
+	CanTrade bool      `json:"canTrade"`
+	Balances []Balance `json:"balances"`
 }
 
 //Order data
 type Order struct {
-	OrderID       int64
-	ClientOrderID string
-	Status        string
+	OrderID       int64  `json:"orderID"`
+	ClientOrderID string `json:"clientOrderID"`
+	Status        string `json:"status"`
 }
 
 //ExchangePairData contains information about a trading pair, data about order limits
@@ -73,8 +73,8 @@ type APICredentialsType string
 
 //APIKeypair - data for authorization via public and private keys
 type APIKeypair struct {
-	Public string
-	Secret string
+	Public string `json:"public"`
+	Secret string `json:"secret"`
 }
 
 //APIPassword - password authentication
@@ -88,9 +88,9 @@ var APICredentialsTypeKeypair APICredentialsType = "keypair"
 
 //APICredentials - data for authorization to the exchange API
 type APICredentials struct {
-	Type APICredentialsType
+	Type APICredentialsType `json:"type"`
 
-	Keypair  APIKeypair
-	Password APIPassword
-	Email    APIEmail
+	Keypair  APIKeypair  `json:"keypair"`
+	Password APIPassword `json:"password"`
+	Email    APIEmail    `json:"email"`
 }
