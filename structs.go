@@ -12,7 +12,7 @@ type BotOrder struct {
 	Deposit    float64 `json:"deposit"`
 }
 
-//TradeEventData - container for bot trading new event data
+// TradeEventData - container for bot trading new event data
 type TradeEventData struct {
 	OrderID        int64
 	OrderAwaitQty  float64 //initial order qty
@@ -20,7 +20,7 @@ type TradeEventData struct {
 	Status         string  //used in bot.getOrderData
 }
 
-//CreateOrderResponse ..
+// CreateOrderResponse ..
 type CreateOrderResponse struct {
 	OrderID       int64
 	ClientOrderID string
@@ -28,27 +28,47 @@ type CreateOrderResponse struct {
 	Price         float64
 }
 
-//Balance - Trading pair balance
+// Balance - Trading pair balance
 type Balance struct {
 	Asset  string
 	Free   float64
 	Locked float64
 }
 
-//AccountData & balances
+// AccountData & balances
 type AccountData struct {
 	CanTrade bool
 	Balances []Balance
 }
 
-//Order data
+// Order data
 type Order struct {
 	OrderID       int64
 	ClientOrderID string
 	Status        string
 }
 
-//ExchangePairData contains information about a trading pair, data about order limits
+// PairBalance - data on the balance of a trading pair for each of the two currencies
+type PairBalance struct {
+	BaseAsset  *AssetBalance
+	QuoteAsset *AssetBalance
+}
+
+// AssetBalance - is a wraper for asset balance data
+type AssetBalance struct {
+	Ticker string  `json:"ticker"`
+	Free   float64 `json:"free"`
+	Locked float64 `json:"locked"`
+}
+
+// PairSymbolData - contains pair symbol data
+type PairSymbolData struct {
+	BaseTicker  string // ETH
+	QuoteTicker string // USDT
+	Symbol      string // ETHUSDT
+}
+
+// ExchangePairData contains information about a trading pair, data about order limits
 type ExchangePairData struct {
 	ID             int     `json:"id"`
 	ExchangeID     int     `json:"exchangeID"`     // 1
@@ -68,25 +88,25 @@ type ExchangePairData struct {
 	InUse          bool    `json:"inUse"`
 }
 
-//APICredentialsType - API credentials type ^ↀᴥↀ^
+// APICredentialsType - API credentials type ^ↀᴥↀ^
 type APICredentialsType string
 
-//APIKeypair - data for authorization via public and private keys
+// APIKeypair - data for authorization via public and private keys
 type APIKeypair struct {
 	Public string
 	Secret string
 }
 
-//APIPassword - password authentication
+// APIPassword - password authentication
 type APIPassword string
 
-//APIEmail - email authentication
+// APIEmail - email authentication
 type APIEmail string
 
-//APICredentialsTypeKeypair - public and private key pair
+// APICredentialsTypeKeypair - public and private key pair
 var APICredentialsTypeKeypair APICredentialsType = "keypair"
 
-//APICredentials - data for authorization to the exchange API
+// APICredentials - data for authorization to the exchange API
 type APICredentials struct {
 	Type APICredentialsType
 
