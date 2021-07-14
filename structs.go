@@ -50,8 +50,8 @@ type Order struct {
 
 // PairBalance - data on the balance of a trading pair for each of the two currencies
 type PairBalance struct {
-	BaseAsset  *AssetBalance
-	QuoteAsset *AssetBalance
+	BaseAsset  *AssetBalance `json:"base"`
+	QuoteAsset *AssetBalance `json:"quote"`
 }
 
 // AssetBalance - is a wraper for asset balance data
@@ -63,9 +63,9 @@ type AssetBalance struct {
 
 // PairSymbolData - contains pair symbol data
 type PairSymbolData struct {
-	BaseTicker  string // ETH
-	QuoteTicker string // USDT
-	Symbol      string // ETHUSDT
+	BaseTicker  string `json:"base"`   // ETH
+	QuoteTicker string `json:"quote"`  // USDT
+	Symbol      string `json:"symbol"` // ETHUSDT
 }
 
 // ExchangePairData contains information about a trading pair, data about order limits
