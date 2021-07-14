@@ -408,24 +408,25 @@ func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, 
 
 	pairBalanceData := &PairBalance{}
 	for _, balanceData := range accountData.Balances {
-		if balanceData.Asset == pair.BaseTicker || balanceData.Asset == pair.QuoteTicker {
-			assetBalanceData := &AssetBalance{
+		if balanceData.Asset == pair.BaseTicker {
+			// base asset found
+			pairBalanceData.BaseAsset = &AssetBalance{
 				Ticker: balanceData.Asset,
 				Free:   balanceData.Free,
 				Locked: balanceData.Locked,
 			}
-			if balanceData.Asset == pair.BaseTicker {
-				// base asset found
-				pairBalanceData.BaseAsset = assetBalanceData
+		}
+		if balanceData.Asset == pair.QuoteTicker {
+			// quote asset found
+			pairBalanceData.QuoteAsset = &AssetBalance{
+				Ticker: balanceData.Asset,
+				Free:   balanceData.Free,
+				Locked: balanceData.Locked,
 			}
-			if balanceData.Asset == pair.QuoteTicker {
-				// quote asset found
-				pairBalanceData.QuoteAsset = assetBalanceData
-			}
-			if pairBalanceData.BaseAsset != nil && pairBalanceData.QuoteAsset != nil {
-				// found
-				break
-			}
+		}
+		if pairBalanceData.BaseAsset != nil && pairBalanceData.QuoteAsset != nil {
+			// found
+			break
 		}
 	}
 	if pairBalanceData.BaseAsset == nil {
