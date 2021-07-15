@@ -380,7 +380,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 	return nil
 }
 
-//GetPairs get all Binance pairs
+// GetPairs get all Binance pairs
 func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
@@ -397,6 +397,53 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 		pairs = append(pairs, pairData)
 	}
 	return pairs, nil
+}
+
+// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
+func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, error) {
+	accountData, err := a.GetAccountData()
+	if err != nil {
+		return nil, err
+	}
+
+	pairBalanceData := &PairBalance{}
+	for _, balanceData := range accountData.Balances {
+		if balanceData.Asset == pair.BaseTicker {
+			// base asset found
+			pairBalanceData.BaseAsset = &AssetBalance{
+				Ticker: balanceData.Asset,
+				Free:   balanceData.Free,
+				Locked: balanceData.Locked,
+			}
+		}
+		if balanceData.Asset == pair.QuoteTicker {
+			// quote asset found
+			pairBalanceData.QuoteAsset = &AssetBalance{
+				Ticker: balanceData.Asset,
+				Free:   balanceData.Free,
+				Locked: balanceData.Locked,
+			}
+		}
+		if pairBalanceData.BaseAsset != nil && pairBalanceData.QuoteAsset != nil {
+			// found
+			break
+		}
+	}
+	if pairBalanceData.BaseAsset == nil {
+		pairBalanceData.BaseAsset = &AssetBalance{
+			Ticker: pair.BaseTicker,
+			Free:   0,
+			Locked: 0,
+		}
+	}
+	if pairBalanceData.QuoteAsset == nil {
+		pairBalanceData.QuoteAsset = &AssetBalance{
+			Ticker: pair.QuoteTicker,
+			Free:   0,
+			Locked: 0,
+		}
+	}
+	return pairBalanceData, nil
 }
 
 /*

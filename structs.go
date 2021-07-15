@@ -12,7 +12,7 @@ type BotOrder struct {
 	Deposit    float64 `json:"deposit"`
 }
 
-//TradeEventData - container for bot trading new event data
+// TradeEventData - container for bot trading new event data
 type TradeEventData struct {
 	OrderID        int64   `json:"orderID"`
 	OrderAwaitQty  float64 `json:"awaitQty"`  //initial order qty
@@ -20,7 +20,7 @@ type TradeEventData struct {
 	Status         string  `json:"status"`    //used in bot.getOrderData
 }
 
-//CreateOrderResponse ..
+// CreateOrderResponse ..
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
@@ -28,27 +28,47 @@ type CreateOrderResponse struct {
 	Price         float64 `json:"price"`
 }
 
-//Balance - Trading pair balance
+// Balance - Trading pair balance
 type Balance struct {
 	Asset  string  `json:"asset"`
 	Free   float64 `json:"free"`
 	Locked float64 `json:"locked"`
 }
 
-//AccountData & balances
+// AccountData & balances
 type AccountData struct {
 	CanTrade bool      `json:"canTrade"`
 	Balances []Balance `json:"balances"`
 }
 
-//Order data
+// Order data
 type Order struct {
 	OrderID       int64  `json:"orderID"`
 	ClientOrderID string `json:"clientOrderID"`
 	Status        string `json:"status"`
 }
 
-//ExchangePairData contains information about a trading pair, data about order limits
+// PairBalance - data on the balance of a trading pair for each of the two currencies
+type PairBalance struct {
+	BaseAsset  *AssetBalance `json:"base"`
+	QuoteAsset *AssetBalance `json:"quote"`
+}
+
+// AssetBalance - is a wraper for asset balance data
+type AssetBalance struct {
+	Ticker string  `json:"ticker"`
+	Free   float64 `json:"free"`
+	Locked float64 `json:"locked"`
+}
+
+// PairSymbolData - contains pair symbol data
+type PairSymbolData struct {
+	BaseTicker  string `json:"base"`   // ETH
+	QuoteTicker string `json:"quote"`  // USDT
+	Symbol      string `json:"symbol"` // ETHUSDT
+}
+
+// ExchangePairData contains information about a trading pair, data about order limits
 type ExchangePairData struct {
 	ID             int     `json:"id"`
 	ExchangeID     int     `json:"exchangeID"`     // 1
@@ -68,25 +88,25 @@ type ExchangePairData struct {
 	InUse          bool    `json:"inUse"`
 }
 
-//APICredentialsType - API credentials type ^ↀᴥↀ^
+// APICredentialsType - API credentials type ^ↀᴥↀ^
 type APICredentialsType string
 
-//APIKeypair - data for authorization via public and private keys
+// APIKeypair - data for authorization via public and private keys
 type APIKeypair struct {
 	Public string `json:"public"`
 	Secret string `json:"secret"`
 }
 
-//APIPassword - password authentication
+// APIPassword - password authentication
 type APIPassword string
 
-//APIEmail - email authentication
+// APIEmail - email authentication
 type APIEmail string
 
-//APICredentialsTypeKeypair - public and private key pair
+// APICredentialsTypeKeypair - public and private key pair
 var APICredentialsTypeKeypair APICredentialsType = "keypair"
 
-//APICredentials - data for authorization to the exchange API
+// APICredentials - data for authorization to the exchange API
 type APICredentials struct {
 	Type APICredentialsType `json:"type"`
 
