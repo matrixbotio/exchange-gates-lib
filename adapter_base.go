@@ -1,7 +1,7 @@
 package matrixgates
 
 import (
-	"github.com/matrixbotio/exchange-gates/workers"
+	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
 // ExchangeAdapter - abstract universal exchange adapter

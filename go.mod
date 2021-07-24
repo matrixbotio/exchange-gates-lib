@@ -1,4 +1,4 @@
-module github.com/matrixbotio/exchange-gates
+module github.com/matrixbotio/exchange-gates-lib
 
 go 1.16
 
