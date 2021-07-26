@@ -10,7 +10,7 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
-	"github.com/matrixbotio/exchange-gates/workers"
+	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
 const (
