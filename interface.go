@@ -17,7 +17,7 @@ type ExchangeInterface interface {
 	VerifyAPIKeys(keyPublic, keySecret string) error
 
 	// Order
-	GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error)
+	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
 	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error)
 
 	// Pair

@@ -12,8 +12,8 @@ type BotOrder struct {
 	Deposit    float64 `json:"deposit"`
 }
 
-// TradeEventData - container for bot trading new event data
-type TradeEventData struct {
+// OrderData - placed order data
+type OrderData struct {
 	OrderID        int64   `json:"orderID"`
 	OrderAwaitQty  float64 `json:"awaitQty"`  //initial order qty
 	OrderFilledQty float64 `json:"filledQty"` //event executed qty
