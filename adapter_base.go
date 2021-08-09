@@ -59,7 +59,7 @@ func (a *ExchangeAdapter) CancelPairOrders(pairSymbol string) error {
 }
 
 // GetOrderData ..
-func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error) {
+func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
 	return nil, nil
 }
 

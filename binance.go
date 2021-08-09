@@ -50,8 +50,8 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
 }
 
 //GetOrderData ..
-func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*TradeEventData, error) {
-	tradeData := TradeEventData{
+func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
+	tradeData := OrderData{
 		OrderID: orderID,
 	}
 	//order status: NEW, PARTIALLY_FILLED, FILLED, CANCELED, PENDING_CANCEL, REJECTED, EXPIRED
