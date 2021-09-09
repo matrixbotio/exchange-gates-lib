@@ -11,12 +11,15 @@ import (
 
 // GetFloatPrecision returns the number of decimal places in a float
 func GetFloatPrecision(value float64) int {
-	//return int(math.Ceil(math.Log10(math.Floor(1 / f))))
-	valueFormated := strconv.FormatFloat(math.Abs(value), 'f', 15, 64)
+	// if you put 15, then the test will fall,
+	// because Float is rounded incorrectly
+	maxPrecision := 14
+	valueFormated := strconv.FormatFloat(math.Abs(value), 'f', maxPrecision, 64)
 	valueParts := strings.Split(valueFormated, ".")
 	if len(valueParts) <= 1 {
 		return 0
 	}
+	log.Println(valueParts[1])
 	valueLastPartTrimmed := strings.TrimRight(valueParts[1], "0")
 	return len(valueLastPartTrimmed)
 }
