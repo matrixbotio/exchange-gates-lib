@@ -41,8 +41,10 @@ func (w *CandleWorker) Stop() {
 
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
-	Symbol string     `json:"symbol"`
-	Candle CandleData `json:"candle"`
+	Symbol     string     `json:"symbol"`
+	BaseAsset  string     `json:"baseAsset"`
+	QuoteAsset string     `json:"quoteAsset"`
+	Candle     CandleData `json:"candle"`
 }
 
 // CandleData - trading candle
