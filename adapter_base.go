@@ -1,6 +1,8 @@
 package matrixgates
 
 import (
+	"errors"
+
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
@@ -76,6 +78,15 @@ func (a *ExchangeAdapter) GetPairs() ([]*ExchangePairData, error) {
 
 // VerifyAPIKeys ..
 func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
+	return nil
+}
+
+// ValidateExchangeID - check if we use the given exchange ID
+func (a *ExchangeAdapter) ValidateExchangeID(exchangeID int) error {
+	_, isExchangeSet := ExchangeAdapters[exchangeID]
+	if !isExchangeSet {
+		return errors.New("unknown exchange ID")
+	}
 	return nil
 }
 
