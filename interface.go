@@ -15,6 +15,7 @@ type ExchangeInterface interface {
 	Connect(credentials APICredentials) error
 	GetAccountData() (*AccountData, error) // account data with balances
 	VerifyAPIKeys(keyPublic, keySecret string) error
+	ValidateExchangeID(exchangeID int) error
 
 	// Order
 	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
