@@ -38,5 +38,5 @@ type ExchangeInterface interface {
 
 //ExchangeAdapters - map of all supported exchanges
 var ExchangeAdapters map[int]ExchangeInterface = map[int]ExchangeInterface{
-	1: NewBinanceSpotAdapter(),
+	1: NewBinanceSpotAdapter(1),
 }
