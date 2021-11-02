@@ -36,7 +36,11 @@ type ExchangeInterface interface {
 	GetTradeEventsWorker() workers.ITradeEventWorker
 }
 
+const (
+	exchangeIDbinanceSpot = 1
+)
+
 //ExchangeAdapters - map of all supported exchanges
 var ExchangeAdapters map[int]ExchangeInterface = map[int]ExchangeInterface{
-	1: NewBinanceSpotAdapter(),
+	exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
 }
