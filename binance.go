@@ -285,7 +285,7 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	newClient := binance.NewClient(keyPublic, keySecret)
 	accountService, err := newClient.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		return errors.New("invalid api key")
+		return errors.New("invalid api key: " + err.Error())
 	}
 	if !accountService.CanTrade {
 		return errors.New("service no access: Your API key does not have permission to trade, change its restrictions")
