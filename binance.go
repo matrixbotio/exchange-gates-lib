@@ -343,16 +343,12 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 }
 
 func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
-	fmt.Println("[TEMP] check lot size filter..")
-
 	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
 	if marketLotSizeFilter == nil {
 		return errors.New("failed to get market lot size filter for symbol data")
 	}
 	minQtyRaw := marketLotSizeFilter.MinQuantity
 	maxQtyRaw := marketLotSizeFilter.MaxQuantity
-
-	fmt.Println("[TEMP] min qty: " + minQtyRaw + ", max qty: " + maxQtyRaw)
 
 	minQty, err := strconv.ParseFloat(minQtyRaw, 64)
 	if err != nil {
@@ -368,8 +364,6 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 	}
 
 	qtyStepRaw := marketLotSizeFilter.StepSize
-	fmt.Println("[TEMP] qty step: " + qtyStepRaw)
-
 	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
 	if err != nil {
 		return errors.New("failed to parse pair qty step: " + err.Error())
