@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -61,7 +60,6 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			log.Println("[DEBUG] CHECK. order " + strconv.FormatInt(orderID, 10) + " doesn't exists")
 			tradeData.Status = "UNKNOWN"
 			return &tradeData, nil
 		}
@@ -150,12 +148,10 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
 		if convErr != nil {
 			balanceFree = 0
-			//log.Println("failed to parse free balance: " + convErr.Error())
 		}
 		balanceLocked, convErr := strconv.ParseFloat(binanceBalanceData.Locked, 64)
 		if convErr != nil {
 			balanceLocked = 0
-			//log.Println("failed to parse locked balance: " + convErr.Error())
 		}
 		balances = append(balances, Balance{
 			Asset:  binanceBalanceData.Asset,
@@ -207,8 +203,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
 		Symbol(pairSymbol).Do(context.Background())
 	if clientErr != nil {
-		//log.Println("failed to cancel all orders, " + clientErr.Error())
-		//log.Println("let's try cancel orders manualy..")
 		//handle error
 		if strings.Contains(clientErr.Error(), "Unknown order sent") {
 			/*canceling all orders failed,
@@ -216,7 +210,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 			orders, err := a.GetPairOpenOrders(pairSymbol)
 			if err != nil {
 				// =(
-				//log.Println("[DEBUG] error while b.getOpenOrders(): " + err.Error())
 				return err
 			}
 			if len(orders) == 0 {
@@ -231,7 +224,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 			}
 			return nil
 		}
-		//log.Println("[DEBUG] service error: " + clientErr.Error())
 		return errors.New("service request failed: " + clientErr.Error() +
 			", stack: " + GetTrace())
 	}
@@ -486,13 +478,13 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
 			if convErr != nil {
 				// ignore event
-				log.Println(convErr)
+				//log.Println(convErr)
 				return
 			}
 			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
 			if convErr != nil {
 				// ignore event
-				log.Println(convErr)
+				//log.Println(convErr)
 				return
 			}
 			wEvent := workers.PriceEvent{
