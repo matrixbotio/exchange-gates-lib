@@ -339,7 +339,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 	if pairData.MinPrice == 0 {
 		pairData.MinPrice = pairDefaultMinPrice
 	}
-	priceStepRaw := symbolData.PriceFilter().TickSize
+	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
 	if err != nil {
 		return errors.New("data handle error: " + err.Error())
@@ -370,7 +370,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 		return errors.New("failed to parse pair max qty: " + err.Error())
 	}
 
-	qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
+	qtyStepRaw := marketLotSizeFilter.StepSize
 	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
 	if err != nil {
 		return errors.New("failed to parse pair qty step: " + err.Error())
