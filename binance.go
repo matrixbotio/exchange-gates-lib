@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	pairDefaultMinQty    = 0.001
+	pairDefaultMinQty    = 10
 	pairDefaultMaxQty    = 99999.99
 	pairDefaultMinPrice  = 0.000001
 	pairDefaultQtyStep   = 0.001
