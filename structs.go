@@ -80,6 +80,7 @@ type ExchangePairData struct {
 	Symbol         string  `json:"symbol"`         // ETHUSDT
 	MinQty         float64 `json:"minQty"`
 	MaxQty         float64 `json:"maxQty"`
+	MinDeposit     float64 `json:"minDeposit"`
 	MinPrice       float64 `json:"minPrice"`
 	QtyStep        float64 `json:"qtyStep"`
 	PriceStep      float64 `json:"priceStep"`

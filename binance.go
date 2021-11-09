@@ -18,7 +18,7 @@ const (
 	pairDefaultMinPrice  = 0.000001
 	pairDefaultQtyStep   = 0.001
 	pairDefaultPriceStep = 0.000001
-	pairMinDeposit       = 10 // 
+	pairMinDeposit       = 10 //
 
 	candlesInterval = "1m"
 )
@@ -75,11 +75,11 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 	return &tradeData, nil
 }
 
-//PlaceOrder - place order on exchange
+// PlaceOrder - place order on exchange
 func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
 	{
-		//move this block to another location?
+		// move this block to another location?
 		switch order.Type {
 		default:
 			return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
@@ -95,7 +95,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
 	var rateStr string = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
 
-	//check lot size
+	// check lot size
 	if order.Qty < pairLimits.MinQty {
 		fmt.Print("pair min qty: ", pairLimits.MinQty, ", order qty: ")
 		fmt.Println(order.Qty)
@@ -108,6 +108,12 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		return nil, errors.New("bot order invalid error: insufficient price to open an order in this pair, stack: " + GetTrace())
 	}
 
+	// check min deposit
+	orderDeposit := order.Qty * order.Price
+	if orderDeposit < pairLimits.MinDeposit {
+		return nil, errors.New("the order deposit is less than the minimum")
+	}
+
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(quantityStr).
@@ -116,7 +122,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
 
-	//parse qty & price from order response
+	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
 		return nil, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
@@ -298,6 +304,7 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		Symbol:         symbolData.Symbol,
 		MinQty:         pairDefaultMinQty,
 		MaxQty:         pairDefaultMaxQty,
+		MinDeposit:     pairMinDeposit,
 		MinPrice:       pairDefaultMinPrice,
 		QtyStep:        pairDefaultQtyStep,
 		PriceStep:      pairDefaultPriceStep,
