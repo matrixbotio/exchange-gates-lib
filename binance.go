@@ -3,7 +3,6 @@ package matrixgates
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -77,6 +76,11 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 // PlaceOrder - place order on exchange
 func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
+	orderAdjusted, err := roundPairOrderValues(order, pairLimits)
+	if err != nil {
+		return nil, err
+	}
+
 	var orderSide binance.SideType
 	{
 		// move this block to another location?
@@ -90,34 +94,10 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		}
 	}
 
-	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
-	var quantityStr string = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
-	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
-	var rateStr string = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
-
-	// check lot size
-	if order.Qty < pairLimits.MinQty {
-		fmt.Print("pair min qty: ", pairLimits.MinQty, ", order qty: ")
-		fmt.Println(order.Qty)
-		return nil, errors.New("bot order invalid error: insufficient amount to open an order in this pair, stack: " + GetTrace())
-	}
-	if order.Qty > pairLimits.MaxQty {
-		return nil, errors.New("bot order invalid error: too much amount to open an order in this pair, stack: " + GetTrace())
-	}
-	if order.Price < pairLimits.MinPrice {
-		return nil, errors.New("bot order invalid error: insufficient price to open an order in this pair, stack: " + GetTrace())
-	}
-
-	// check min deposit
-	orderDeposit := order.Qty * order.Price
-	if orderDeposit < pairLimits.MinDeposit {
-		return nil, errors.New("the order deposit is less than the minimum")
-	}
-
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
-		TimeInForce(binance.TimeInForceTypeGTC).Quantity(quantityStr).
-		Price(rateStr).Do(context.Background())
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(orderAdjusted.Qty).
+		Price(orderAdjusted.Price).Do(context.Background())
 	if err != nil {
 		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}

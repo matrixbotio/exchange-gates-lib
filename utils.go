@@ -1,6 +1,7 @@
 package matrixgates
 
 import (
+	"errors"
 	"log"
 	"math"
 	"strconv"
@@ -42,4 +43,37 @@ func GetTrace() string {
 		return ""
 	}
 	return stack.Trace().TrimRuntime().String()
+}
+
+// roundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
+func roundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
+	result := BotOrderAdjusted{
+		PairSymbol: order.PairSymbol,
+		Type:       order.Type,
+	}
+
+	// check lot size
+	if order.Qty < pairLimits.MinQty {
+		return result, errors.New("bot order invalid error: insufficient amount to open an order in this pair, stack: " + GetTrace())
+	}
+	if order.Qty > pairLimits.MaxQty {
+		return result, errors.New("bot order invalid error: too much amount to open an order in this pair, stack: " + GetTrace())
+	}
+	if order.Price < pairLimits.MinPrice {
+		return result, errors.New("bot order invalid error: insufficient price to open an order in this pair, stack: " + GetTrace())
+	}
+
+	// check min deposit
+	orderDeposit := order.Qty * order.Price
+	if orderDeposit < pairLimits.MinDeposit {
+		return result, errors.New("the order deposit is less than the minimum")
+	}
+
+	// round order values
+	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
+	result.Qty = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
+	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
+	result.Price = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
+	result.Deposit = strconv.FormatFloat(orderDeposit, 'f', GetFloatPrecision(orderDeposit), 32)
+	return result, nil
 }

@@ -12,6 +12,15 @@ type BotOrder struct {
 	Deposit    float64 `json:"deposit"`
 }
 
+// BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
+type BotOrderAdjusted struct {
+	PairSymbol string `json:"pair"`
+	Type       string `json:"type"`
+	Qty        string `json:"qty"`
+	Price      string `json:"price"`
+	Deposit    string `json:"deposit"`
+}
+
 // OrderData - placed order data
 type OrderData struct {
 	OrderID        int64   `json:"orderID"`
