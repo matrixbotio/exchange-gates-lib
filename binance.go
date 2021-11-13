@@ -292,17 +292,18 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
 
+	var optionalErr error
 	err := binanceParseLotSizeFilter(&symbolData, &pairData)
 	if err != nil {
-		return nil, err
+		optionalErr = err
 	}
 
 	err = binanceParsePriceFilter(&symbolData, &pairData)
 	if err != nil {
-		return nil, err
+		optionalErr = err
 	}
 
-	return &pairData, nil
+	return &pairData, optionalErr
 }
 
 func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
