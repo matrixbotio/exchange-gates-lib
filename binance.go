@@ -529,6 +529,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 					EndTime:   event.Kline.EndTime,
 					Interval:  event.Kline.Interval,
 				},
+				Time: event.Time,
 			}
 
 			errs := make([]error, 5)
