@@ -371,15 +371,17 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 		return nil, errors.New("service disconnected: error while connecting to ExchangeInfoService: " + err.Error() + ", stack: " + GetTrace())
 	}
 
+	var lastError error
 	pairs := []*ExchangePairData{}
 	for _, symbolData := range res.Symbols {
 		pairData, err := a.getExchangePairData(symbolData)
 		if err != nil {
-			return nil, err
+			lastError = err
+		} else {
+			pairs = append(pairs, pairData)
 		}
-		pairs = append(pairs, pairData)
 	}
-	return pairs, nil
+	return pairs, lastError
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
