@@ -83,7 +83,6 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 
 	var orderSide binance.SideType
 	{
-		// move this block to another location?
 		switch order.Type {
 		default:
 			return nil, &orderAdjusted, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
