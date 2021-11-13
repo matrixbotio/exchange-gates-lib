@@ -333,7 +333,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
 	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
 	if marketLotSizeFilter == nil {
-		return errors.New("failed to get market lot size filter for symbol data")
+		return errors.New("failed to get market lot size filter for symbol data: " + symbolData.Symbol)
 	}
 	minQtyRaw := marketLotSizeFilter.MinQuantity
 	maxQtyRaw := marketLotSizeFilter.MaxQuantity
