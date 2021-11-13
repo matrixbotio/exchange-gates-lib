@@ -463,13 +463,11 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
 			if convErr != nil {
 				// ignore event
-				//log.Println(convErr)
 				return
 			}
 			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
 			if convErr != nil {
 				// ignore event
-				//log.Println(convErr)
 				return
 			}
 			wEvent := workers.PriceEvent{
