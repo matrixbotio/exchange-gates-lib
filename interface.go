@@ -19,7 +19,7 @@ type ExchangeInterface interface {
 
 	// Order
 	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
-	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error)
+	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error)
 
 	// Pair
 	GetPairData(pairSymbol string) (*ExchangePairData, error)

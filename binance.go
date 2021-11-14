@@ -3,8 +3,6 @@ package matrixgates
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -19,6 +17,7 @@ const (
 	pairDefaultMinPrice  = 0.000001
 	pairDefaultQtyStep   = 0.001
 	pairDefaultPriceStep = 0.000001
+	pairMinDeposit       = 10 //
 
 	candlesInterval = "1m"
 )
@@ -61,7 +60,6 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			log.Println("[DEBUG] CHECK. order " + strconv.FormatInt(orderID, 10) + " doesn't exists")
 			tradeData.Status = "UNKNOWN"
 			return &tradeData, nil
 		}
@@ -76,14 +74,18 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 	return &tradeData, nil
 }
 
-//PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
+// PlaceOrder - place order on exchange
+func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error) {
+	orderAdjusted, err := roundPairOrderValues(order, pairLimits)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var orderSide binance.SideType
 	{
-		//move this block to another location?
 		switch order.Type {
 		default:
-			return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
+			return nil, &orderAdjusted, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
 		case "buy":
 			orderSide = binance.SideTypeBuy
 		case "sell":
@@ -91,40 +93,22 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		}
 	}
 
-	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
-	var quantityStr string = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
-	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
-	var rateStr string = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
-
-	//check lot size
-	if order.Qty < pairLimits.MinQty {
-		fmt.Print("pair min qty: ", pairLimits.MinQty, ", order qty: ")
-		fmt.Println(order.Qty)
-		return nil, errors.New("bot order invalid error: insufficient amount to open an order in this pair, stack: " + GetTrace())
-	}
-	if order.Qty > pairLimits.MaxQty {
-		return nil, errors.New("bot order invalid error: too much amount to open an order in this pair, stack: " + GetTrace())
-	}
-	if order.Price < pairLimits.MinPrice {
-		return nil, errors.New("bot order invalid error: insufficient price to open an order in this pair, stack: " + GetTrace())
-	}
-
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
-		TimeInForce(binance.TimeInForceTypeGTC).Quantity(quantityStr).
-		Price(rateStr).Do(context.Background())
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(orderAdjusted.Qty).
+		Price(orderAdjusted.Price).Do(context.Background())
 	if err != nil {
-		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
+		return nil, &orderAdjusted, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
 
-	//parse qty & price from order response
+	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 
 	return &CreateOrderResponse{
@@ -132,7 +116,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		ClientOrderID: orderRes.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
-	}, nil
+	}, &orderAdjusted, nil
 }
 
 //GetAccountData - get account data ^ↀᴥↀ^
@@ -150,12 +134,10 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
 		if convErr != nil {
 			balanceFree = 0
-			//log.Println("failed to parse free balance: " + convErr.Error())
 		}
 		balanceLocked, convErr := strconv.ParseFloat(binanceBalanceData.Locked, 64)
 		if convErr != nil {
 			balanceLocked = 0
-			//log.Println("failed to parse locked balance: " + convErr.Error())
 		}
 		balances = append(balances, Balance{
 			Asset:  binanceBalanceData.Asset,
@@ -207,8 +189,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
 		Symbol(pairSymbol).Do(context.Background())
 	if clientErr != nil {
-		//log.Println("failed to cancel all orders, " + clientErr.Error())
-		//log.Println("let's try cancel orders manualy..")
 		//handle error
 		if strings.Contains(clientErr.Error(), "Unknown order sent") {
 			/*canceling all orders failed,
@@ -216,7 +196,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 			orders, err := a.GetPairOpenOrders(pairSymbol)
 			if err != nil {
 				// =(
-				//log.Println("[DEBUG] error while b.getOpenOrders(): " + err.Error())
 				return err
 			}
 			if len(orders) == 0 {
@@ -231,7 +210,6 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 			}
 			return nil
 		}
-		//log.Println("[DEBUG] service error: " + clientErr.Error())
 		return errors.New("service request failed: " + clientErr.Error() +
 			", stack: " + GetTrace())
 	}
@@ -305,6 +283,7 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		Symbol:         symbolData.Symbol,
 		MinQty:         pairDefaultMinQty,
 		MaxQty:         pairDefaultMaxQty,
+		MinDeposit:     pairMinDeposit,
 		MinPrice:       pairDefaultMinPrice,
 		QtyStep:        pairDefaultQtyStep,
 		PriceStep:      pairDefaultPriceStep,
@@ -312,17 +291,18 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
 
+	var optionalErr error
 	err := binanceParseLotSizeFilter(&symbolData, &pairData)
 	if err != nil {
-		return nil, err
+		optionalErr = err
 	}
 
 	err = binanceParsePriceFilter(&symbolData, &pairData)
 	if err != nil {
-		return nil, err
+		optionalErr = err
 	}
 
-	return &pairData, nil
+	return &pairData, optionalErr
 }
 
 func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
@@ -339,7 +319,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 	if pairData.MinPrice == 0 {
 		pairData.MinPrice = pairDefaultMinPrice
 	}
-	priceStepRaw := symbolData.PriceFilter().TickSize
+	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
 	if err != nil {
 		return errors.New("data handle error: " + err.Error())
@@ -353,13 +333,14 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
 	marketLotSizeFilter := symbolData.MarketLotSizeFilter()
 	if marketLotSizeFilter == nil {
-		return errors.New("failed to get market lot size filter for symbol data")
+		return errors.New("failed to get market lot size filter for symbol data: " + symbolData.Symbol)
 	}
 	minQtyRaw := marketLotSizeFilter.MinQuantity
 	maxQtyRaw := marketLotSizeFilter.MaxQuantity
+
 	minQty, err := strconv.ParseFloat(minQtyRaw, 64)
 	if err != nil {
-		return errors.New("data handle error: " + err.Error())
+		return errors.New("failed to parse pair min qty: " + err.Error())
 	}
 	if minQty == 0 {
 		minQty = pairDefaultMinQty
@@ -367,13 +348,13 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
 	if err != nil {
-		return errors.New("data handle error" + err.Error())
+		return errors.New("failed to parse pair max qty: " + err.Error())
 	}
 
-	qtyStepRaw := symbolData.MarketLotSizeFilter().StepSize
+	qtyStepRaw := marketLotSizeFilter.StepSize
 	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
 	if err != nil {
-		return errors.New("data handle error: " + err.Error())
+		return errors.New("failed to parse pair qty step: " + err.Error())
 	}
 	if pairData.QtyStep == 0 {
 		pairData.QtyStep = minQty
@@ -389,15 +370,17 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 		return nil, errors.New("service disconnected: error while connecting to ExchangeInfoService: " + err.Error() + ", stack: " + GetTrace())
 	}
 
+	var lastError error
 	pairs := []*ExchangePairData{}
 	for _, symbolData := range res.Symbols {
 		pairData, err := a.getExchangePairData(symbolData)
 		if err != nil {
-			return nil, err
+			lastError = err
+		} else {
+			pairs = append(pairs, pairData)
 		}
-		pairs = append(pairs, pairData)
 	}
-	return pairs, nil
+	return pairs, lastError
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
@@ -479,13 +462,11 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
 			if convErr != nil {
 				// ignore event
-				log.Println(convErr)
 				return
 			}
 			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
 			if convErr != nil {
 				// ignore event
-				log.Println(convErr)
 				return
 			}
 			wEvent := workers.PriceEvent{
@@ -545,6 +526,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 					EndTime:   event.Kline.EndTime,
 					Interval:  event.Kline.Interval,
 				},
+				Time: event.Time,
 			}
 
 			errs := make([]error, 5)
