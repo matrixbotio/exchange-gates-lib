@@ -40,6 +40,7 @@ func (w *TradeEventWorker) Stop() {
 
 // TradeEvent - data on a executed order in a trading pair
 type TradeEvent struct {
+	ID            int64   `json:"id"`
 	Time          int64   `json:"time"`
 	Symbol        string  `json:"symbol"`
 	Price         float64 `json:"price"`
