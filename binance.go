@@ -584,6 +584,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 				event.Time++
 			}
 			wEvent := workers.TradeEvent{
+				ID:            event.TradeID,
 				Time:          event.Time,
 				Symbol:        event.Symbol,
 				BuyerOrderID:  event.BuyerOrderID,

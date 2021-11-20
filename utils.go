@@ -20,7 +20,6 @@ func GetFloatPrecision(value float64) int {
 	if len(valueParts) <= 1 {
 		return 0
 	}
-	log.Println(valueParts[1])
 	valueLastPartTrimmed := strings.TrimRight(valueParts[1], "0")
 	return len(valueLastPartTrimmed)
 }
