@@ -49,14 +49,15 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
 	return a.ping()
 }
 
-//GetOrderData ..
+// GetOrderData - get order data
 func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	tradeData := OrderData{
-		OrderID: orderID,
-	}
 	//order status: NEW, PARTIALLY_FILLED, FILLED, CANCELED, PENDING_CANCEL, REJECTED, EXPIRED
 	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(context.Background())
+
+	tradeData := OrderData{
+		OrderID: orderID,
+	}
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
@@ -67,7 +68,8 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 	}
 
 	// parse qty
-	orderFilledQty, convErr := strconv.ParseFloat(orderResponse.ExecutedQuantity, 64)
+	var convErr error
+	tradeData.OrderAwaitQty, convErr = strconv.ParseFloat(orderResponse.ExecutedQuantity, 64)
 	if convErr != nil {
 		return nil, errors.New("data handle error: failed to parse order filled qty: " + convErr.Error() + ", stack: " + GetTrace())
 	}
@@ -78,7 +80,6 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 		return nil, errors.New("data handle error: failed to parse order price: " + convErr.Error() + ", stack: " + GetTrace())
 	}
 
-	tradeData.OrderAwaitQty = orderFilledQty
 	tradeData.Status = string(orderResponse.Status)
 	return &tradeData, nil
 }
