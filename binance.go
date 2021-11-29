@@ -65,10 +65,19 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 		}
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())
 	}
+
+	// parse qty
 	orderFilledQty, convErr := strconv.ParseFloat(orderResponse.ExecutedQuantity, 64)
 	if convErr != nil {
 		return nil, errors.New("data handle error: failed to parse order filled qty: " + convErr.Error() + ", stack: " + GetTrace())
 	}
+
+	// parse price
+	tradeData.Price, convErr = strconv.ParseFloat(orderResponse.Price, 64)
+	if convErr != nil {
+		return nil, errors.New("data handle error: failed to parse order price: " + convErr.Error() + ", stack: " + GetTrace())
+	}
+
 	tradeData.OrderAwaitQty = orderFilledQty
 	tradeData.Status = string(orderResponse.Status)
 	return &tradeData, nil
