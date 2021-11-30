@@ -24,9 +24,10 @@ type BotOrderAdjusted struct {
 // OrderData - placed order data
 type OrderData struct {
 	OrderID        int64   `json:"orderID"`
-	OrderAwaitQty  float64 `json:"awaitQty"`  //initial order qty
-	OrderFilledQty float64 `json:"filledQty"` //event executed qty
-	Status         string  `json:"status"`    //used in bot.getOrderData
+	OrderAwaitQty  float64 `json:"awaitQty"`  // initial order qty
+	OrderFilledQty float64 `json:"filledQty"` // event executed qty
+	Price          float64 `json:"price"`
+	Status         string  `json:"status"` // used in bot.getOrderData
 }
 
 // CreateOrderResponse ..
