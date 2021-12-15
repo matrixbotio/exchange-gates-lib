@@ -174,11 +174,18 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 
 // CancelPairOrder - cancel one exchange pair order by ID
 func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) error {
-	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
-		OrderID(orderID).Do(context.Background())
-	if clientErr != nil {
-		return errors.New("service request failed: " + clientErr.Error() +
-			", stack: " + GetTrace())
+	maxAttempts := 2
+	var lastError error
+	for attemptNumber := 1; attemptNumber <= maxAttempts; attemptNumber++ {
+		_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+			OrderID(orderID).Do(context.Background())
+		if clientErr != nil {
+			lastError = errors.New("service request failed: " + clientErr.Error() +
+				", stack: " + GetTrace())
+		}
+	}
+	if lastError != nil {
+		return errors.New(lastError.Error() + " after " + strconv.Itoa(maxAttempts) + " attempts")
 	}
 	return nil
 }
