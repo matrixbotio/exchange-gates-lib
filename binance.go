@@ -11,17 +11,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
-const (
-	pairDefaultMinQty    = 0.001
-	pairDefaultMaxQty    = 99999.99
-	pairDefaultMinPrice  = 0.000001
-	pairDefaultQtyStep   = 0.001
-	pairDefaultPriceStep = 0.000001
-	pairMinDeposit       = 10 //
-
-	candlesInterval = "1m"
-)
-
 //BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
@@ -183,7 +172,7 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 	return price, nil
 }
 
-//CancelPairOrder - cancel one exchange pair order by ID
+// CancelPairOrder - cancel one exchange pair order by ID
 func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) error {
 	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(context.Background())
@@ -194,7 +183,7 @@ func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) e
 	return nil
 }
 
-//CancelPairOrders - cancel pair all orders
+// CancelPairOrders - cancel pair all orders
 func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
 		Symbol(pairSymbol).Do(context.Background())
