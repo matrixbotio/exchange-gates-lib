@@ -5,19 +5,20 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
-//BinanceSpotAdapter - bot exchange adapter for BinanceSpot
+// BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
 	binanceAPI *binance.Client
 }
 
-//NewBinanceSpotAdapter - create binance exchange adapter
+// NewBinanceSpotAdapter - create binance exchange adapter
 func NewBinanceSpotAdapter(exchangeID int) *BinanceSpotAdapter {
 	stack.Caller(0)
 	a := BinanceSpotAdapter{}
@@ -27,15 +28,20 @@ func NewBinanceSpotAdapter(exchangeID int) *BinanceSpotAdapter {
 	return &a
 }
 
-//Connect to exchange
+// Connect to exchange
 func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
-	switch credentials.Type {
-	default:
+	if credentials.Type != APICredentialsTypeKeypair {
 		return errors.New("invalid credentials to connect to Binance")
-	case APICredentialsTypeKeypair:
-		a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
 	}
-	return a.ping()
+
+	timeIsUp := NewRuntimeLimitHandler(exchangeSetupConnTimeout*time.Millisecond, func() {
+		a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
+		a.ping()
+	}).Run()
+	if timeIsUp {
+		return errors.New("connection opening timeout")
+	}
+	return nil
 }
 
 // GetOrderData - get order data

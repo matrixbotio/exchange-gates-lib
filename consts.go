@@ -9,4 +9,5 @@ const (
 	pairMinDeposit       = 10 //
 
 	candlesInterval = "1m"
+	exchangeSetupConnTimeout = 1500 // ms
 )
