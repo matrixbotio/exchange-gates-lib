@@ -154,7 +154,7 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 	return &accountDataResult, nil
 }
 
-//GetPairLastPrice - get pair last price ^ↀᴥↀ^
+// GetPairLastPrice - get pair last price ^ↀᴥↀ^
 func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	tickerService := a.binanceAPI.NewListPricesService()
 	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
@@ -162,7 +162,7 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 		return 0, errors.New("service request failed: failed to request last price, " +
 			srvErr.Error() + ", stack: " + GetTrace())
 	}
-	//until just brute force. need to be done faster
+	// until just brute force. need to be done faster
 	var price float64 = 0
 	var parseErr error
 	for _, p := range prices {
@@ -180,18 +180,12 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 
 // CancelPairOrder - cancel one exchange pair order by ID
 func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) error {
-	maxAttempts := 2
-	var lastError error
-	for attemptNumber := 1; attemptNumber <= maxAttempts; attemptNumber++ {
-		_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
-			OrderID(orderID).Do(context.Background())
-		if clientErr != nil {
-			lastError = errors.New("service request failed: " + clientErr.Error() +
-				", stack: " + GetTrace())
+	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+		OrderID(orderID).Do(context.Background())
+	if clientErr != nil {
+		if !a.isErrorAboutUnknownOrder(clientErr) {
+			return clientErr
 		}
-	}
-	if lastError != nil {
-		return errors.New(lastError.Error() + " after " + strconv.Itoa(maxAttempts) + " attempts")
 	}
 	return nil
 }
@@ -201,9 +195,48 @@ func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
 	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
 		Symbol(pairSymbol).Do(context.Background())
 	if clientErr != nil {
-		//handle error
-		if strings.Contains(clientErr.Error(), "Unknown order sent") {
-			/*canceling all orders failed,
+		// handle error
+    if a.isErrorAboutUnknownOrder(clientErr) {
+			/* canceling all orders failed,
+			let's try to request a list of them and cancel them individually*/
+			orders, err := a.GetPairOpenOrders(pairSymbol)
+			if err != nil {
+				// =(
+				return err
+			}
+			if len(orders) == 0 {
+				// orders already cancelled
+				return nil
+			}
+			for _, order := range orders {
+				err := a.CancelPairOrder(pairSymbol, order.OrderID)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		return errors.New("service request failed: " + clientErr.Error() +
+			", stack: " + GetTrace())
+	}
+	return nil
+}
+
+func (a *BinanceSpotAdapter) isErrorAboutUnknownOrder(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "Unknown order sent")
+}
+
+// CancelPairOrders - cancel pair all orders
+func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
+	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
+		Symbol(pairSymbol).Do(context.Background())
+	if clientErr != nil {
+		// handle error
+		if a.isErrorAboutUnknownOrder(clientErr) {
+			/* canceling all orders failed,
 			let's try to request a list of them and cancel them individually*/
 			orders, err := a.GetPairOpenOrders(pairSymbol)
 			if err != nil {
