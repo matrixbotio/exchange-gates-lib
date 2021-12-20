@@ -118,3 +118,12 @@ func (r *RunTimeLimitHandler) Run() bool {
 
 	return <-done
 }
+
+// ValidateExchangeID - check if we use the given exchange ID
+func ValidateExchangeID(exchangeID int) error {
+	_, isExchangeSet := ExchangeAdapters[exchangeID]
+	if !isExchangeSet {
+		return errors.New("unknown exchange ID")
+	}
+	return nil
+}
