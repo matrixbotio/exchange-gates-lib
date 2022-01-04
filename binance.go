@@ -41,6 +41,9 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
 	if timeIsUp {
 		return errors.New("connection opening timeout")
 	}
+
+	// sync time
+	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
 	return nil
 }
 
