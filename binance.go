@@ -127,7 +127,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 	}, &orderAdjusted, nil
 }
 
-//GetAccountData - get account data ^ↀᴥↀ^
+// GetAccountData - get account data ^ↀᴥↀ^
 func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
@@ -147,11 +147,13 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 		if convErr != nil {
 			balanceLocked = 0
 		}
-		balances = append(balances, Balance{
-			Asset:  binanceBalanceData.Asset,
-			Free:   balanceFree,
-			Locked: balanceLocked,
-		})
+		if balanceFree != 0 && balanceLocked != 0 {
+			balances = append(balances, Balance{
+				Asset:  binanceBalanceData.Asset,
+				Free:   balanceFree,
+				Locked: balanceLocked,
+			})
+		}
 	}
 	accountDataResult.Balances = balances
 	return &accountDataResult, nil
