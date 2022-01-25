@@ -43,8 +43,12 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
 	}
 
 	// sync time
-	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
+	a.sync()
 	return nil
+}
+
+func (a *BinanceSpotAdapter) sync() {
+	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
 }
 
 // GetOrderData - get order data
@@ -101,6 +105,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		}
 	}
 
+	a.sync()
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(orderAdjusted.Qty).
