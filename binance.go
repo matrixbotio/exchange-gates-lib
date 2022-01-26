@@ -143,7 +143,7 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 	}
 	balances := []Balance{}
 	for _, binanceBalanceData := range binanceAccountData.Balances {
-		//convert strings to float64
+		// convert strings to float64
 		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
 		if convErr != nil {
 			balanceFree = 0
@@ -152,7 +152,7 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 		if convErr != nil {
 			balanceLocked = 0
 		}
-		if balanceFree != 0 && balanceLocked != 0 {
+		if balanceFree != 0 || balanceLocked != 0 {
 			balances = append(balances, Balance{
 				Asset:  binanceBalanceData.Asset,
 				Free:   balanceFree,
