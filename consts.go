@@ -8,6 +8,6 @@ const (
 	pairDefaultPriceStep = 0.000001
 	pairMinDeposit       = 10 //
 
-	candlesInterval = "1m"
-	exchangeSetupConnTimeout = 1500 // ms
+	candlesInterval          = "1m"
+	exchangeSetupConnTimeout = 3500 // ms
 )
