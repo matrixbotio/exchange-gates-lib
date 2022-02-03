@@ -90,7 +90,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error) {
 	orderAdjusted, err := roundPairOrderValues(order, pairLimits)
 	if err != nil {
-		return nil, nil, err
+		return nil, &orderAdjusted, err
 	}
 
 	var orderSide binance.SideType
