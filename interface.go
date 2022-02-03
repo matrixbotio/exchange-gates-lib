@@ -50,3 +50,10 @@ func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 		return NewBinanceSpotAdapter(exchangeIDbinanceSpot), nil
 	}
 }
+
+// GetExchangeAdapters - get all supported exchange adapters
+func GetExchangeAdapters() map[int]ExchangeInterface {
+	return map[int]ExchangeInterface{
+		exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
+	}
+}
