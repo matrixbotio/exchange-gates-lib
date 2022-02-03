@@ -1,6 +1,8 @@
 package matrixgates
 
 import (
+	"errors"
+
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
@@ -39,7 +41,19 @@ const (
 	exchangeIDbinanceSpot = 1
 )
 
-//ExchangeAdapters - map of all supported exchanges
-var ExchangeAdapters map[int]ExchangeInterface = map[int]ExchangeInterface{
-	exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
+// GetExchangeAdapter - get supported exchange adapter with interface
+func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
+	switch exchangeID {
+	default:
+		return nil, errors.New("exchange not found")
+	case exchangeIDbinanceSpot:
+		return NewBinanceSpotAdapter(exchangeIDbinanceSpot), nil
+	}
+}
+
+// GetExchangeAdapters - get all supported exchange adapters
+func GetExchangeAdapters() map[int]ExchangeInterface {
+	return map[int]ExchangeInterface{
+		exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
+	}
 }
