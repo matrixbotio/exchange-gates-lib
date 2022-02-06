@@ -54,13 +54,19 @@ func roundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 
 	// check lot size
 	if order.Qty < pairLimits.MinQty {
-		return result, errors.New("bot order invalid error: insufficient amount to open an order in this pair, stack: " + GetTrace())
+		return result, errors.New("insufficient amount to open an order in this pair. " +
+			"order qty: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
+			" min: " + strconv.FormatFloat(pairLimits.MinQty, 'f', 8, 32))
 	}
 	if order.Qty > pairLimits.MaxQty {
-		return result, errors.New("bot order invalid error: too much amount to open an order in this pair, stack: " + GetTrace())
+		return result, errors.New("too much amount to open an order in this pair. " +
+			"order qty: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
+			" max: " + strconv.FormatFloat(pairLimits.MaxQty, 'f', 8, 32))
 	}
 	if order.Price < pairLimits.MinPrice {
-		return result, errors.New("bot order invalid error: insufficient price to open an order in this pair, stack: " + GetTrace())
+		return result, errors.New("insufficient price to open an order in this pair. " +
+			"order price: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
+			" min: " + strconv.FormatFloat(pairLimits.MaxQty, 'f', 8, 32))
 	}
 
 	// check min deposit
