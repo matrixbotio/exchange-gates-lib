@@ -13,31 +13,36 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion != 'failure' }}
     steps:
-
-      - name: Get GitHub organization name
-        id: org
-        run: |
-          IFS=/ read -a org_repo <<< "$GITHUB_REPOSITORY"
-          echo ::set-output name=org::${org_repo[0]}
+      - name: Generate token to access wiki repo
+        id: tokenizer
+        uses: tibdex/github-app-token@v1.5.1
+        with:
+          app_id: ${{ secrets.GH_CI_APP_ID }}
+          private_key: ${{ secrets.GH_CI_PRIVATE_KEY }}
 
       - name: Download review scheme
-        uses: octokit/request-action@v2.x
-        id: scheme
+        uses: actions/checkout@v2
         with:
-          route: GET /repos/${{ steps.org.outputs.org }}/wiki/contents/review-scheme.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_CI_TOKEN }}
+          fetch-depth: '1'
+          path: wiki
+          repository: ${{ github.repository_owner }}/wiki
+          token: ${{ steps.tokenizer.outputs.token }}
 
-      - name: Get raw review scheme file
-        run: |
-          mkdir -p /home/runner/work/_temp/_github_home
-          cat - <<EOF | base64 -d > /home/runner/work/_temp/_github_home/review-scheme.yml
-          ${{ fromJson(steps.scheme.outputs.data).content }}
-          EOF
+      - name: Get PR ref
+        uses: actions/github-script@v5
+        id: pr-ref
+        with:
+          script: |
+            for(const { head: { ref }, number } of ${{ toJSON(github.event.workflow_run.pull_requests) }}){
+              if(ref === ${{ toJSON(github.event.workflow_run.head_branch) }}){
+                return number;
+              }
+            }
+          result-encoding: string
 
       - name: Set reviewers or merge
         uses: KaMeHb-UA/auto-review-action@v10
         with:
-          scheme-file: /home/runner/work/_temp/_github_home/review-scheme.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_CI_TOKEN }}
+          scheme-file: "${{ github.workspace }}/wiki/review-scheme.yml"
+          token: ${{ steps.tokenizer.outputs.token }}
+          ref: refs/pull/${{ steps.pr-ref.outputs.result }}/merge
