@@ -45,8 +45,8 @@ func GetTrace() string {
 	return stack.Trace().TrimRuntime().String()
 }
 
-// roundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func roundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
+// RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
+func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
 		PairSymbol: order.PairSymbol,
 		Type:       order.Type,
