@@ -84,6 +84,17 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	return result, nil
 }
 
+// RoundDeposit - round deposit for grid by pair limits
+func RoundDeposit(deposit float64, pairLimits ExchangePairData) (float64, error) {
+	depositStep := pairLimits.PriceStep * pairLimits.QtyStep
+	depositRoundedStr := strconv.FormatFloat(deposit, 'f', GetFloatPrecision(depositStep), 64)
+	depositRounded, err := strconv.ParseFloat(depositRoundedStr, 64)
+	if err != nil {
+		return 0, errors.New("failed to round deposit: " + err.Error())
+	}
+	return depositRounded, nil
+}
+
 // ParseAdjustedOrder - parse rounded order to bot order
 func ParseAdjustedOrder(order BotOrderAdjusted) (BotOrder, error) {
 	resultOrder := BotOrder{
