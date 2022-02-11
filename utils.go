@@ -84,6 +84,31 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	return result, nil
 }
 
+// ParseAdjustedOrder - parse rounded order to bot order
+func ParseAdjustedOrder(order BotOrderAdjusted) (BotOrder, error) {
+	resultOrder := BotOrder{
+		PairSymbol: order.PairSymbol,
+		Type:       order.Type,
+	}
+	// parse qty
+	var err error
+	resultOrder.Qty, err = strconv.ParseFloat(order.Qty, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order qty: " + err.Error())
+	}
+	// parse price
+	resultOrder.Price, err = strconv.ParseFloat(order.Price, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order price: " + err.Error())
+	}
+	// parse deposit
+	resultOrder.Deposit, err = strconv.ParseFloat(order.Deposit, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order deposit: " + err.Error())
+	}
+	return resultOrder, nil
+}
+
 // RunTimeLimitHandler - func runtime limit handler
 type RunTimeLimitHandler struct {
 	timeout time.Duration
