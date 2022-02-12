@@ -45,8 +45,8 @@ func GetTrace() string {
 	return stack.Trace().TrimRuntime().String()
 }
 
-// roundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func roundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
+// RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
+func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
 		PairSymbol: order.PairSymbol,
 		Type:       order.Type,
@@ -82,6 +82,42 @@ func roundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	result.Price = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
 	result.Deposit = strconv.FormatFloat(orderDeposit, 'f', GetFloatPrecision(orderDeposit), 32)
 	return result, nil
+}
+
+// RoundDeposit - round deposit for grid by pair limits
+func RoundDeposit(deposit float64, pairLimits ExchangePairData) (float64, error) {
+	depositStep := pairLimits.PriceStep * pairLimits.QtyStep
+	depositRoundedStr := strconv.FormatFloat(deposit, 'f', GetFloatPrecision(depositStep), 64)
+	depositRounded, err := strconv.ParseFloat(depositRoundedStr, 64)
+	if err != nil {
+		return 0, errors.New("failed to round deposit: " + err.Error())
+	}
+	return depositRounded, nil
+}
+
+// ParseAdjustedOrder - parse rounded order to bot order
+func ParseAdjustedOrder(order BotOrderAdjusted) (BotOrder, error) {
+	resultOrder := BotOrder{
+		PairSymbol: order.PairSymbol,
+		Type:       order.Type,
+	}
+	// parse qty
+	var err error
+	resultOrder.Qty, err = strconv.ParseFloat(order.Qty, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order qty: " + err.Error())
+	}
+	// parse price
+	resultOrder.Price, err = strconv.ParseFloat(order.Price, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order price: " + err.Error())
+	}
+	// parse deposit
+	resultOrder.Deposit, err = strconv.ParseFloat(order.Deposit, 64)
+	if err != nil {
+		return resultOrder, errors.New("failed to parse order deposit: " + err.Error())
+	}
+	return resultOrder, nil
 }
 
 // RunTimeLimitHandler - func runtime limit handler

@@ -88,7 +88,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 // PlaceOrder - place order on exchange
 func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error) {
-	orderAdjusted, err := roundPairOrderValues(order, pairLimits)
+	orderAdjusted, err := RoundPairOrderValues(order, pairLimits)
 	if err != nil {
 		return nil, &orderAdjusted, err
 	}
