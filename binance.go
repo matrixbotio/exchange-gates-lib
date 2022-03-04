@@ -299,12 +299,12 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		QuotePrecision: symbolData.QuotePrecision,
 		Status:         symbolData.Status,
 		Symbol:         symbolData.Symbol,
-		MinQty:         pairDefaultMinQty,
-		MaxQty:         pairDefaultMaxQty,
-		MinDeposit:     pairMinDeposit,
-		MinPrice:       pairDefaultMinPrice,
-		QtyStep:        pairDefaultQtyStep,
-		PriceStep:      pairDefaultPriceStep,
+		MinQty:         PairDefaultMinQty,
+		MaxQty:         PairDefaultMaxQty,
+		MinDeposit:     PairMinDeposit,
+		MinPrice:       PairDefaultMinPrice,
+		QtyStep:        PairDefaultQtyStep,
+		PriceStep:      PairDefaultPriceStep,
 		AllowedMargin:  symbolData.IsMarginTradingAllowed,
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
@@ -335,7 +335,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 		return errors.New("data handle error: " + err.Error())
 	}
 	if pairData.MinPrice == 0 {
-		pairData.MinPrice = pairDefaultMinPrice
+		pairData.MinPrice = PairDefaultMinPrice
 	}
 	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
@@ -362,7 +362,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 		return errors.New("failed to parse pair min qty: " + err.Error())
 	}
 	if pairData.MinQty == 0 {
-		pairData.MinQty = pairDefaultMinQty
+		pairData.MinQty = PairDefaultMinQty
 	}
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
