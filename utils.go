@@ -160,3 +160,15 @@ func (r *RunTimeLimitHandler) Run() bool {
 
 	return <-done
 }
+
+// GetDefaultPairData !
+func GetDefaultPairData() ExchangePairData {
+	return ExchangePairData{
+		ExchangeID: PairDefaultExchangeID,
+		MinQty:     PairDefaultMinQty,
+		MaxQty:     PairDefaultMaxQty,
+		MinDeposit: PairMinDeposit,
+		MinPrice:   PairDefaultMinPrice,
+		QtyStep:    PairDefaultQtyStep,
+	}
+}
