@@ -87,7 +87,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
+func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
 	{
 		switch order.Type {
