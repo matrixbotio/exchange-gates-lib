@@ -87,17 +87,12 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error) {
-	orderAdjusted, err := RoundPairOrderValues(order, pairLimits)
-	if err != nil {
-		return nil, &orderAdjusted, err
-	}
-
+func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
 	{
 		switch order.Type {
 		default:
-			return nil, &orderAdjusted, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
+			return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
 		case "buy":
 			orderSide = binance.SideTypeBuy
 		case "sell":
@@ -108,20 +103,20 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 	a.sync()
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
-		TimeInForce(binance.TimeInForceTypeGTC).Quantity(orderAdjusted.Qty).
-		Price(orderAdjusted.Price).Do(context.Background())
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(order.Qty).
+		Price(order.Price).Do(context.Background())
 	if err != nil {
-		return nil, &orderAdjusted, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 
 	return &CreateOrderResponse{
@@ -129,7 +124,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		ClientOrderID: orderRes.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
-	}, &orderAdjusted, nil
+	}, nil
 }
 
 // GetAccountData - get account data ^ↀᴥↀ^
