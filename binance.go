@@ -12,6 +12,10 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
+const (
+	binancePlaceOrderTimeout = time.Millisecond * 1500
+)
+
 // BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
@@ -100,11 +104,17 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted) (*CreateOrderRes
 		}
 	}
 
-	a.sync()
+	// get req context
+	ctx, ctxCancel := context.WithTimeout(context.Background(), binancePlaceOrderTimeout)
+	defer ctxCancel()
+
+	a.sync() // sync client
+
+	// place order
 	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(order.Qty).
-		Price(order.Price).Do(context.Background())
+		Price(order.Price).Do(ctx)
 	if err != nil {
 		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
