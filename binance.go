@@ -102,11 +102,19 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjus
 
 	a.sync() // sync client
 
-	// place order
-	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
+	// setup order
+	orderService := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(order.Qty).
-		Price(order.Price).Do(ctx)
+		Price(order.Price)
+
+	// set order ID
+	if order.ClientOrderID != "" {
+		orderService.NewClientOrderID(order.ClientOrderID)
+	}
+
+	// place order
+	orderRes, err := orderService.Do(ctx)
 	if err != nil {
 		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
