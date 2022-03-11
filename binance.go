@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	binancePlaceOrderTimeout = time.Millisecond * 1500
+	BinancePlaceOrderTimeout = time.Millisecond * 1500
 )
 
 // BinanceSpotAdapter - bot exchange adapter for BinanceSpot
@@ -105,7 +105,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted) (*CreateOrderRes
 	}
 
 	// get req context
-	ctx, ctxCancel := context.WithTimeout(context.Background(), binancePlaceOrderTimeout)
+	ctx, ctxCancel := context.WithTimeout(context.Background(), BinancePlaceOrderTimeout)
 	defer ctxCancel()
 
 	a.sync() // sync client
