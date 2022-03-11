@@ -12,10 +12,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
-const (
-	BinancePlaceOrderTimeout = time.Millisecond * 1500
-)
-
 // BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
@@ -91,7 +87,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted) (*CreateOrderResponse, error) {
+func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
 	{
 		switch order.Type {
@@ -103,10 +99,6 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrderAdjusted) (*CreateOrderRes
 			orderSide = binance.SideTypeSell
 		}
 	}
-
-	// get req context
-	ctx, ctxCancel := context.WithTimeout(context.Background(), BinancePlaceOrderTimeout)
-	defer ctxCancel()
 
 	a.sync() // sync client
 
