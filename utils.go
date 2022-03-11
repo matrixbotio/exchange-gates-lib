@@ -48,8 +48,9 @@ func GetTrace() string {
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
-		PairSymbol: order.PairSymbol,
-		Type:       order.Type,
+		PairSymbol:    order.PairSymbol,
+		Type:          order.Type,
+		ClientOrderID: order.ClientOrderID,
 	}
 
 	// check lot size
