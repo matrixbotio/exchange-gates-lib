@@ -135,3 +135,9 @@ type APICredentials struct {
 	Password APIPassword `json:"password"`
 	Email    APIEmail    `json:"email"`
 }
+
+// CheckOrdersResponse - вata on checked and restored orders
+type CheckOrdersResponse struct {
+	ExecutedIDs     []int64
+	RecoveredOrders []CreateOrderResponse
+}
