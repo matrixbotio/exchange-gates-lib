@@ -139,5 +139,5 @@ type APICredentials struct {
 // CheckOrdersResponse - data on checked and restored orders
 type CheckOrdersResponse struct {
 	ExecutedOrders  []*OrderData
-	RecoveredOrders []*CreateOrderResponse
+	RecoveredOrders map[int64]*CreateOrderResponse // old order ID -> new order data
 }
