@@ -53,7 +53,6 @@ func (a *BinanceSpotAdapter) sync() {
 
 // GetOrderData - get order data
 func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	//order status: NEW, PARTIALLY_FILLED, FILLED, CANCELED, PENDING_CANCEL, REJECTED, EXPIRED
 	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(context.Background())
 
@@ -63,7 +62,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			tradeData.Status = "UNKNOWN"
+			tradeData.Status = OrderStatusUnknown
 			return &tradeData, nil
 		}
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())

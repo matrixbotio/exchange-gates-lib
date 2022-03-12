@@ -11,4 +11,13 @@ const (
 
 	candlesInterval          = "1m"
 	exchangeSetupConnTimeout = 3500 // ms
+
+	OrderStatusNew             = "NEW"
+	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
+	OrderStatusFilled          = "FILLED"
+	OrderStatusCancelled       = "CANCELED"
+	OrderStatusPendingCancel   = "PENDING_CANCEL"
+	OrderStatusRejected        = "REJECTED"
+	OrderStatusExpired         = "EXPIRED"
+	OrderStatusUnknown         = "UNKNOWN"
 )
