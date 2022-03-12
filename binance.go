@@ -134,6 +134,7 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjus
 		ClientOrderID: orderRes.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
+		Symbol:        orderRes.Symbol,
 	}, nil
 }
 
