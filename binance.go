@@ -134,7 +134,13 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjus
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
 		Symbol:        orderRes.Symbol,
+		Type:          a.getOrderType(orderRes.Side),
 	}, nil
+}
+
+// convert order side to bot order type
+func (a *BinanceSpotAdapter) getOrderType(orderSide binance.SideType) string {
+	return strings.ToLower(string(orderSide))
 }
 
 // GetAccountData - get account data ^ↀᴥↀ^

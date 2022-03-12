@@ -45,6 +45,7 @@ type CreateOrderResponse struct {
 	OrigQuantity  float64 `json:"origQty"`
 	Price         float64 `json:"price"`
 	Symbol        string  `json:"symbol"`
+	Type          string  `json:"orderRes"`
 }
 
 // Balance - Trading pair balance
