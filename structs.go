@@ -138,6 +138,6 @@ type APICredentials struct {
 
 // CheckOrdersResponse - data on checked and restored orders
 type CheckOrdersResponse struct {
-	ExecutedIDs     []*OrderData
+	ExecutedOrders  []*OrderData
 	RecoveredOrders []CreateOrderResponse
 }
