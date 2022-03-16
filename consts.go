@@ -1,13 +1,23 @@
 package matrixgates
 
 const (
-	pairDefaultMinQty    = 0.001
-	pairDefaultMaxQty    = 99999.99
-	pairDefaultMinPrice  = 0.000001
-	pairDefaultQtyStep   = 0.001
-	pairDefaultPriceStep = 0.000001
-	pairMinDeposit       = 10 //
+	PairDefaultExchangeID = 1
+	PairDefaultMinQty     = 0.001
+	PairDefaultMaxQty     = 99999.99
+	PairDefaultMinPrice   = 0.000001
+	PairDefaultQtyStep    = 0.001
+	PairDefaultPriceStep  = 0.000001
+	PairMinDeposit        = 10 //
 
 	candlesInterval          = "1m"
 	exchangeSetupConnTimeout = 3500 // ms
+
+	OrderStatusNew             = "NEW"
+	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
+	OrderStatusFilled          = "FILLED"
+	OrderStatusCancelled       = "CANCELED"
+	OrderStatusPendingCancel   = "PENDING_CANCEL"
+	OrderStatusRejected        = "REJECTED"
+	OrderStatusExpired         = "EXPIRED"
+	OrderStatusUnknown         = "UNKNOWN"
 )

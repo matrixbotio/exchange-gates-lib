@@ -14,3 +14,25 @@ func TestGetFloatPrecision(t *testing.T) {
 			strconv.Itoa(precision) + ", expected " + strconv.Itoa(precisionExpected))
 	}
 }
+
+func TestOrderResponseToBotOrder(t *testing.T) {
+	fromOrder := CreateOrderResponse{}
+
+	toOrder := OrderResponseToBotOrder(fromOrder)
+
+	if toOrder.ClientOrderID != fromOrder.ClientOrderID {
+		t.Fatal("ClientOrderID is not equal in orders")
+	}
+	if toOrder.PairSymbol != fromOrder.Symbol {
+		t.Fatal("PairSymbol is not equal in orders")
+	}
+	if toOrder.Type != fromOrder.Type {
+		t.Fatal("Type is not equal in orders")
+	}
+	if toOrder.Qty != fromOrder.OrigQuantity {
+		t.Fatal("Qty is not equal in orders")
+	}
+	if toOrder.Price != fromOrder.Price {
+		t.Fatal("Price is not equal in orders")
+	}
+}

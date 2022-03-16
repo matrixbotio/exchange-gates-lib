@@ -53,7 +53,6 @@ func (a *BinanceSpotAdapter) sync() {
 
 // GetOrderData - get order data
 func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	//order status: NEW, PARTIALLY_FILLED, FILLED, CANCELED, PENDING_CANCEL, REJECTED, EXPIRED
 	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(context.Background())
 
@@ -63,7 +62,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			tradeData.Status = "UNKNOWN"
+			tradeData.Status = OrderStatusUnknown
 			return &tradeData, nil
 		}
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())
@@ -87,17 +86,12 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error) {
-	orderAdjusted, err := RoundPairOrderValues(order, pairLimits)
-	if err != nil {
-		return nil, &orderAdjusted, err
-	}
-
+func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
 	{
 		switch order.Type {
 		default:
-			return nil, &orderAdjusted, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
+			return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
 		case "buy":
 			orderSide = binance.SideTypeBuy
 		case "sell":
@@ -105,23 +99,33 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		}
 	}
 
-	a.sync()
-	orderRes, err := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
+	a.sync() // sync client
+
+	// setup order
+	orderService := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
-		TimeInForce(binance.TimeInForceTypeGTC).Quantity(orderAdjusted.Qty).
-		Price(orderAdjusted.Price).Do(context.Background())
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(order.Qty).
+		Price(order.Price)
+
+	// set order ID
+	if order.ClientOrderID != "" {
+		orderService.NewClientOrderID(order.ClientOrderID)
+	}
+
+	// place order
+	orderRes, err := orderService.Do(ctx)
 	if err != nil {
-		return nil, &orderAdjusted, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return nil, &orderAdjusted, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
+		return nil, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 
 	return &CreateOrderResponse{
@@ -129,7 +133,14 @@ func (a *BinanceSpotAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairD
 		ClientOrderID: orderRes.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
-	}, &orderAdjusted, nil
+		Symbol:        orderRes.Symbol,
+		Type:          a.getOrderType(orderRes.Side),
+	}, nil
+}
+
+// convert order side to bot order type
+func (a *BinanceSpotAdapter) getOrderType(orderSide binance.SideType) string {
+	return strings.ToLower(string(orderSide))
 }
 
 // GetAccountData - get account data ^ↀᴥↀ^
@@ -304,12 +315,12 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		QuotePrecision: symbolData.QuotePrecision,
 		Status:         symbolData.Status,
 		Symbol:         symbolData.Symbol,
-		MinQty:         pairDefaultMinQty,
-		MaxQty:         pairDefaultMaxQty,
-		MinDeposit:     pairMinDeposit,
-		MinPrice:       pairDefaultMinPrice,
-		QtyStep:        pairDefaultQtyStep,
-		PriceStep:      pairDefaultPriceStep,
+		MinQty:         PairDefaultMinQty,
+		MaxQty:         PairDefaultMaxQty,
+		MinDeposit:     PairMinDeposit,
+		MinPrice:       PairDefaultMinPrice,
+		QtyStep:        PairDefaultQtyStep,
+		PriceStep:      PairDefaultPriceStep,
 		AllowedMargin:  symbolData.IsMarginTradingAllowed,
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
@@ -340,7 +351,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 		return errors.New("data handle error: " + err.Error())
 	}
 	if pairData.MinPrice == 0 {
-		pairData.MinPrice = pairDefaultMinPrice
+		pairData.MinPrice = PairDefaultMinPrice
 	}
 	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
@@ -367,7 +378,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 		return errors.New("failed to parse pair min qty: " + err.Error())
 	}
 	if pairData.MinQty == 0 {
-		pairData.MinQty = pairDefaultMinQty
+		pairData.MinQty = PairDefaultMinQty
 	}
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)

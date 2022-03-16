@@ -5,20 +5,28 @@ BotOrder - structure containing information about the order placed by the bot.
 Used when auto-resuming trades
 */
 type BotOrder struct {
+	// required
 	PairSymbol string  `json:"pair"`
 	Type       string  `json:"type"`
 	Qty        float64 `json:"qty"`
 	Price      float64 `json:"price"`
 	Deposit    float64 `json:"deposit"`
+
+	// optional
+	ClientOrderID string `json:"clientOrderID"`
 }
 
 // BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
 type BotOrderAdjusted struct {
+	// required
 	PairSymbol string `json:"pair"`
 	Type       string `json:"type"`
 	Qty        string `json:"qty"`
 	Price      string `json:"price"`
 	Deposit    string `json:"deposit"`
+
+	// optional
+	ClientOrderID string `json:"clientOrderID"`
 }
 
 // OrderData - placed order data
@@ -36,6 +44,8 @@ type CreateOrderResponse struct {
 	ClientOrderID string  `json:"clientOrderID"`
 	OrigQuantity  float64 `json:"origQty"`
 	Price         float64 `json:"price"`
+	Symbol        string  `json:"symbol"`
+	Type          string  `json:"orderRes"`
 }
 
 // Balance - Trading pair balance
@@ -124,4 +134,10 @@ type APICredentials struct {
 	Keypair  APIKeypair  `json:"keypair"`
 	Password APIPassword `json:"password"`
 	Email    APIEmail    `json:"email"`
+}
+
+// CheckOrdersResponse - data on checked and restored orders
+type CheckOrdersResponse struct {
+	ExecutedOrders  []*OrderData
+	RecoveredOrders map[int64]*CreateOrderResponse // old order ID -> new order data
 }

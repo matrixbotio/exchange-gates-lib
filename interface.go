@@ -1,12 +1,13 @@
 package matrixgates
 
 import (
+	"context"
 	"errors"
 
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
-//ExchangeInterface - universal exchange adapter interface
+// ExchangeInterface - universal exchange adapter interface
 type ExchangeInterface interface {
 	// Adapter
 	GetName() string
@@ -20,7 +21,7 @@ type ExchangeInterface interface {
 
 	// Order
 	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
-	PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, *BotOrderAdjusted, error)
+	PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error)
 
 	// Pair
 	GetPairData(pairSymbol string) (*ExchangePairData, error)

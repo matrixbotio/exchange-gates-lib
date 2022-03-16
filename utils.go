@@ -45,11 +45,24 @@ func GetTrace() string {
 	return stack.Trace().TrimRuntime().String()
 }
 
+// OrderResponseToBotOrder - convert raw order response to bot order
+func OrderResponseToBotOrder(response CreateOrderResponse) BotOrder {
+	return BotOrder{
+		PairSymbol:    response.Symbol,
+		Type:          response.Type,
+		Qty:           response.OrigQuantity,
+		Price:         response.Price,
+		Deposit:       response.OrigQuantity * response.Price,
+		ClientOrderID: response.ClientOrderID,
+	}
+}
+
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
-		PairSymbol: order.PairSymbol,
-		Type:       order.Type,
+		PairSymbol:    order.PairSymbol,
+		Type:          order.Type,
+		ClientOrderID: order.ClientOrderID,
 	}
 
 	// check lot size
@@ -159,4 +172,16 @@ func (r *RunTimeLimitHandler) Run() bool {
 	}()
 
 	return <-done
+}
+
+// GetDefaultPairData !
+func GetDefaultPairData() ExchangePairData {
+	return ExchangePairData{
+		ExchangeID: PairDefaultExchangeID,
+		MinQty:     PairDefaultMinQty,
+		MaxQty:     PairDefaultMaxQty,
+		MinDeposit: PairMinDeposit,
+		MinPrice:   PairDefaultMinPrice,
+		QtyStep:    PairDefaultQtyStep,
+	}
 }
