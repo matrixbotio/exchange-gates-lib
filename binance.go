@@ -336,6 +336,11 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		optionalErr = err
 	}
 
+	// calc min deposit
+	if pairData.MinQty > 0 && pairData.MinPrice > 0 {
+		pairData.MinDeposit = pairData.MinQty * pairData.MinPrice
+	}
+
 	return &pairData, optionalErr
 }
 
