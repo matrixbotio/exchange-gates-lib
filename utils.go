@@ -85,7 +85,8 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	// check min deposit
 	orderDeposit := order.Qty * order.Price
 	if orderDeposit < pairLimits.MinDeposit {
-		return result, errors.New("the order deposit is less than the minimum")
+		return result, errors.New("the order deposit (" + floatToString(orderDeposit) + ") is less than the minimum: " +
+			floatToString(pairLimits.MinDeposit))
 	}
 
 	// round order values
@@ -184,4 +185,8 @@ func GetDefaultPairData() ExchangePairData {
 		MinPrice:   PairDefaultMinPrice,
 		QtyStep:    PairDefaultQtyStep,
 	}
+}
+
+func floatToString(val float64) string {
+	return strconv.FormatFloat(val, 'f', 8, 64)
 }
