@@ -351,7 +351,7 @@ func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *Exchang
 	if err != nil {
 		return errors.New("failed to parse float: " + err.Error())
 	}
-	pairData.MinDeposit = roundMinDeposit(pairData.OriginalMinDeposit)
+	pairData.MinDeposit = RoundMinDeposit(pairData.OriginalMinDeposit)
 	return nil
 }
 
