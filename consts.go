@@ -7,7 +7,8 @@ const (
 	PairDefaultMinPrice   = 0.000001
 	PairDefaultQtyStep    = 0.001
 	PairDefaultPriceStep  = 0.000001
-	PairMinDeposit        = 10 //
+	PairMinDeposit        = 10
+	minDepositFix         = 10 // percent
 
 	candlesInterval          = "1m"
 	exchangeSetupConnTimeout = 3500 // ms
