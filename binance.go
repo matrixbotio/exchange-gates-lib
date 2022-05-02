@@ -346,11 +346,12 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 
 func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
 	var err error
-	chineseGeniusNameFilter := symbolData.MinNotionalFilter()
-	pairData.MinDeposit, err = strconv.ParseFloat(chineseGeniusNameFilter.MinNotional, 64)
+	minNotionalFilter := symbolData.MinNotionalFilter()
+	pairData.OriginalMinDeposit, err = strconv.ParseFloat(minNotionalFilter.MinNotional, 64)
 	if err != nil {
 		return errors.New("failed to parse float: " + err.Error())
 	}
+	pairData.MinDeposit = RoundMinDeposit(pairData.OriginalMinDeposit)
 	return nil
 }
 
