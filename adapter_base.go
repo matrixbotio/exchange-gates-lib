@@ -64,7 +64,7 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*Order
 }
 
 // GetPairOpenOrders ..
-func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, error) {
+func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData, error) {
 	// TODO
 	return nil, nil
 }

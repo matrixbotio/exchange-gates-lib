@@ -65,21 +65,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())
 	}
 
-	// parse qty
-	var convErr error
-	tradeData.OrderAwaitQty, convErr = strconv.ParseFloat(orderResponse.ExecutedQuantity, 64)
-	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order filled qty: " + convErr.Error() + ", stack: " + GetTrace())
-	}
-
-	// parse price
-	tradeData.Price, convErr = strconv.ParseFloat(orderResponse.Price, 64)
-	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order price: " + convErr.Error() + ", stack: " + GetTrace())
-	}
-
-	tradeData.Status = string(orderResponse.Status)
-	return &tradeData, nil
+	return a.convertOrder(orderResponse)
 }
 
 // PlaceOrder - place order on exchange
@@ -263,13 +249,13 @@ func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (*ExchangePairData, 
 }
 
 //GetPairOpenOrders - get open orders array
-func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, error) {
+func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData, error) {
 	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
-	return a.convertOrders(ordersRaw), nil
+	return a.convertOrders(ordersRaw)
 }
 
 func (a *BinanceSpotAdapter) ping() error {
@@ -422,7 +408,7 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	return pairs, lastError
 }
 
-func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*Order, error) {
+func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error) {
 	// check data
 	if task.PairSymbol == "" {
 		return nil, errors.New("pair symbol is not set")
@@ -452,19 +438,71 @@ func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]
 	}
 
 	// convert orders
-	return a.convertOrders(ordersRaw), nil
+	return a.convertOrders(ordersRaw)
 }
 
-func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) []*Order {
-	orders := []*Order{}
-	for _, orderRaw := range ordersRaw {
-		orders = append(orders, &Order{
-			OrderID:       orderRaw.OrderID,
-			ClientOrderID: orderRaw.ClientOrderID,
-			Status:        string(orderRaw.Status),
-		})
+func (a *BinanceSpotAdapter) parseOrderOriginalQty(orderRaw *binance.Order) (float64, error) {
+	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 10)
+	if err != nil {
+		return 0, errors.New("failed to parse order original qty: " + err.Error())
 	}
-	return orders
+	return awaitQty, nil
+}
+
+func (a *BinanceSpotAdapter) parseOrderExecutedQty(orderRaw *binance.Order) (float64, error) {
+	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 10)
+	if err != nil {
+		return 0, errors.New("failed to parse order executed qty: " + err.Error())
+	}
+	return filledQty, nil
+}
+
+func (a *BinanceSpotAdapter) parseOrderPrice(orderRaw *binance.Order) (float64, error) {
+	price, err := strconv.ParseFloat(orderRaw.Price, 10)
+	if err != nil {
+		return 0, errors.New("failed to parse order price: " + err.Error())
+	}
+	return price, nil
+}
+
+// converting the order from binance to our format
+func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, error) {
+	awaitQty, err := a.parseOrderOriginalQty(orderRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	filledQty, err := a.parseOrderExecutedQty(orderRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	price, err := a.parseOrderPrice(orderRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OrderData{
+		OrderID:       orderRaw.OrderID,
+		ClientOrderID: orderRaw.ClientOrderID,
+		Status:        string(orderRaw.Status),
+		AwaitQty:      awaitQty,
+		FilledQty:     filledQty,
+		Price:         price,
+	}, nil
+}
+
+func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) ([]*OrderData, error) {
+	orders := []*OrderData{}
+	for _, orderRaw := range ordersRaw {
+		order, err := a.convertOrder(orderRaw)
+		if err != nil {
+			return nil, err
+		}
+
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
