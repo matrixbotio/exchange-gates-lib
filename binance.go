@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
@@ -34,12 +33,10 @@ func (a *BinanceSpotAdapter) Connect(credentials APICredentials) error {
 		return errors.New("invalid credentials to connect to Binance")
 	}
 
-	timeIsUp := NewRuntimeLimitHandler(exchangeSetupConnTimeout*time.Millisecond, func() {
-		a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
-		a.ping()
-	}).Run()
-	if timeIsUp {
-		return errors.New("connection opening timeout")
+	a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
+	err := a.ping()
+	if err != nil {
+		return errors.New("failed to ping binance: " + err.Error())
 	}
 
 	// sync time
