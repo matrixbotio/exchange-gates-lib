@@ -269,16 +269,7 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*Order, err
 		return nil, err
 	}
 
-	orders := []*Order{}
-	for _, orderRaw := range ordersRaw {
-		orders = append(orders, &Order{
-			OrderID:       orderRaw.OrderID,
-			ClientOrderID: orderRaw.ClientOrderID,
-			Status:        string(orderRaw.Status),
-		})
-	}
-
-	return orders, nil
+	return a.convertOrders(ordersRaw), nil
 }
 
 func (a *BinanceSpotAdapter) ping() error {
@@ -429,6 +420,51 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 		}
 	}
 	return pairs, lastError
+}
+
+func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*Order, error) {
+	// check data
+	if task.PairSymbol == "" {
+		return nil, errors.New("pair symbol is not set")
+	}
+	if task.StartTime == 0 {
+		return nil, errors.New("start time is not set")
+	}
+
+	// create request service
+	service := a.binanceAPI.NewListOrdersService().StartTime(task.StartTime).Symbol(task.PairSymbol)
+	if task.EndTime > 0 {
+		service.EndTime(task.EndTime)
+	}
+
+	// set context
+	if task.Ctx == nil {
+		task.Ctx = context.Background()
+	}
+
+	// send request
+	ordersRaw, err := service.Do(task.Ctx)
+	if err != nil {
+		return nil, errors.New("failed to get orders history: " + err.Error())
+	}
+	if ordersRaw == nil {
+		return nil, errors.New("failed to request orders history: orders is nil")
+	}
+
+	// convert orders
+	return a.convertOrders(ordersRaw), nil
+}
+
+func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) []*Order {
+	orders := []*Order{}
+	for _, orderRaw := range ordersRaw {
+		orders = append(orders, &Order{
+			OrderID:       orderRaw.OrderID,
+			ClientOrderID: orderRaw.ClientOrderID,
+			Status:        string(orderRaw.Status),
+		})
+	}
+	return orders
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol

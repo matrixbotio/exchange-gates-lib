@@ -1,5 +1,7 @@
 package matrixgates
 
+import "context"
+
 /*
 BotOrder - structure containing information about the order placed by the bot.
 Used when auto-resuming trades
@@ -141,4 +143,15 @@ type APICredentials struct {
 type CheckOrdersResponse struct {
 	ExecutedOrders  []*OrderData
 	RecoveredOrders map[int64]*CreateOrderResponse // old order ID -> new order data
+}
+
+// GetOrdersHistoryTask - data for GetPairOrdersHistory request
+type GetOrdersHistoryTask struct {
+	// required
+	PairSymbol string
+	StartTime  int64
+
+	// optional
+	EndTime int64
+	Ctx     context.Context
 }
