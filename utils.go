@@ -57,6 +57,18 @@ func OrderResponseToBotOrder(response CreateOrderResponse) BotOrder {
 	}
 }
 
+// OrderDataToBotOrder - convert order data to bot order
+func OrderDataToBotOrder(order OrderData) BotOrder {
+	return BotOrder{
+		PairSymbol:    order.Symbol,
+		Type:          order.Type,
+		Qty:           order.AwaitQty,
+		Price:         order.Price,
+		Deposit:       order.AwaitQty * order.Price,
+		ClientOrderID: order.ClientOrderID,
+	}
+}
+
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{

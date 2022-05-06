@@ -68,18 +68,28 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 	return a.convertOrder(orderResponse)
 }
 
+// from binance format to our bot order type format
+func (a *BinanceSpotAdapter) convertOrderSide(orderSide binance.SideType) (string, error) {
+	switch orderSide {
+	default:
+		return "", errors.New("unknown order type: " + string(orderSide))
+	case binance.SideTypeBuy:
+		return "buy", nil
+	case binance.SideTypeSell:
+		return "sell", nil
+	}
+}
+
 // PlaceOrder - place order on exchange
 func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error) {
 	var orderSide binance.SideType
-	{
-		switch order.Type {
-		default:
-			return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
-		case "buy":
-			orderSide = binance.SideTypeBuy
-		case "sell":
-			orderSide = binance.SideTypeSell
-		}
+	switch order.Type {
+	default:
+		return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
+	case "buy":
+		orderSide = binance.SideTypeBuy
+	case "sell":
+		orderSide = binance.SideTypeSell
 	}
 
 	a.sync() // sync client
@@ -482,6 +492,11 @@ func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, 
 		return nil, err
 	}
 
+	orderType, err := a.convertOrderSide(orderRaw.Side)
+	if err != nil {
+		return nil, err
+	}
+
 	return &OrderData{
 		OrderID:       orderRaw.OrderID,
 		ClientOrderID: orderRaw.ClientOrderID,
@@ -489,6 +504,8 @@ func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, 
 		AwaitQty:      awaitQty,
 		FilledQty:     filledQty,
 		Price:         price,
+		Symbol:        orderRaw.Symbol,
+		Type:          orderType,
 	}, nil
 }
 

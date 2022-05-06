@@ -62,6 +62,8 @@ type OrderData struct {
 	AwaitQty      float64 `json:"awaitQty"`  // initial order qty
 	FilledQty     float64 `json:"filledQty"` // event executed qty
 	Price         float64 `json:"price"`
+	Symbol        string  `json:"symbol"`
+	Type          string  `json:"type"` // "buy" or "sell"
 }
 
 // PairBalance - data on the balance of a trading pair for each of the two currencies
