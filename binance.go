@@ -18,12 +18,12 @@ type BinanceSpotAdapter struct {
 }
 
 // NewBinanceSpotAdapter - create binance exchange adapter
-func NewBinanceSpotAdapter(exchangeID int) *BinanceSpotAdapter {
+func NewBinanceSpotAdapter() *BinanceSpotAdapter {
 	stack.Caller(0)
 	a := BinanceSpotAdapter{}
 	a.Name = "Binance Spot"
 	a.Tag = "binance-spot"
-	a.ExchangeID = exchangeID
+	a.ExchangeID = exchangeIDbinanceSpot
 	return &a
 }
 

@@ -39,23 +39,19 @@ type ExchangeInterface interface {
 	GetTradeEventsWorker() workers.ITradeEventWorker
 }
 
-const (
-	exchangeIDbinanceSpot = 1
-)
-
 // GetExchangeAdapter - get supported exchange adapter with interface
 func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
 	case exchangeIDbinanceSpot:
-		return NewBinanceSpotAdapter(exchangeIDbinanceSpot), nil
+		return NewBinanceSpotAdapter(), nil
 	}
 }
 
 // GetExchangeAdapters - get all supported exchange adapters
 func GetExchangeAdapters() map[int]ExchangeInterface {
 	return map[int]ExchangeInterface{
-		exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
+		exchangeIDbinanceSpot: NewBinanceSpotAdapter(),
 	}
 }
