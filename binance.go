@@ -418,6 +418,11 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	return pairs, lastError
 }
 
+func (a *BinanceSpotAdapter) normalTimestampToWeirdBinanceTimestamp(unixTimestamp int64) int64 {
+	// the chinese didn't even want to mention it in the documentation!
+	return unixTimestamp * 1000
+}
+
 func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error) {
 	// check data
 	if task.PairSymbol == "" {
@@ -428,9 +433,10 @@ func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]
 	}
 
 	// create request service
-	service := a.binanceAPI.NewListOrdersService().StartTime(task.StartTime).Symbol(task.PairSymbol)
+	service := a.binanceAPI.NewListOrdersService().StartTime(a.normalTimestampToWeirdBinanceTimestamp(task.StartTime)).
+		Symbol(task.PairSymbol)
 	if task.EndTime > 0 {
-		service.EndTime(task.EndTime)
+		service.EndTime(a.normalTimestampToWeirdBinanceTimestamp(task.EndTime))
 	}
 
 	// set context
