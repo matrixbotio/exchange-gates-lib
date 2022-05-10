@@ -28,7 +28,8 @@ type ExchangeInterface interface {
 	GetPairLastPrice(pairSymbol string) (float64, error)
 	CancelPairOrder(pairSymbol string, orderID int64) error
 	CancelPairOrders(pairSymbol string) error
-	GetPairOpenOrders(pairSymbol string) ([]*Order, error)
+	GetPairOpenOrders(pairSymbol string) ([]*OrderData, error)
+	GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error)
 	GetPairs() ([]*ExchangePairData, error)
 	GetPairBalance(pair PairSymbolData) (*PairBalance, error)
 
@@ -38,23 +39,19 @@ type ExchangeInterface interface {
 	GetTradeEventsWorker() workers.ITradeEventWorker
 }
 
-const (
-	exchangeIDbinanceSpot = 1
-)
-
 // GetExchangeAdapter - get supported exchange adapter with interface
 func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
 	case exchangeIDbinanceSpot:
-		return NewBinanceSpotAdapter(exchangeIDbinanceSpot), nil
+		return NewBinanceSpotAdapter(), nil
 	}
 }
 
 // GetExchangeAdapters - get all supported exchange adapters
 func GetExchangeAdapters() map[int]ExchangeInterface {
 	return map[int]ExchangeInterface{
-		exchangeIDbinanceSpot: NewBinanceSpotAdapter(exchangeIDbinanceSpot),
+		exchangeIDbinanceSpot: NewBinanceSpotAdapter(),
 	}
 }

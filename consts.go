@@ -21,4 +21,6 @@ const (
 	OrderStatusRejected        = "REJECTED"
 	OrderStatusExpired         = "EXPIRED"
 	OrderStatusUnknown         = "UNKNOWN"
+
+	exchangeIDbinanceSpot = 1
 )

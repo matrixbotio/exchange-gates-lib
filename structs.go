@@ -1,5 +1,7 @@
 package matrixgates
 
+import "context"
+
 /*
 BotOrder - structure containing information about the order placed by the bot.
 Used when auto-resuming trades
@@ -29,15 +31,6 @@ type BotOrderAdjusted struct {
 	ClientOrderID string `json:"clientOrderID"`
 }
 
-// OrderData - placed order data
-type OrderData struct {
-	OrderID        int64   `json:"orderID"`
-	OrderAwaitQty  float64 `json:"awaitQty"`  // initial order qty
-	OrderFilledQty float64 `json:"filledQty"` // event executed qty
-	Price          float64 `json:"price"`
-	Status         string  `json:"status"` // used in bot.getOrderData
-}
-
 // CreateOrderResponse ..
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`
@@ -61,11 +54,16 @@ type AccountData struct {
 	Balances []Balance `json:"balances"`
 }
 
-// Order data
-type Order struct {
-	OrderID       int64  `json:"orderID"`
-	ClientOrderID string `json:"clientOrderID"`
-	Status        string `json:"status"`
+// OrderData - placed order data
+type OrderData struct {
+	OrderID       int64   `json:"orderID"`
+	ClientOrderID string  `json:"clientOrderID"`
+	Status        string  `json:"status"`    // used in bot.getOrderData
+	AwaitQty      float64 `json:"awaitQty"`  // initial order qty
+	FilledQty     float64 `json:"filledQty"` // event executed qty
+	Price         float64 `json:"price"`
+	Symbol        string  `json:"symbol"`
+	Type          string  `json:"type"` // "buy" or "sell"
 }
 
 // PairBalance - data on the balance of a trading pair for each of the two currencies
@@ -141,4 +139,15 @@ type APICredentials struct {
 type CheckOrdersResponse struct {
 	ExecutedOrders  []*OrderData
 	RecoveredOrders map[int64]*CreateOrderResponse // old order ID -> new order data
+}
+
+// GetOrdersHistoryTask - data for GetPairOrdersHistory request
+type GetOrdersHistoryTask struct {
+	// required
+	PairSymbol string
+	StartTime  int64
+
+	// optional
+	EndTime int64
+	Ctx     context.Context
 }
