@@ -90,8 +90,8 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	}
 	if order.Price < pairLimits.MinPrice {
 		return result, errors.New("insufficient price to open an order in this pair. " +
-			"order price: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
-			" min: " + strconv.FormatFloat(pairLimits.MaxQty, 'f', 8, 32))
+			"order price: " + strconv.FormatFloat(order.Price, 'f', 8, 32) +
+			" min: " + strconv.FormatFloat(pairLimits.MinPrice, 'f', 8, 32))
 	}
 
 	// check min deposit
