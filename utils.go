@@ -39,7 +39,7 @@ func LogNotNilError(errs []error) bool {
 // GetTrace - get stack string
 func GetTrace() string {
 	stackTrace := stack.Trace()
-	if stackTrace == nil || len(stackTrace) == 0 {
+	if len(stackTrace) == 0 {
 		return ""
 	}
 	return stack.Trace().TrimRuntime().String()
@@ -172,6 +172,7 @@ func (r *RunTimeLimitHandler) Run() bool {
 			case <-timeTo:
 				done <- true
 				return
+			//lint:ignore SA5004 it's meant to be
 			default:
 				// wait
 			}
@@ -181,7 +182,6 @@ func (r *RunTimeLimitHandler) Run() bool {
 	go func() {
 		r.runFunc()
 		done <- false
-		return
 	}()
 
 	return <-done
