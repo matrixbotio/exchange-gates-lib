@@ -599,6 +599,7 @@ func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
 
 // SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
+	pairSymbols []string,
 	eventCallback func(event workers.PriceEvent),
 	errorHandler func(err error),
 ) error {
@@ -609,6 +610,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 				// ignore event
 				return
 			}
+
 			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
 			if convErr != nil {
 				// ignore event
@@ -622,31 +624,31 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 			eventCallback(wEvent)
 		}
 	}
-	wsErrHandler := func(err error) {
-		errorHandler(errors.New("service request failed: " + err.Error()))
-	}
-	var openWsErr error
 	w.WsChannels = new(workers.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(wsBookHandler, wsErrHandler)
-	if openWsErr != nil {
-		return errors.New("service request failed: " + openWsErr.Error())
+
+	for _, pairSymbol := range pairSymbols {
+		_, _, openWsErr := binance.WsBookTickerServe(pairSymbol, wsBookHandler, errorHandler)
+		if openWsErr != nil {
+			return errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
+		}
 	}
+
 	return nil
 }
 
-//CandleWorkerBinance - MarketDataWorker for binance
+// CandleWorkerBinance - MarketDataWorker for binance
 type CandleWorkerBinance struct {
 	workers.CandleWorker
 }
 
-//GetCandleWorker - create new market candle worker
+// GetCandleWorker - create new market candle worker
 func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
 	w := CandleWorkerBinance{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
-//SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
+// SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
 func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	pairSymbols []string,
 	eventCallback func(event workers.CandleEvent),
