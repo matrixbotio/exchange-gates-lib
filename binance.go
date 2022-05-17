@@ -458,7 +458,7 @@ func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]
 }
 
 func (a *BinanceSpotAdapter) parseOrderOriginalQty(orderRaw *binance.Order) (float64, error) {
-	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 10)
+	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 32)
 	if err != nil {
 		return 0, errors.New("failed to parse order original qty: " + err.Error())
 	}
@@ -466,7 +466,7 @@ func (a *BinanceSpotAdapter) parseOrderOriginalQty(orderRaw *binance.Order) (flo
 }
 
 func (a *BinanceSpotAdapter) parseOrderExecutedQty(orderRaw *binance.Order) (float64, error) {
-	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 10)
+	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 32)
 	if err != nil {
 		return 0, errors.New("failed to parse order executed qty: " + err.Error())
 	}
@@ -474,7 +474,7 @@ func (a *BinanceSpotAdapter) parseOrderExecutedQty(orderRaw *binance.Order) (flo
 }
 
 func (a *BinanceSpotAdapter) parseOrderPrice(orderRaw *binance.Order) (float64, error) {
-	price, err := strconv.ParseFloat(orderRaw.Price, 10)
+	price, err := strconv.ParseFloat(orderRaw.Price, 32)
 	if err != nil {
 		return 0, errors.New("failed to parse order price: " + err.Error())
 	}
@@ -585,19 +585,19 @@ __      _____  _ __| | _____ _ __ ___
 
 */
 
-//PriceWorkerBinance - MarketDataWorker for binance
+// PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
 	workers.PriceWorker
 }
 
-//GetPriceWorker - create new market data worker
+// GetPriceWorker - create new market data worker
 func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
 	w := PriceWorkerBinance{}
 	w.PriceWorker.ExchangeTag = a.Tag
 	return &w
 }
 
-//SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
+// SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	eventCallback func(event workers.PriceEvent),
 	errorHandler func(err error),
