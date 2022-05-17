@@ -591,49 +591,59 @@ type PriceWorkerBinance struct {
 }
 
 // GetPriceWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetPriceWorker() workers.IPriceWorker {
+func (a *BinanceSpotAdapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
 	w := PriceWorkerBinance{}
 	w.PriceWorker.ExchangeTag = a.Tag
+	w.PriceWorker.HandleEventCallback = callback
 	return &w
 }
 
+func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) {
+	if event == nil {
+		return
+	}
+
+	eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
+	if convErr != nil {
+		return // ignore event
+	}
+
+	eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
+	if convErr != nil {
+		return // ignore event
+	}
+
+	w.HandleEventCallback(workers.PriceEvent{
+		Symbol: event.Symbol,
+		Ask:    eventAsk,
+		Bid:    eventBid,
+	})
+}
+
 // SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
+// returns map[pair symbol] -> worker channels
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	pairSymbols []string,
-	eventCallback func(event workers.PriceEvent),
+	eventCallback workers.PriceEventCallback,
 	errorHandler func(err error),
-) error {
-	wsBookHandler := func(event *binance.WsBookTickerEvent) {
-		if event != nil {
-			eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
-			if convErr != nil {
-				// ignore event
-				return
-			}
+) (map[string]workers.WorkerChannels, error) {
+	result := map[string]workers.WorkerChannels{}
 
-			eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
-			if convErr != nil {
-				// ignore event
-				return
-			}
-			wEvent := workers.PriceEvent{
-				Symbol: event.Symbol,
-				Ask:    eventAsk,
-				Bid:    eventBid,
-			}
-			eventCallback(wEvent)
-		}
-	}
+	// event handler func
 	w.WsChannels = new(workers.WorkerChannels)
 
+	var openWsErr error
 	for _, pairSymbol := range pairSymbols {
-		_, _, openWsErr := binance.WsBookTickerServe(pairSymbol, wsBookHandler, errorHandler)
+		newChannels := workers.WorkerChannels{}
+		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
 		if openWsErr != nil {
-			return errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
+			return result, errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
 		}
+
+		result[pairSymbol] = newChannels
 	}
 
-	return nil
+	return result, nil
 }
 
 // CandleWorkerBinance - MarketDataWorker for binance
@@ -701,19 +711,19 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	return nil
 }
 
-//TradeEventWorkerBinance - TradeEventWorker for binance
+// TradeEventWorkerBinance - TradeEventWorker for binance
 type TradeEventWorkerBinance struct {
 	workers.TradeEventWorker
 }
 
-//GetTradeEventsWorker - create new market candle worker
+// GetTradeEventsWorker - create new market candle worker
 func (a *BinanceSpotAdapter) GetTradeEventsWorker() workers.ITradeEventWorker {
 	w := TradeEventWorkerBinance{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
-//SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
+// SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
 func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 	symbol string,
 	eventCallback func(event workers.TradeEvent),
