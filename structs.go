@@ -145,9 +145,9 @@ type CheckOrdersResponse struct {
 type GetOrdersHistoryTask struct {
 	// required
 	PairSymbol string
-	StartTime  int64
+	StartTime  int64 // unix timestamp ms
 
 	// optional
-	EndTime int64
+	EndTime int64 // unix timestamp ms
 	Ctx     context.Context
 }
