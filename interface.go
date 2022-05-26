@@ -34,7 +34,7 @@ type ExchangeInterface interface {
 	GetPairBalance(pair PairSymbolData) (*PairBalance, error)
 
 	// Workers
-	GetPriceWorker() workers.IPriceWorker
+	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
 	GetCandleWorker() workers.ICandleWorker
 	GetTradeEventsWorker() workers.ITradeEventWorker
 }
