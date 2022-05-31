@@ -105,8 +105,19 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
 	result.Qty = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
 	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
-	result.Price = strconv.FormatFloat(order.Price, 'f', ratePrecision, 32)
-	result.Deposit = strconv.FormatFloat(orderDeposit, 'f', GetFloatPrecision(orderDeposit), 32)
+	result.Price = strconv.FormatFloat(order.Price, 'f', ratePrecision, 64)
+
+	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
+	if err != nil {
+		return result, err
+	}
+	priceRounded, err := strconv.ParseFloat(result.Price, 64)
+	if err != nil {
+		return result, err
+	}
+	depositRounded := qtyRounded * priceRounded
+
+	result.Deposit = strconv.FormatFloat(depositRounded, 'f', GetFloatPrecision(orderDeposit), 64)
 	return result, nil
 }
 
