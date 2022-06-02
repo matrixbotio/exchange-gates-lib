@@ -668,7 +668,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		if event != nil {
 			// fix endTime
 			if strings.HasSuffix(strconv.FormatInt(event.Kline.EndTime, 10), "999") {
-				event.Kline.EndTime++
+				event.Kline.EndTime -= 59999
 			}
 
 			wEvent := workers.CandleEvent{
