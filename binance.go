@@ -193,45 +193,13 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 }
 
 // CancelPairOrder - cancel one exchange pair order by ID
-func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64) error {
+func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
 	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
-		OrderID(orderID).Do(context.Background())
+		OrderID(orderID).Do(ctx)
 	if clientErr != nil {
 		if !a.isErrorAboutUnknownOrder(clientErr) {
 			return clientErr
 		}
-	}
-	return nil
-}
-
-// CancelPairOrders - cancel pair all orders
-func (a *BinanceSpotAdapter) CancelPairOrders(pairSymbol string) error {
-	_, clientErr := a.binanceAPI.NewCancelOpenOrdersService().
-		Symbol(pairSymbol).Do(context.Background())
-	if clientErr != nil {
-		// handle error
-		if a.isErrorAboutUnknownOrder(clientErr) {
-			/* canceling all orders failed,
-			let's try to request a list of them and cancel them individually*/
-			orders, err := a.GetPairOpenOrders(pairSymbol)
-			if err != nil {
-				// =(
-				return err
-			}
-			if len(orders) == 0 {
-				// orders already cancelled
-				return nil
-			}
-			for _, order := range orders {
-				err := a.CancelPairOrder(pairSymbol, order.OrderID)
-				if err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-		return errors.New("service request failed: " + clientErr.Error() +
-			", stack: " + GetTrace())
 	}
 	return nil
 }
