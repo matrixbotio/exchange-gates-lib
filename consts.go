@@ -8,6 +8,8 @@ const (
 	PairDefaultQtyStep            = 0.001
 	PairDefaultPriceStep          = 0.000001
 	PairMinDeposit                = 10
+	pairDefaultBaseAsset          = "BTC"
+	pairDefaultQuoteAsset         = "BUSD"
 	MinDepositFix         float64 = 10 // percent
 
 	candlesInterval          = "1m"

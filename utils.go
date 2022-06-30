@@ -202,6 +202,8 @@ func (r *RunTimeLimitHandler) Run() bool {
 func GetDefaultPairData() ExchangePairData {
 	return ExchangePairData{
 		ExchangeID: PairDefaultExchangeID,
+		BaseAsset:  pairDefaultBaseAsset,
+		QuoteAsset: pairDefaultQuoteAsset,
 		MinQty:     PairDefaultMinQty,
 		MaxQty:     PairDefaultMaxQty,
 		MinDeposit: PairMinDeposit,
