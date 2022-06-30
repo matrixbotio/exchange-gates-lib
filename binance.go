@@ -48,6 +48,23 @@ func (a *BinanceSpotAdapter) sync() {
 	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
 }
 
+func (a *BinanceSpotAdapter) GetPrices() ([]SymbolPrice, error) {
+	prices, err := a.binanceAPI.NewListPricesService().Do(context.Background())
+	if err != nil {
+		return nil, errors.New("failed to get prices: " + err.Error())
+	}
+
+	r := []SymbolPrice{}
+	for _, priceData := range prices {
+		pairPrice, err := strconv.ParseFloat(priceData.Price, 64)
+		if err != nil {
+			return nil, errors.New("failed to parse price for symbol `" + priceData.Symbol + "`: " + err.Error())
+		}
+		r = append(r, SymbolPrice{Price: pairPrice, Symbol: priceData.Symbol})
+	}
+	return r, nil
+}
+
 // GetOrderData - get order data
 func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
 	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
