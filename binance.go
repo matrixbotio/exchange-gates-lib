@@ -634,6 +634,7 @@ func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) 
 
 // SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
 // returns map[pair symbol] -> worker channels
+// NOTE: if an array of pairs is not specified, then the subscription to all exchange pairs is used
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	pairSymbols []string,
 	eventCallback workers.PriceEventCallback,
@@ -647,7 +648,12 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	var openWsErr error
 	for _, pairSymbol := range pairSymbols {
 		newChannels := workers.WorkerChannels{}
-		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
+		if len(pairSymbols) == 0 {
+			// pairs not set, use all pairs
+			newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsAllBookTickerServe(w.handlePriceEvent, errorHandler)
+		} else {
+			newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
+		}
 		if openWsErr != nil {
 			return result, errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
 		}
