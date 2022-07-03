@@ -475,6 +475,8 @@ func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, 
 		Price:         price,
 		Symbol:        orderRaw.Symbol,
 		Type:          orderType,
+		CreatedTime:   orderRaw.Time,
+		UpdatedTime:   orderRaw.UpdateTime,
 	}, nil
 }
 
