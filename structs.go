@@ -153,3 +153,9 @@ type GetOrdersHistoryTask struct {
 	EndTime int64 // unix timestamp ms
 	Ctx     context.Context
 }
+
+// SymbolPrice define symbol and price pair
+type SymbolPrice struct {
+	Symbol string  `json:"symbol"`
+	Price  float64 `json:"price"`
+}

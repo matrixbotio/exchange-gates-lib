@@ -20,6 +20,7 @@ type ExchangeInterface interface {
 	VerifyAPIKeys(keyPublic, keySecret string) error
 
 	// Order
+	GetPrices() ([]SymbolPrice, error)
 	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
 	PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error)
 
