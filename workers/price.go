@@ -47,7 +47,8 @@ func (w *PriceWorker) Stop() {
 
 // PriceEvent - data on changes in trade data in the market
 type PriceEvent struct {
-	Symbol string  `json:"symbol"`
-	Ask    float64 `json:"ask"`
-	Bid    float64 `json:"bid"`
+	ExchangeTag string  `json:"exchangeTag"`
+	Symbol      string  `json:"symbol"`
+	Ask         float64 `json:"ask"`
+	Bid         float64 `json:"bid"`
 }

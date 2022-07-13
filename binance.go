@@ -596,9 +596,10 @@ func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) 
 	}
 
 	w.HandleEventCallback(workers.PriceEvent{
-		Symbol: event.Symbol,
-		Ask:    eventAsk,
-		Bid:    eventBid,
+		ExchangeTag: w.ExchangeTag,
+		Symbol:      event.Symbol,
+		Ask:         eventAsk,
+		Bid:         eventBid,
 	})
 }
 
@@ -726,6 +727,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 				ID:            event.TradeID,
 				Time:          event.Time,
 				Symbol:        event.Symbol,
+				ExchangeTag:   w.ExchangeTag,
 				BuyerOrderID:  event.BuyerOrderID,
 				SellerOrderID: event.SellerOrderID,
 			}

@@ -45,6 +45,7 @@ type TradeEvent struct {
 	Symbol        string  `json:"symbol"`
 	Price         float64 `json:"price"`
 	Quantity      float64 `json:"quantity"`
+	ExchangeTag   string  `json:"exchangeTag"`
 	BuyerOrderID  int64   `json:"buyerID"`
 	SellerOrderID int64   `json:"sellerID"`
 }
