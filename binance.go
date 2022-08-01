@@ -641,17 +641,12 @@ func (a *BinanceSpotAdapter) GetCandleWorker() workers.ICandleWorker {
 	return &w
 }
 
-// SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange
+// SubscribeToCandleEvents - websocket subscription to candles on the exchange
 func (w *CandleWorkerBinance) SubscribeToCandleEvents(
-	pairSymbols []string,
+	pairSymbol string,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	symbolIntervalsMap := make(map[string]string)
-	for _, symbol := range pairSymbols {
-		symbolIntervalsMap[symbol] = candlesInterval
-	}
-
 	wsCandleHandler := func(event *binance.WsKlineEvent) {
 		if event != nil {
 			// fix endTime
@@ -687,7 +682,12 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	}
 	var openWsErr error
 	w.WsChannels = new(workers.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(symbolIntervalsMap, wsCandleHandler, wsErrHandler)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
+		pairSymbol,      // symbol
+		candlesInterval, // interval
+		wsCandleHandler, // event handler
+		wsErrHandler,    // error handler
+	)
 	if openWsErr != nil {
 		return errors.New("service request failed: " + openWsErr.Error())
 	}

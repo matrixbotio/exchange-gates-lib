@@ -9,7 +9,7 @@ type CandleWorker struct {
 // ICandleWorker - interface for CandleWorker
 type ICandleWorker interface {
 	SubscribeToCandleEvents(
-		pairSymbols []string,
+		pairSymbol string,
 		eventCallback func(event CandleEvent),
 		errorHandler func(err error),
 	) error
@@ -19,7 +19,7 @@ type ICandleWorker interface {
 
 // SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange (placeholder)
 func (w *CandleWorker) SubscribeToCandleEvents(
-	pairSymbols []string,
+	pairSymbol string,
 	eventCallback func(event CandleEvent),
 	errorHandler func(err error),
 ) error {
