@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-stack/stack"
+	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
 // GetFloatPrecision returns the number of decimal places in a float
@@ -219,4 +220,30 @@ func floatToString(val float64) string {
 // RoundMinDeposit - update the value of the minimum deposit in accordance with the minimum threshold
 func RoundMinDeposit(pairMinDeposit float64) float64 {
 	return pairMinDeposit * (1 + MinDepositFix/100)
+}
+
+// OrderDataToTradeEvent data
+type TradeOrderConvertTask struct {
+	Order       OrderData
+	ExchangeTag string
+}
+
+// OrderDataToTradeEvent - convert order data into a trade event.
+func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
+	e := workers.TradeEvent{
+		ID:          0,
+		Time:        task.Order.UpdatedTime,
+		Symbol:      task.Order.Symbol,
+		Price:       task.Order.Price,
+		Quantity:    task.Order.FilledQty,
+		ExchangeTag: task.ExchangeTag,
+	}
+
+	if task.Order.Type == OrderTypeBuy {
+		e.BuyerOrderID = task.Order.OrderID
+	} else {
+		e.SellerOrderID = task.Order.OrderID
+	}
+
+	return e
 }
