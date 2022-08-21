@@ -26,6 +26,9 @@ const (
 	OrderStatusExpired         = "EXPIRED"
 	OrderStatusUnknown         = "UNKNOWN"
 
+	OrderTypeBuy  = "buy"
+	OrderTypeSell = "sell"
+
 	exchangeIDbinanceSpot = 1
 	pingRetryAttempts     = 3
 	pingRetryWaitTime     = time.Second * 2
