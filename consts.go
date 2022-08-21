@@ -1,5 +1,7 @@
 package matrixgates
 
+import "time"
+
 const (
 	PairDefaultExchangeID         = 1
 	PairDefaultMinQty             = 0.001
@@ -25,4 +27,6 @@ const (
 	OrderStatusUnknown         = "UNKNOWN"
 
 	exchangeIDbinanceSpot = 1
+	pingRetryAttempts     = 3
+	pingRetryWaitTime     = time.Second * 2
 )

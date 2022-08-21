@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
@@ -254,11 +255,17 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData,
 }
 
 func (a *BinanceSpotAdapter) ping() error {
-	err := a.binanceAPI.NewPingService().Do(context.Background())
-	if err != nil {
-		return errors.New("service disconnected: failed to connect to the exchange, please try again later, stack: " + GetTrace())
+	var err error
+	for attemptNumber := 1; attemptNumber <= pingRetryAttempts; attemptNumber++ {
+		err := a.binanceAPI.NewPingService().Do(context.Background())
+		if err == nil {
+			return nil
+		}
+
+		time.Sleep(pingRetryWaitTime)
 	}
-	return nil
+
+	return errors.New("failed to ping exchange: " + err.Error())
 }
 
 // VerifyAPIKeys - create new exchange client & attempt to get account data
