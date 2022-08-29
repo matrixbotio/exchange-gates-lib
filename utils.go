@@ -75,13 +75,13 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 		PairSymbol:    order.PairSymbol,
 		Type:          order.Type,
 		ClientOrderID: order.ClientOrderID,
+		MinQty:        pairLimits.MinQty,
+		MinQtyPassed:  true,
 	}
 
 	// check lot size
 	if order.Qty < pairLimits.MinQty {
-		return result, errors.New("insufficient amount to open an order in this pair. " +
-			"order qty: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
-			" min: " + strconv.FormatFloat(pairLimits.MinQty, 'f', 8, 32))
+		result.MinQtyPassed = false
 	}
 	if order.Qty > pairLimits.MaxQty {
 		return result, errors.New("too much amount to open an order in this pair. " +

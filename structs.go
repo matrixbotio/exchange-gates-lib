@@ -29,6 +29,10 @@ type BotOrderAdjusted struct {
 
 	// optional
 	ClientOrderID string `json:"clientOrderID"`
+
+	// additional
+	MinQty       float64 `json:"minQty"`
+	MinQtyPassed bool    `json:"minQtyPassed"`
 }
 
 // CreateOrderResponse ..
