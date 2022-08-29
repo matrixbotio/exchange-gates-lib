@@ -73,16 +73,18 @@ func OrderDataToBotOrder(order OrderData) BotOrder {
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
-		PairSymbol:    order.PairSymbol,
-		Type:          order.Type,
-		ClientOrderID: order.ClientOrderID,
+		PairSymbol:       order.PairSymbol,
+		Type:             order.Type,
+		ClientOrderID:    order.ClientOrderID,
+		MinQty:           pairLimits.MinQty,
+		MinQtyPassed:     true, // by default
+		MinDeposit:       pairLimits.OriginalMinDeposit,
+		MinDepositPassed: true, // by default
 	}
 
 	// check lot size
 	if order.Qty < pairLimits.MinQty {
-		return result, errors.New("insufficient amount to open an order in this pair. " +
-			"order qty: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
-			" min: " + strconv.FormatFloat(pairLimits.MinQty, 'f', 8, 32))
+		result.MinQtyPassed = false
 	}
 	if order.Qty > pairLimits.MaxQty {
 		return result, errors.New("too much amount to open an order in this pair. " +
@@ -98,8 +100,7 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	// check min deposit
 	orderDeposit := order.Qty * order.Price
 	if orderDeposit < pairLimits.OriginalMinDeposit {
-		return result, errors.New("the order deposit (" + floatToString(orderDeposit) + ") is less than the minimum: " +
-			floatToString(pairLimits.OriginalMinDeposit))
+		result.MinDepositPassed = false
 	}
 
 	// round order values
@@ -211,10 +212,6 @@ func GetDefaultPairData() ExchangePairData {
 		MinPrice:   PairDefaultMinPrice,
 		QtyStep:    PairDefaultQtyStep,
 	}
-}
-
-func floatToString(val float64) string {
-	return strconv.FormatFloat(val, 'f', 8, 64)
 }
 
 // RoundMinDeposit - update the value of the minimum deposit in accordance with the minimum threshold
