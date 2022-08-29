@@ -72,11 +72,13 @@ func OrderDataToBotOrder(order OrderData) BotOrder {
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
 	result := BotOrderAdjusted{
-		PairSymbol:    order.PairSymbol,
-		Type:          order.Type,
-		ClientOrderID: order.ClientOrderID,
-		MinQty:        pairLimits.MinQty,
-		MinQtyPassed:  true,
+		PairSymbol:       order.PairSymbol,
+		Type:             order.Type,
+		ClientOrderID:    order.ClientOrderID,
+		MinQty:           pairLimits.MinQty,
+		MinQtyPassed:     true, // by default
+		MinDeposit:       pairLimits.OriginalMinDeposit,
+		MinDepositPassed: true, // by default
 	}
 
 	// check lot size
@@ -97,8 +99,7 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 	// check min deposit
 	orderDeposit := order.Qty * order.Price
 	if orderDeposit < pairLimits.OriginalMinDeposit {
-		return result, errors.New("the order deposit (" + floatToString(orderDeposit) + ") is less than the minimum: " +
-			floatToString(pairLimits.OriginalMinDeposit))
+		result.MinDepositPassed = false
 	}
 
 	// round order values
