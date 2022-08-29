@@ -213,10 +213,6 @@ func GetDefaultPairData() ExchangePairData {
 	}
 }
 
-func floatToString(val float64) string {
-	return strconv.FormatFloat(val, 'f', 8, 64)
-}
-
 // RoundMinDeposit - update the value of the minimum deposit in accordance with the minimum threshold
 func RoundMinDeposit(pairMinDeposit float64) float64 {
 	return pairMinDeposit * (1 + MinDepositFix/100)
