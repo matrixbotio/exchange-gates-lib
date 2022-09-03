@@ -92,9 +92,9 @@ func (a *BinanceSpotAdapter) convertOrderSide(orderSide binance.SideType) (strin
 	default:
 		return "", errors.New("unknown order type: " + string(orderSide))
 	case binance.SideTypeBuy:
-		return "buy", nil
+		return OrderTypeBuy, nil
 	case binance.SideTypeSell:
-		return "sell", nil
+		return OrderTypeSell, nil
 	}
 }
 
@@ -104,9 +104,9 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjus
 	switch order.Type {
 	default:
 		return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
-	case "buy":
+	case OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
-	case "sell":
+	case OrderTypeSell:
 		orderSide = binance.SideTypeSell
 	}
 
