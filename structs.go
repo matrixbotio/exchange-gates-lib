@@ -146,7 +146,7 @@ type APICredentials struct {
 // CheckOrdersResponse - data on checked and restored orders
 type CheckOrdersResponse struct {
 	ExecutedOrders  []*OrderData
-	CancelledOrders []int64 // order IDs
+	CancelledOrders []*OrderData
 }
 
 // GetOrdersHistoryTask - data for GetPairOrdersHistory request
