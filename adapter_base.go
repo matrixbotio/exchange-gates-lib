@@ -2,6 +2,7 @@ package matrixgates
 
 import (
 	"context"
+	"time"
 
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
@@ -62,9 +63,20 @@ func (a *ExchangeAdapter) CancelPairOrders(pairSymbol string) error {
 	return nil
 }
 
-// GetOrderData ..
+// GetOrderData - get test order data
 func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	return nil, nil
+	return &OrderData{
+		OrderID:       orderID,
+		ClientOrderID: "",
+		Status:        OrderStatusNew,
+		AwaitQty:      100,
+		FilledQty:     10,
+		Price:         500,
+		Symbol:        pairSymbol,
+		Type:          OrderTypeBuy,
+		CreatedTime:   time.Now().UnixMilli(),
+		UpdatedTime:   time.Now().UnixMilli(),
+	}, nil
 }
 
 // GetPairOpenOrders ..
