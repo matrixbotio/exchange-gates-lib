@@ -1,6 +1,8 @@
 package matrixgates
 
 import (
+	"context"
+
 	"github.com/matrixbotio/exchange-gates-lib/workers"
 )
 
@@ -22,7 +24,7 @@ func (a *ExchangeAdapter) GetTag() string {
 }
 
 // GetID - get exchange adapter name
-func (a *BinanceSpotAdapter) GetID() int {
+func (a *ExchangeAdapter) GetID() int {
 	return a.ExchangeID
 }
 
@@ -34,7 +36,9 @@ func (a *ExchangeAdapter) Connect(credentials APICredentials) error {
 }
 
 // PlaceOrder - place order on exchange
-func (a *ExchangeAdapter) PlaceOrder(order BotOrder, pairLimits ExchangePairData) (*CreateOrderResponse, error) {
+func (a *ExchangeAdapter) PlaceOrder(
+	ctx context.Context, order BotOrderAdjusted,
+) (*CreateOrderResponse, error) {
 	return nil, nil
 }
 
@@ -49,7 +53,7 @@ func (a *ExchangeAdapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 }
 
 // CancelPairOrder ..
-func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64) error {
+func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
 	return nil
 }
 
@@ -65,7 +69,6 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*Order
 
 // GetPairOpenOrders ..
 func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData, error) {
-	// TODO
 	return nil, nil
 }
 
@@ -79,8 +82,15 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	return nil
 }
 
+// GetTradeEventsWorker - create empty trade data worker
+func (a *ExchangeAdapter) GetTradeEventsWorker() workers.ITradeEventWorker {
+	w := workers.TradeEventWorker{}
+	w.ExchangeTag = a.GetTag()
+	return &w
+}
+
 // GetPriceWorker - create empty market data worker
-func (a *ExchangeAdapter) GetPriceWorker() workers.IPriceWorker {
+func (a *ExchangeAdapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
 	w := workers.PriceWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
@@ -91,4 +101,30 @@ func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
 	w := workers.CandleWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
+}
+
+func (a *ExchangeAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, error) {
+	return &PairBalance{
+		BaseAsset: &AssetBalance{
+			Ticker: pair.BaseTicker,
+			Free:   10000,
+		},
+		QuoteAsset: &AssetBalance{
+			Ticker: pair.QuoteTicker,
+			Free:   10000,
+		},
+	}, nil
+}
+
+func (a *ExchangeAdapter) GetPairData(pairSymbol string) (*ExchangePairData, error) {
+	pairData := GetDefaultPairData()
+	return &pairData, nil
+}
+
+func (a *ExchangeAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error) {
+	return []*OrderData{}, nil
+}
+
+func (a *ExchangeAdapter) GetPrices() ([]SymbolPrice, error) {
+	return []SymbolPrice{}, nil
 }

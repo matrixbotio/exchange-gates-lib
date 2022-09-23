@@ -55,3 +55,11 @@ func GetExchangeAdapters() map[int]ExchangeInterface {
 		exchangeIDbinanceSpot: NewBinanceSpotAdapter(),
 	}
 }
+
+func GetTestExchangeAdapter() ExchangeInterface {
+	return &ExchangeAdapter{
+		ExchangeID: -1,
+		Name:       "Test Exchange",
+		Tag:        "test-exchange",
+	}
+}
