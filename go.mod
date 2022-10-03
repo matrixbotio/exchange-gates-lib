@@ -1,8 +1,9 @@
 module github.com/matrixbotio/exchange-gates-lib
 
-go 1.16
+go 1.18
 
 require (
 	github.com/adshao/go-binance/v2 v2.3.3
 	github.com/go-stack/stack v1.8.0
+	github.com/stretchr/testify v1.4.0
 )

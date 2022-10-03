@@ -19,6 +19,7 @@ type ITradeEventWorker interface {
 
 // SubscribeToTradeEvents - websocket subscription to pair trade events
 func (w *TradeEventWorker) SubscribeToTradeEvents(
+	symbol string,
 	eventCallback func(event TradeEvent),
 	errorHandler func(err error),
 ) error {

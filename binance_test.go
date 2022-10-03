@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBinanceOrderConvert(t *testing.T) {
@@ -30,4 +31,10 @@ func TestBinanceOrderConvert(t *testing.T) {
 	if len(orders) == 0 {
 		t.Fatal("0 orders converted")
 	}
+}
+
+func TestBinanceAdapter(t *testing.T) {
+	a := NewBinanceSpotAdapter()
+	exchangeID := a.GetID()
+	require.Equal(t, exchangeID, exchangeIDbinanceSpot)
 }
