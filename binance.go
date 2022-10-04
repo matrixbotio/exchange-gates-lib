@@ -66,15 +66,24 @@ func (a *BinanceSpotAdapter) GetPrices() ([]SymbolPrice, error) {
 	return r, nil
 }
 
-// GetOrderData - get order data
-func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	orderResponse, err := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol).
-		OrderID(orderID).Do(context.Background())
+func (a *BinanceSpotAdapter) getOrderData(
+	pairSymbol string, orderID int64, clientOrderID string,
+) (*OrderData, error) {
 
-	tradeData := OrderData{
-		OrderID: orderID,
+	if orderID == 0 && clientOrderID == "" {
+		return nil, errors.New("orderID & client order ID is not set")
 	}
 
+	// get service & set order ID
+	s := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol)
+	if orderID > 0 {
+		s.OrderID(orderID)
+	} else {
+		s.OrigClientOrderID(clientOrderID)
+	}
+
+	tradeData := OrderData{OrderID: orderID}
+	orderResponse, err := s.Do(context.Background())
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
 			tradeData.Status = OrderStatusUnknown
@@ -84,6 +93,16 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 	}
 
 	return a.convertOrder(orderResponse)
+}
+
+// GetOrderData - get order data
+func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
+	return a.getOrderData(pairSymbol, orderID, "")
+}
+
+// GetClientOrderData - get order data by client order ID
+func (a *BinanceSpotAdapter) GetClientOrderData(pairSymbol string, clientOrderID string) (*OrderData, error) {
+	return a.getOrderData(pairSymbol, 0, clientOrderID)
 }
 
 // from binance format to our bot order type format
