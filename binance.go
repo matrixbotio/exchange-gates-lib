@@ -75,14 +75,16 @@ func (a *BinanceSpotAdapter) getOrderData(
 	}
 
 	// get service & set order ID
+	tradeData := OrderData{}
 	s := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol)
 	if orderID > 0 {
+		tradeData.OrderID = orderID
 		s.OrderID(orderID)
 	} else {
+		tradeData.ClientOrderID = clientOrderID
 		s.OrigClientOrderID(clientOrderID)
 	}
 
-	tradeData := OrderData{OrderID: orderID}
 	orderResponse, err := s.Do(context.Background())
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
