@@ -3,6 +3,7 @@ package matrixgates
 import "time"
 
 const (
+	TestExchangeID                = 0
 	PairDefaultExchangeID         = 1
 	PairDefaultMinQty             = 0.001
 	PairDefaultMaxQty             = 99999.99
