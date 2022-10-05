@@ -47,6 +47,8 @@ func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 		return nil, errors.New("exchange not found")
 	case exchangeIDbinanceSpot:
 		return NewBinanceSpotAdapter(), nil
+	case TestExchangeID:
+		return GetTestExchangeAdapter(), nil
 	}
 }
 
@@ -59,7 +61,7 @@ func GetExchangeAdapters() map[int]ExchangeInterface {
 
 func GetTestExchangeAdapter() ExchangeInterface {
 	return &ExchangeAdapter{
-		ExchangeID: -1,
+		ExchangeID: TestExchangeID,
 		Name:       "Test Exchange",
 		Tag:        "test-exchange",
 	}
