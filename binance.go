@@ -66,15 +66,10 @@ func (a *BinanceSpotAdapter) GetPrices() ([]SymbolPrice, error) {
 	return r, nil
 }
 
-func (a *BinanceSpotAdapter) getOrderData(
+func (a *BinanceSpotAdapter) getOrderFromService(
 	pairSymbol string, orderID int64, clientOrderID string,
-) (*OrderData, error) {
+) (*binance.Order, error) {
 
-	if orderID == 0 && clientOrderID == "" {
-		return nil, errors.New("orderID & client order ID is not set")
-	}
-
-	// get service & set order ID
 	tradeData := OrderData{}
 	s := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol)
 	if orderID > 0 {
@@ -89,21 +84,38 @@ func (a *BinanceSpotAdapter) getOrderData(
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
 			tradeData.Status = OrderStatusUnknown
-			return &tradeData, nil
+			return nil, nil
 		}
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())
+	}
+
+	return orderResponse, nil
+}
+
+func (a *BinanceSpotAdapter) getOrderData(
+	pairSymbol string, orderID int64, clientOrderID string,
+) (OrderData, error) {
+
+	if orderID == 0 && clientOrderID == "" {
+		return OrderData{}, errors.New("orderID & client order ID is not set")
+	}
+
+	// get service & set order ID
+	orderResponse, err := a.getOrderFromService(pairSymbol, orderID, clientOrderID)
+	if err != nil {
+		return OrderData{}, err
 	}
 
 	return a.convertOrder(orderResponse)
 }
 
 // GetOrderData - get order data
-func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
+func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (OrderData, error) {
 	return a.getOrderData(pairSymbol, orderID, "")
 }
 
 // GetClientOrderData - get order data by client order ID
-func (a *BinanceSpotAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (*OrderData, error) {
+func (a *BinanceSpotAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (OrderData, error) {
 	return a.getOrderData(pairSymbol, 0, clientOrderID)
 }
 
@@ -120,11 +132,12 @@ func (a *BinanceSpotAdapter) convertOrderSide(orderSide binance.SideType) (strin
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error) {
-	var orderSide binance.SideType
+func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (CreateOrderResponse, error) {
+	r := CreateOrderResponse{}
+	orderSide := binance.SideType(OrderTypeBuy)
 	switch order.Type {
 	default:
-		return nil, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
+		return r, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
 	case OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
 	case OrderTypeSell:
@@ -147,20 +160,20 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjus
 	// place order
 	orderRes, err := orderService.Do(ctx)
 	if err != nil {
-		return nil, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
+		return r, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + GetTrace())
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
+		return r, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return nil, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
+		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + GetTrace())
 	}
 
-	return &CreateOrderResponse{
+	return CreateOrderResponse{
 		OrderID:       orderRes.OrderID,
 		ClientOrderID: orderRes.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
@@ -176,14 +189,15 @@ func (a *BinanceSpotAdapter) getOrderType(orderSide binance.SideType) string {
 }
 
 // GetAccountData - get account data ^ↀᴥↀ^
-func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
+func (a *BinanceSpotAdapter) GetAccountData() (AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
-		return nil, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error() + ", stack: " + GetTrace())
+		return AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error() + ", stack: " + GetTrace())
 	}
 	accountDataResult := AccountData{
 		CanTrade: binanceAccountData.CanTrade,
 	}
+
 	balances := []Balance{}
 	for _, binanceBalanceData := range binanceAccountData.Balances {
 		// convert strings to float64
@@ -204,7 +218,7 @@ func (a *BinanceSpotAdapter) GetAccountData() (*AccountData, error) {
 		}
 	}
 	accountDataResult.Balances = balances
-	return &accountDataResult, nil
+	return accountDataResult, nil
 }
 
 // GetPairLastPrice - get pair last price ^ↀᴥↀ^
@@ -251,10 +265,10 @@ func (a *BinanceSpotAdapter) isErrorAboutUnknownOrder(err error) bool {
 }
 
 // GetPairData - get pair data & limits
-func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (*ExchangePairData, error) {
+func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (ExchangePairData, error) {
 	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
-		return nil, err
+		return ExchangePairData{}, err
 	}
 
 	// find pairSymbol
@@ -262,11 +276,11 @@ func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (*ExchangePairData, 
 		return a.getExchangePairData(symbolData)
 	}
 
-	return nil, errors.New("data for " + pairSymbol + " pair not found")
+	return ExchangePairData{}, errors.New("data for " + pairSymbol + " pair not found")
 }
 
 //GetPairOpenOrders - get open orders array
-func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData, error) {
+func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]OrderData, error) {
 	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return nil, err
@@ -303,7 +317,7 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 // convert binance.Symbol to ExchangePairData
-func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*ExchangePairData, error) {
+func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (ExchangePairData, error) {
 	pairData := ExchangePairData{
 		ExchangeID:     a.ExchangeID,
 		BaseAsset:      symbolData.BaseAsset,
@@ -338,7 +352,7 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (*Ex
 		optionalErr = err
 	}
 
-	return &pairData, optionalErr
+	return pairData, optionalErr
 }
 
 func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *ExchangePairData) error {
@@ -411,7 +425,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 }
 
 // GetPairs get all Binance pairs
-func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
+func (a *BinanceSpotAdapter) GetPairs() ([]ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
@@ -419,7 +433,7 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	}
 
 	var lastError error
-	pairs := []*ExchangePairData{}
+	pairs := []ExchangePairData{}
 	for _, symbolData := range res.Symbols {
 		pairData, err := a.getExchangePairData(symbolData)
 		if err != nil {
@@ -431,7 +445,7 @@ func (a *BinanceSpotAdapter) GetPairs() ([]*ExchangePairData, error) {
 	return pairs, lastError
 }
 
-func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error) {
+func (a *BinanceSpotAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]OrderData, error) {
 	// check data
 	if task.PairSymbol == "" {
 		return nil, errors.New("pair symbol is not set")
@@ -490,28 +504,29 @@ func (a *BinanceSpotAdapter) parseOrderPrice(orderRaw *binance.Order) (float64, 
 }
 
 // converting the order from binance to our format
-func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, error) {
+func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (OrderData, error) {
+	r := OrderData{}
 	awaitQty, err := a.parseOrderOriginalQty(orderRaw)
 	if err != nil {
-		return nil, err
+		return r, err
 	}
 
 	filledQty, err := a.parseOrderExecutedQty(orderRaw)
 	if err != nil {
-		return nil, err
+		return r, err
 	}
 
 	price, err := a.parseOrderPrice(orderRaw)
 	if err != nil {
-		return nil, err
+		return r, err
 	}
 
 	orderType, err := a.convertOrderSide(orderRaw.Side)
 	if err != nil {
-		return nil, err
+		return r, err
 	}
 
-	return &OrderData{
+	r = OrderData{
 		OrderID:       orderRaw.OrderID,
 		ClientOrderID: orderRaw.ClientOrderID,
 		Status:        string(orderRaw.Status),
@@ -522,11 +537,12 @@ func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (*OrderData, 
 		Type:          orderType,
 		CreatedTime:   orderRaw.Time,
 		UpdatedTime:   orderRaw.UpdateTime,
-	}, nil
+	}
+	return r, nil
 }
 
-func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) ([]*OrderData, error) {
-	orders := []*OrderData{}
+func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) ([]OrderData, error) {
+	orders := []OrderData{}
 	for _, orderRaw := range ordersRaw {
 		order, err := a.convertOrder(orderRaw)
 		if err != nil {
@@ -539,13 +555,13 @@ func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) ([]*Order
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
-func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, error) {
+func (a *BinanceSpotAdapter) GetPairBalance(pair PairSymbolData) (PairBalance, error) {
 	accountData, err := a.GetAccountData()
 	if err != nil {
-		return nil, err
+		return PairBalance{}, err
 	}
 
-	pairBalanceData := &PairBalance{}
+	pairBalanceData := PairBalance{}
 	for _, balanceData := range accountData.Balances {
 		if balanceData.Asset == pair.BaseTicker {
 			// base asset found
