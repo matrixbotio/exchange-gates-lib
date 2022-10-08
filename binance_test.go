@@ -50,6 +50,6 @@ func TestBinanceConvertOrderSide(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, orderSide, OrderTypeSell)
 
-	orderSide, err = a.convertOrderSide("wtf")
+	_, err = a.convertOrderSide("wtf")
 	assert.NotNil(t, err)
 }
