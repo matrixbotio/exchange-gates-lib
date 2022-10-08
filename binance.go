@@ -103,7 +103,7 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (*Or
 }
 
 // GetClientOrderData - get order data by client order ID
-func (a *BinanceSpotAdapter) GetClientOrderData(pairSymbol string, clientOrderID string) (*OrderData, error) {
+func (a *BinanceSpotAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (*OrderData, error) {
 	return a.getOrderData(pairSymbol, 0, clientOrderID)
 }
 

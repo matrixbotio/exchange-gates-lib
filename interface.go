@@ -22,7 +22,7 @@ type ExchangeInterface interface {
 	// Order
 	GetPrices() ([]SymbolPrice, error)
 	GetOrderData(pairSymbol string, orderID int64) (*OrderData, error)
-	GetClientOrderData(pairSymbol, clientOrderID string) (*OrderData, error)
+	GetOrderByClientOrderID(pairSymbol, clientOrderID string) (*OrderData, error)
 	PlaceOrder(ctx context.Context, order BotOrderAdjusted) (*CreateOrderResponse, error)
 
 	// Pair

@@ -58,11 +58,6 @@ func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx 
 	return nil
 }
 
-// CancelPairOrders ..
-func (a *ExchangeAdapter) CancelPairOrders(pairSymbol string) error {
-	return nil
-}
-
 // GetOrderData - get test order data
 func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
 	return &OrderData{
@@ -79,8 +74,8 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*Order
 	}, nil
 }
 
-// GetClientOrderData ..
-func (a *ExchangeAdapter) GetClientOrderData(pairSymbol string, clientOrderID string) (*OrderData, error) {
+// GetOrderByClientOrderID ..
+func (a *ExchangeAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (*OrderData, error) {
 	return a.GetOrderData(pairSymbol, 0)
 }
 
