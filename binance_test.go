@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,4 +38,18 @@ func TestBinanceAdapter(t *testing.T) {
 	a := NewBinanceSpotAdapter()
 	exchangeID := a.GetID()
 	require.Equal(t, exchangeID, exchangeIDbinanceSpot)
+}
+
+func TestBinanceConvertOrderSide(t *testing.T) {
+	a := NewBinanceSpotAdapter()
+	orderSide, err := a.convertOrderSide(binance.SideTypeBuy)
+	assert.Nil(t, err)
+	assert.Equal(t, orderSide, OrderTypeBuy)
+
+	orderSide, err = a.convertOrderSide(binance.SideTypeSell)
+	assert.Nil(t, err)
+	assert.Equal(t, orderSide, OrderTypeSell)
+
+	orderSide, err = a.convertOrderSide("wtf")
+	assert.NotNil(t, err)
 }
