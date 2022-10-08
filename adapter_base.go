@@ -39,13 +39,22 @@ func (a *ExchangeAdapter) Connect(credentials APICredentials) error {
 // PlaceOrder - place order on exchange
 func (a *ExchangeAdapter) PlaceOrder(
 	ctx context.Context, order BotOrderAdjusted,
-) (*CreateOrderResponse, error) {
-	return nil, nil
+) (CreateOrderResponse, error) {
+	return CreateOrderResponse{}, nil
 }
 
 // GetAccountData ..
-func (a *ExchangeAdapter) GetAccountData() (*AccountData, error) {
-	return nil, nil
+func (a *ExchangeAdapter) GetAccountData() (AccountData, error) {
+	return AccountData{
+		CanTrade: true,
+		Balances: []Balance{
+			{
+				Asset:  pairDefaultAsset,
+				Free:   0,
+				Locked: 0,
+			},
+		},
+	}, nil
 }
 
 // GetPairLastPrice ..
@@ -59,8 +68,8 @@ func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx 
 }
 
 // GetOrderData - get test order data
-func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*OrderData, error) {
-	return &OrderData{
+func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (OrderData, error) {
+	return OrderData{
 		OrderID:       orderID,
 		ClientOrderID: "",
 		Status:        OrderStatusNew,
@@ -75,17 +84,17 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (*Order
 }
 
 // GetOrderByClientOrderID ..
-func (a *ExchangeAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (*OrderData, error) {
+func (a *ExchangeAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (OrderData, error) {
 	return a.GetOrderData(pairSymbol, 0)
 }
 
 // GetPairOpenOrders ..
-func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]*OrderData, error) {
+func (a *ExchangeAdapter) GetPairOpenOrders(pairSymbol string) ([]OrderData, error) {
 	return nil, nil
 }
 
 // GetPairs get all Binance pairs
-func (a *ExchangeAdapter) GetPairs() ([]*ExchangePairData, error) {
+func (a *ExchangeAdapter) GetPairs() ([]ExchangePairData, error) {
 	return nil, nil
 }
 
@@ -115,8 +124,8 @@ func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
 	return &w
 }
 
-func (a *ExchangeAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, error) {
-	return &PairBalance{
+func (a *ExchangeAdapter) GetPairBalance(pair PairSymbolData) (PairBalance, error) {
+	return PairBalance{
 		BaseAsset: &AssetBalance{
 			Ticker: pair.BaseTicker,
 			Free:   10000,
@@ -128,13 +137,12 @@ func (a *ExchangeAdapter) GetPairBalance(pair PairSymbolData) (*PairBalance, err
 	}, nil
 }
 
-func (a *ExchangeAdapter) GetPairData(pairSymbol string) (*ExchangePairData, error) {
-	pairData := GetDefaultPairData()
-	return &pairData, nil
+func (a *ExchangeAdapter) GetPairData(pairSymbol string) (ExchangePairData, error) {
+	return GetDefaultPairData(), nil
 }
 
-func (a *ExchangeAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]*OrderData, error) {
-	return []*OrderData{}, nil
+func (a *ExchangeAdapter) GetPairOrdersHistory(task GetOrdersHistoryTask) ([]OrderData, error) {
+	return []OrderData{}, nil
 }
 
 func (a *ExchangeAdapter) GetPrices() ([]SymbolPrice, error) {
