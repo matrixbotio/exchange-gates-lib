@@ -1,0 +1,73 @@
+package binance_api
+
+import "github.com/adshao/go-binance/v2"
+
+type BinanceClient interface {
+	NewPingService() *binance.PingService
+	NewServerTimeService() *binance.ServerTimeService
+	NewSetServerTimeService() *binance.SetServerTimeService
+	NewDepthService() *binance.DepthService
+	NewAggTradesService() *binance.AggTradesService
+	NewRecentTradesService() *binance.RecentTradesService
+	NewKlinesService() *binance.KlinesService
+	NewListPriceChangeStatsService() *binance.ListPriceChangeStatsService
+	NewListPricesService() *binance.ListPricesService
+	NewListBookTickersService() *binance.ListBookTickersService
+	NewCreateOrderService() *binance.CreateOrderService
+	NewCreateOCOService() *binance.CreateOCOService
+	NewCancelOCOService() *binance.CancelOCOService
+	NewGetOrderService() *binance.GetOrderService
+	NewCancelOrderService() *binance.CancelOrderService
+	NewCancelOpenOrdersService() *binance.CancelOpenOrdersService
+	NewListOpenOrdersService() *binance.ListOpenOrdersService
+	NewListOrdersService() *binance.ListOrdersService
+	NewGetAccountService() *binance.GetAccountService
+	NewListSavingsFlexibleProductsService() *binance.ListSavingsFlexibleProductsService
+	NewPurchaseSavingsFlexibleProductService() *binance.PurchaseSavingsFlexibleProductService
+	NewRedeemSavingsFlexibleProductService() *binance.RedeemSavingsFlexibleProductService
+	NewListSavingsFixedAndActivityProductsService() *binance.ListSavingsFixedAndActivityProductsService
+	NewGetAccountSnapshotService() *binance.GetAccountSnapshotService
+	NewListTradesService() *binance.ListTradesService
+	NewHistoricalTradesService() *binance.HistoricalTradesService
+	NewListDepositsService() *binance.ListDepositsService
+	NewGetDepositAddressService() *binance.GetDepositsAddressService
+	NewCreateWithdrawService() *binance.CreateWithdrawService
+	NewListWithdrawsService() *binance.ListWithdrawsService
+	NewStartUserStreamService() *binance.StartUserStreamService
+	NewKeepaliveUserStreamService() *binance.KeepaliveUserStreamService
+	NewCloseUserStreamService() *binance.CloseUserStreamService
+	NewExchangeInfoService() *binance.ExchangeInfoService
+	NewGetAssetDetailService() *binance.GetAssetDetailService
+	NewAveragePriceService() *binance.AveragePriceService
+	NewMarginTransferService() *binance.MarginTransferService
+	NewMarginLoanService() *binance.MarginLoanService
+	NewMarginRepayService() *binance.MarginRepayService
+	NewCreateMarginOrderService() *binance.CreateMarginOrderService
+	NewCancelMarginOrderService() *binance.CancelMarginOrderService
+	NewGetMarginOrderService() *binance.GetMarginOrderService
+	NewListMarginLoansService() *binance.ListMarginLoansService
+	NewListMarginRepaysService() *binance.ListMarginRepaysService
+	NewGetMarginAccountService() *binance.GetMarginAccountService
+	NewGetIsolatedMarginAccountService() *binance.GetIsolatedMarginAccountService
+	NewGetMarginAssetService() *binance.GetMarginAssetService
+	NewGetMarginPairService() *binance.GetMarginPairService
+	NewGetMarginAllPairsService() *binance.GetMarginAllPairsService
+	NewGetMarginPriceIndexService() *binance.GetMarginPriceIndexService
+	NewListMarginOpenOrdersService() *binance.ListMarginOpenOrdersService
+	NewListMarginOrdersService() *binance.ListMarginOrdersService
+	NewListMarginTradesService() *binance.ListMarginTradesService
+	NewGetMaxBorrowableService() *binance.GetMaxBorrowableService
+	NewGetMaxTransferableService() *binance.GetMaxTransferableService
+	NewStartMarginUserStreamService() *binance.StartMarginUserStreamService
+	NewKeepaliveMarginUserStreamService() *binance.KeepaliveMarginUserStreamService
+	NewCloseMarginUserStreamService() *binance.CloseMarginUserStreamService
+	NewStartIsolatedMarginUserStreamService() *binance.StartIsolatedMarginUserStreamService
+	NewKeepaliveIsolatedMarginUserStreamService() *binance.KeepaliveIsolatedMarginUserStreamService
+	NewCloseIsolatedMarginUserStreamService() *binance.CloseIsolatedMarginUserStreamService
+	NewFuturesTransferService() *binance.FuturesTransferService
+	NewListFuturesTransferService() *binance.ListFuturesTransferService
+	NewListDustLogService() *binance.ListDustLogService
+	NewDustTransferService() *binance.DustTransferService
+	NewAssetDividendService() *binance.AssetDividendService
+	NewUserUniversalTransferService() *binance.CreateUserUniversalTransferService
+}

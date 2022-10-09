@@ -3,6 +3,7 @@ package matrixgates
 import (
 	"context"
 	"errors"
+	binance_api "github.com/matrixbotio/exchange-gates-lib/internal/datasources/api/binance"
 	"strconv"
 	"strings"
 	"time"
@@ -15,7 +16,7 @@ import (
 // BinanceSpotAdapter - bot exchange adapter for BinanceSpot
 type BinanceSpotAdapter struct {
 	ExchangeAdapter
-	binanceAPI *binance.Client
+	binanceAPI binance_api.BinanceClient
 }
 
 // NewBinanceSpotAdapter - create binance exchange adapter
