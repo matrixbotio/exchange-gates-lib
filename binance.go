@@ -257,6 +257,22 @@ func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64, c
 	return nil
 }
 
+// CancelPairOrder - cancel one exchange pair order by client order ID
+func (a *BinanceSpotAdapter) CancelPairOrderByClientOrderID(
+	pairSymbol string,
+	clientOrderID string,
+	ctx context.Context,
+) error {
+	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+		OrigClientOrderID(clientOrderID).Do(ctx)
+	if clientErr != nil {
+		if !a.isErrorAboutUnknownOrder(clientErr) {
+			return clientErr
+		}
+	}
+	return nil
+}
+
 func (a *BinanceSpotAdapter) isErrorAboutUnknownOrder(err error) bool {
 	if err == nil {
 		return false
