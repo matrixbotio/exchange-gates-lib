@@ -67,6 +67,14 @@ func (a *ExchangeAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx 
 	return nil
 }
 
+func (a *ExchangeAdapter) CancelPairOrderByClientOrderID(
+	pairSymbol string,
+	clientOrderID string,
+	ctx context.Context,
+) error {
+	return nil
+}
+
 // GetOrderData - get test order data
 func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (OrderData, error) {
 	return OrderData{

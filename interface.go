@@ -29,6 +29,7 @@ type ExchangeInterface interface {
 	GetPairData(pairSymbol string) (ExchangePairData, error)
 	GetPairLastPrice(pairSymbol string) (float64, error)
 	CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error
+	CancelPairOrderByClientOrderID(pairSymbol string, clientOrderID string, ctx context.Context) error
 	GetPairOpenOrders(pairSymbol string) ([]OrderData, error)
 	GetPairOrdersHistory(task GetOrdersHistoryTask) ([]OrderData, error)
 	GetPairs() ([]ExchangePairData, error)
