@@ -40,7 +40,11 @@ func (a *ExchangeAdapter) Connect(credentials APICredentials) error {
 func (a *ExchangeAdapter) PlaceOrder(
 	ctx context.Context, order BotOrderAdjusted,
 ) (CreateOrderResponse, error) {
-	return CreateOrderResponse{}, nil
+	return CreateOrderResponse{
+		OrderID:       1,
+		ClientOrderID: "test",
+		OrigQuantity:  0.1,
+	}, nil
 }
 
 // GetAccountData ..
