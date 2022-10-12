@@ -12,6 +12,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
@@ -26,7 +27,7 @@ type BinanceSpotAdapter struct {
 }
 
 // NewBinanceSpotAdapter - create binance exchange adapter
-func NewBinanceSpotAdapter() *BinanceSpotAdapter {
+func NewBinanceSpotAdapter() adapters.Adapter {
 	stack.Caller(0)
 	a := BinanceSpotAdapter{}
 	a.Name = "Binance Spot"
@@ -125,7 +126,7 @@ func (a *BinanceSpotAdapter) getOrderData(
 		return structs.OrderData{}, err
 	}
 
-	return a.convertOrder(orderResponse)
+	return convertOrder(orderResponse)
 }
 
 // GetOrderData - get order data
@@ -136,18 +137,6 @@ func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (str
 // GetClientOrderData - get order data by client order ID
 func (a *BinanceSpotAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
 	return a.getOrderData(pairSymbol, 0, clientOrderID)
-}
-
-// from binance format to our bot order type format
-func (a *BinanceSpotAdapter) convertOrderSide(orderSide binance.SideType) (string, error) {
-	switch orderSide {
-	default:
-		return "", errors.New("unknown order type: " + string(orderSide))
-	case binance.SideTypeBuy:
-		return consts.OrderTypeBuy, nil
-	case binance.SideTypeSell:
-		return consts.OrderTypeSell, nil
-	}
 }
 
 // PlaceOrder - place order on exchange
@@ -321,7 +310,7 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]structs.Ord
 		return nil, err
 	}
 
-	return a.convertOrders(ordersRaw)
+	return convertOrders(ordersRaw)
 }
 
 func (a *BinanceSpotAdapter) ping() error {
@@ -511,82 +500,7 @@ func (a *BinanceSpotAdapter) GetPairOrdersHistory(task structs.GetOrdersHistoryT
 	}
 
 	// convert orders
-	return a.convertOrders(ordersRaw)
-}
-
-func (a *BinanceSpotAdapter) parseOrderOriginalQty(orderRaw *binance.Order) (float64, error) {
-	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 32)
-	if err != nil {
-		return 0, errors.New("failed to parse order original qty: " + err.Error())
-	}
-	return awaitQty, nil
-}
-
-func (a *BinanceSpotAdapter) parseOrderExecutedQty(orderRaw *binance.Order) (float64, error) {
-	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 32)
-	if err != nil {
-		return 0, errors.New("failed to parse order executed qty: " + err.Error())
-	}
-	return filledQty, nil
-}
-
-func (a *BinanceSpotAdapter) parseOrderPrice(orderRaw *binance.Order) (float64, error) {
-	price, err := strconv.ParseFloat(orderRaw.Price, 32)
-	if err != nil {
-		return 0, errors.New("failed to parse order price: " + err.Error())
-	}
-	return price, nil
-}
-
-// converting the order from binance to our format
-func (a *BinanceSpotAdapter) convertOrder(orderRaw *binance.Order) (structs.OrderData, error) {
-	r := structs.OrderData{}
-	awaitQty, err := a.parseOrderOriginalQty(orderRaw)
-	if err != nil {
-		return r, err
-	}
-
-	filledQty, err := a.parseOrderExecutedQty(orderRaw)
-	if err != nil {
-		return r, err
-	}
-
-	price, err := a.parseOrderPrice(orderRaw)
-	if err != nil {
-		return r, err
-	}
-
-	orderType, err := a.convertOrderSide(orderRaw.Side)
-	if err != nil {
-		return r, err
-	}
-
-	r = structs.OrderData{
-		OrderID:       orderRaw.OrderID,
-		ClientOrderID: orderRaw.ClientOrderID,
-		Status:        string(orderRaw.Status),
-		AwaitQty:      awaitQty,
-		FilledQty:     filledQty,
-		Price:         price,
-		Symbol:        orderRaw.Symbol,
-		Type:          orderType,
-		CreatedTime:   orderRaw.Time,
-		UpdatedTime:   orderRaw.UpdateTime,
-	}
-	return r, nil
-}
-
-func (a *BinanceSpotAdapter) convertOrders(ordersRaw []*binance.Order) ([]structs.OrderData, error) {
-	orders := []structs.OrderData{}
-	for _, orderRaw := range ordersRaw {
-		order, err := a.convertOrder(orderRaw)
-		if err != nil {
-			return nil, err
-		}
-
-		orders = append(orders, order)
-	}
-	return orders, nil
+	return convertOrders(ordersRaw)
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
