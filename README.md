@@ -1,20 +1,9 @@
 # exchange-gates
 
-```
-               _                            
-              | |                           
-  _____  _____| |__   __ _ _ __   __ _  ___ 
- / _ \ \/ / __| '_ \ / _` | '_ \ / _` |/ _ \
-|  __/>  < (__| | | | (_| | | | | (_| |  __/
- \___/_/\_\___|_| |_|\__,_|_| |_|\__, |\___|
-                                  __/ |     
-                                 |___/      
-             _            
-            | |           
-  __ _  __ _| |_ ___  ___ 
- / _` |/ _` | __/ _ \/ __|
-| (_| | (_| | ||  __/\__ \
- \__, |\__,_|\__\___||___/
-  __/ |                   
- |___/                    
-```
+## Mocks
+
+https://github.com/vektra/mockery  
+
+Something like `go install github.com/vektra/mockery/v2@latest`: install binary locally  
+
+Every time when you have new/changed interfaces run `make generate-mocks`  
