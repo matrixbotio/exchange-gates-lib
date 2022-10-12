@@ -4,12 +4,12 @@ import (
 	"errors"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters/binance"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters/test"
+	adp "github.com/matrixbotio/exchange-gates-lib/pkg/adapter"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/adapter/binance"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/adapter/test"
 )
 
-func CreateAdapter(exchangeID int) (adapters.Adapter, error) {
+func CreateAdapter(exchangeID int) (adp.Adapter, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
@@ -20,8 +20,8 @@ func CreateAdapter(exchangeID int) (adapters.Adapter, error) {
 	}
 }
 
-func CreateAdapters() map[int]adapters.Adapter {
-	return map[int]adapters.Adapter{
+func CreateAdapters() map[int]adp.Adapter {
+	return map[int]adp.Adapter{
 		consts.ExchangeIDbinanceSpot: binance.New(),
 	}
 }

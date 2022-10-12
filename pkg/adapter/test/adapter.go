@@ -6,6 +6,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
+	adp "github.com/matrixbotio/exchange-gates-lib/pkg/adapter"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
@@ -16,7 +17,7 @@ type adapter struct {
 	Tag        string
 }
 
-func New() adapters.Adapter {
+func New() adp.Adapter {
 	return &adapter{
 		ExchangeID: consts.TestExchangeID,
 		Name:       "Test Exchange",

@@ -12,7 +12,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters"
+	adp "github.com/matrixbotio/exchange-gates-lib/pkg/adapter"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
@@ -25,7 +25,7 @@ type adapter struct {
 	binanceAPI *binance.Client
 }
 
-func New() adapters.Adapter {
+func New() adp.Adapter {
 	stack.Caller(0)
 	a := adapter{}
 	a.Name = "Binance Spot"
