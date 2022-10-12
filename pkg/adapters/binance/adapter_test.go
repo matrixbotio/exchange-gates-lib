@@ -35,7 +35,7 @@ func TestBinanceOrderConvert(t *testing.T) {
 }
 
 func TestBinanceAdapter(t *testing.T) {
-	a := NewBinanceSpotAdapter()
+	a := New()
 	exchangeID := a.GetID()
 	require.Equal(t, exchangeID, consts.ExchangeIDbinanceSpot)
 }

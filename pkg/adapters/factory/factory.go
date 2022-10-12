@@ -9,21 +9,19 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters/test"
 )
 
-// GetAdapter - get supported exchange adapter with interface
-func GetAdapter(exchangeID int) (adapters.Adapter, error) {
+func CreateAdapter(exchangeID int) (adapters.Adapter, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
 	case consts.ExchangeIDbinanceSpot:
-		return binance.NewBinanceSpotAdapter(), nil
+		return binance.New(), nil
 	case consts.TestExchangeID:
-		return test.GetAdapter(), nil
+		return test.New(), nil
 	}
 }
 
-// GetAdapters - get all supported exchange adapters
-func GetAdapters() map[int]adapters.Adapter {
+func CreateAdapters() map[int]adapters.Adapter {
 	return map[int]adapters.Adapter{
-		consts.ExchangeIDbinanceSpot: binance.NewBinanceSpotAdapter(),
+		consts.ExchangeIDbinanceSpot: binance.New(),
 	}
 }
