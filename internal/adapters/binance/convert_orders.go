@@ -6,7 +6,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
 // from binance format to our bot order type format

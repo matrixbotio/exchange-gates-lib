@@ -1,15 +1,14 @@
-package factory
+package adapter
 
 import (
 	"errors"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/test"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	adp "github.com/matrixbotio/exchange-gates-lib/pkg/adapter"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapter/binance"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapter/test"
 )
 
-func CreateAdapter(exchangeID int) (adp.Adapter, error) {
+func CreateAdapter(exchangeID int) (Adapter, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
@@ -20,8 +19,8 @@ func CreateAdapter(exchangeID int) (adp.Adapter, error) {
 	}
 }
 
-func CreateAdapters() map[int]adp.Adapter {
-	return map[int]adp.Adapter{
+func CreateAdapters() map[int]Adapter {
+	return map[int]Adapter{
 		consts.ExchangeIDbinanceSpot: binance.New(),
 	}
 }

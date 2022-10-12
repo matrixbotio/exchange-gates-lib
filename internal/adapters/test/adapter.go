@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
+	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
-	adp "github.com/matrixbotio/exchange-gates-lib/pkg/adapter"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
 type adapter struct {
@@ -127,22 +127,22 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 // GetTradeEventsWorker - create empty trade data worker
-func (a *adapter) GetTradeEventsWorker() workers2.ITradeEventWorker {
-	w := workers2.TradeEventWorker{}
+func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
+	w := workers.TradeEventWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
 // GetPriceWorker - create empty market data worker
-func (a *adapter) GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker {
-	w := workers2.PriceWorker{}
+func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
+	w := workers.PriceWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
 // GetCandleWorker - create empty market candle worker
-func (a *adapter) GetCandleWorker() workers2.ICandleWorker {
-	w := workers2.CandleWorker{}
+func (a *adapter) GetCandleWorker() workers.ICandleWorker {
+	w := workers.CandleWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
