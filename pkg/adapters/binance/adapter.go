@@ -17,8 +17,7 @@ import (
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
-// BinanceSpotAdapter - bot exchange adapter for BinanceSpot
-type BinanceSpotAdapter struct {
+type adapter struct {
 	ExchangeID int
 	Name       string
 	Tag        string
@@ -26,30 +25,29 @@ type BinanceSpotAdapter struct {
 	binanceAPI *binance.Client
 }
 
-// NewBinanceSpotAdapter - create binance exchange adapter
-func NewBinanceSpotAdapter() adapters.Adapter {
+func New() adapters.Adapter {
 	stack.Caller(0)
-	a := BinanceSpotAdapter{}
+	a := adapter{}
 	a.Name = "Binance Spot"
 	a.Tag = "binance-spot"
 	a.ExchangeID = consts.ExchangeIDbinanceSpot
 	return &a
 }
 
-func (a *BinanceSpotAdapter) GetTag() string {
+func (a *adapter) GetTag() string {
 	return a.Tag
 }
 
-func (a *BinanceSpotAdapter) GetID() int {
+func (a *adapter) GetID() int {
 	return a.ExchangeID
 }
 
-func (a *BinanceSpotAdapter) GetName() string {
+func (a *adapter) GetName() string {
 	return a.Name
 }
 
 // Connect to exchange
-func (a *BinanceSpotAdapter) Connect(credentials structs.APICredentials) error {
+func (a *adapter) Connect(credentials structs.APICredentials) error {
 	if credentials.Type != structs.APICredentialsTypeKeypair {
 		return errors.New("invalid credentials to connect to Binance")
 	}
@@ -65,11 +63,11 @@ func (a *BinanceSpotAdapter) Connect(credentials structs.APICredentials) error {
 	return nil
 }
 
-func (a *BinanceSpotAdapter) sync() {
+func (a *adapter) sync() {
 	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
 }
 
-func (a *BinanceSpotAdapter) GetPrices() ([]structs.SymbolPrice, error) {
+func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
 	prices, err := a.binanceAPI.NewListPricesService().Do(context.Background())
 	if err != nil {
 		return nil, errors.New("failed to get prices: " + err.Error())
@@ -86,7 +84,7 @@ func (a *BinanceSpotAdapter) GetPrices() ([]structs.SymbolPrice, error) {
 	return r, nil
 }
 
-func (a *BinanceSpotAdapter) getOrderFromService(
+func (a *adapter) getOrderFromService(
 	pairSymbol string, orderID int64, clientOrderID string,
 ) (*binance.Order, error) {
 
@@ -112,7 +110,7 @@ func (a *BinanceSpotAdapter) getOrderFromService(
 	return orderResponse, nil
 }
 
-func (a *BinanceSpotAdapter) getOrderData(
+func (a *adapter) getOrderData(
 	pairSymbol string, orderID int64, clientOrderID string,
 ) (structs.OrderData, error) {
 
@@ -130,17 +128,17 @@ func (a *BinanceSpotAdapter) getOrderData(
 }
 
 // GetOrderData - get order data
-func (a *BinanceSpotAdapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
 	return a.getOrderData(pairSymbol, orderID, "")
 }
 
 // GetClientOrderData - get order data by client order ID
-func (a *BinanceSpotAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
+func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
 	return a.getOrderData(pairSymbol, 0, clientOrderID)
 }
 
 // PlaceOrder - place order on exchange
-func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
+func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
 	r := structs.CreateOrderResponse{}
 	orderSide := binance.SideType(consts.OrderTypeBuy)
 	switch order.Type {
@@ -192,12 +190,12 @@ func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order structs.BotOr
 }
 
 // convert order side to bot order type
-func (a *BinanceSpotAdapter) getOrderType(orderSide binance.SideType) string {
+func (a *adapter) getOrderType(orderSide binance.SideType) string {
 	return strings.ToLower(string(orderSide))
 }
 
 // GetAccountData - get account data ^ↀᴥↀ^
-func (a *BinanceSpotAdapter) GetAccountData() (structs.AccountData, error) {
+func (a *adapter) GetAccountData() (structs.AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
 		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error() + ", stack: " + utils.GetTrace())
@@ -230,7 +228,7 @@ func (a *BinanceSpotAdapter) GetAccountData() (structs.AccountData, error) {
 }
 
 // GetPairLastPrice - get pair last price ^ↀᴥↀ^
-func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error) {
+func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	tickerService := a.binanceAPI.NewListPricesService()
 	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
 	if srvErr != nil {
@@ -254,7 +252,7 @@ func (a *BinanceSpotAdapter) GetPairLastPrice(pairSymbol string) (float64, error
 }
 
 // CancelPairOrder - cancel one exchange pair order by ID
-func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
+func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
 	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(ctx)
 	if clientErr != nil {
@@ -266,7 +264,7 @@ func (a *BinanceSpotAdapter) CancelPairOrder(pairSymbol string, orderID int64, c
 }
 
 // CancelPairOrder - cancel one exchange pair order by client order ID
-func (a *BinanceSpotAdapter) CancelPairOrderByClientOrderID(
+func (a *adapter) CancelPairOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
 	ctx context.Context,
@@ -281,7 +279,7 @@ func (a *BinanceSpotAdapter) CancelPairOrderByClientOrderID(
 	return nil
 }
 
-func (a *BinanceSpotAdapter) isErrorAboutUnknownOrder(err error) bool {
+func (a *adapter) isErrorAboutUnknownOrder(err error) bool {
 	if err == nil {
 		return false
 	}
@@ -289,7 +287,7 @@ func (a *BinanceSpotAdapter) isErrorAboutUnknownOrder(err error) bool {
 }
 
 // GetPairData - get pair data & limits
-func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
+func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
 	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return structs.ExchangePairData{}, err
@@ -304,7 +302,7 @@ func (a *BinanceSpotAdapter) GetPairData(pairSymbol string) (structs.ExchangePai
 }
 
 //GetPairOpenOrders - get open orders array
-func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
+func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
 	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return nil, err
@@ -313,7 +311,7 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]structs.Ord
 	return convertOrders(ordersRaw)
 }
 
-func (a *BinanceSpotAdapter) ping() error {
+func (a *adapter) ping() error {
 	var err error
 	for attemptNumber := 1; attemptNumber <= consts.PingRetryAttempts; attemptNumber++ {
 		err := a.binanceAPI.NewPingService().Do(context.Background())
@@ -328,7 +326,7 @@ func (a *BinanceSpotAdapter) ping() error {
 }
 
 // VerifyAPIKeys - create new exchange client & attempt to get account data
-func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
+func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	newClient := binance.NewClient(keyPublic, keySecret)
 	accountService, err := newClient.NewGetAccountService().Do(context.Background())
 	if err != nil {
@@ -341,7 +339,7 @@ func (a *BinanceSpotAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 // convert binance.Symbol to ExchangePairData
-func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (structs.ExchangePairData, error) {
+func (a *adapter) getExchangePairData(symbolData binance.Symbol) (structs.ExchangePairData, error) {
 	pairData := structs.ExchangePairData{
 		ExchangeID:     a.ExchangeID,
 		BaseAsset:      symbolData.BaseAsset,
@@ -449,7 +447,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.Exc
 }
 
 // GetPairs get all Binance pairs
-func (a *BinanceSpotAdapter) GetPairs() ([]structs.ExchangePairData, error) {
+func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
@@ -469,7 +467,7 @@ func (a *BinanceSpotAdapter) GetPairs() ([]structs.ExchangePairData, error) {
 	return pairs, lastError
 }
 
-func (a *BinanceSpotAdapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error) {
+func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error) {
 	// check data
 	if task.PairSymbol == "" {
 		return nil, errors.New("pair symbol is not set")
@@ -504,7 +502,7 @@ func (a *BinanceSpotAdapter) GetPairOrdersHistory(task structs.GetOrdersHistoryT
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
-func (a *BinanceSpotAdapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
+func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
 	accountData, err := a.GetAccountData()
 	if err != nil {
 		return structs.PairBalance{}, err
@@ -566,7 +564,7 @@ type PriceWorkerBinance struct {
 }
 
 // GetPriceWorker - create new market data worker
-func (a *BinanceSpotAdapter) GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker {
+func (a *adapter) GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker {
 	w := PriceWorkerBinance{}
 	w.PriceWorker.ExchangeTag = a.Tag
 	w.PriceWorker.HandleEventCallback = callback
@@ -628,7 +626,7 @@ type CandleWorkerBinance struct {
 }
 
 // GetCandleWorker - create new market candle worker
-func (a *BinanceSpotAdapter) GetCandleWorker() workers2.ICandleWorker {
+func (a *adapter) GetCandleWorker() workers2.ICandleWorker {
 	w := CandleWorkerBinance{}
 	w.ExchangeTag = a.GetTag()
 	return &w
@@ -693,7 +691,7 @@ type TradeEventWorkerBinance struct {
 }
 
 // GetTradeEventsWorker - create new market candle worker
-func (a *BinanceSpotAdapter) GetTradeEventsWorker() workers2.ITradeEventWorker {
+func (a *adapter) GetTradeEventsWorker() workers2.ITradeEventWorker {
 	w := TradeEventWorkerBinance{}
 	w.ExchangeTag = a.GetTag()
 	return &w
