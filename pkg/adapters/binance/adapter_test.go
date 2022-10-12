@@ -11,8 +11,6 @@ import (
 )
 
 func TestBinanceOrderConvert(t *testing.T) {
-	a := NewBinanceSpotAdapter()
-
 	pairSymbol := "LTCBUSD"
 	ordersRaw := []*binance.Order{
 		{
@@ -26,7 +24,7 @@ func TestBinanceOrderConvert(t *testing.T) {
 			Side:             binance.SideTypeBuy,
 		},
 	}
-	orders, err := a.convertOrders(ordersRaw)
+	orders, err := convertOrders(ordersRaw)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,15 +41,14 @@ func TestBinanceAdapter(t *testing.T) {
 }
 
 func TestBinanceConvertOrderSide(t *testing.T) {
-	a := NewBinanceSpotAdapter()
-	orderSide, err := a.convertOrderSide(binance.SideTypeBuy)
+	orderSide, err := convertOrderSide(binance.SideTypeBuy)
 	assert.Nil(t, err)
 	assert.Equal(t, orderSide, consts.OrderTypeBuy)
 
-	orderSide, err = a.convertOrderSide(binance.SideTypeSell)
+	orderSide, err = convertOrderSide(binance.SideTypeSell)
 	assert.Nil(t, err)
 	assert.Equal(t, orderSide, consts.OrderTypeSell)
 
-	_, err = a.convertOrderSide("wtf")
+	_, err = convertOrderSide("wtf")
 	assert.NotNil(t, err)
 }
