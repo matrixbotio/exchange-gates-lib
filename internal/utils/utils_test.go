@@ -1,8 +1,10 @@
-package pkg
+package utils
 
 import (
 	"strconv"
 	"testing"
+
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 func TestGetFloatPrecision(t *testing.T) {
@@ -16,7 +18,7 @@ func TestGetFloatPrecision(t *testing.T) {
 }
 
 func TestOrderResponseToBotOrder(t *testing.T) {
-	fromOrder := CreateOrderResponse{}
+	fromOrder := structs.CreateOrderResponse{}
 
 	toOrder := OrderResponseToBotOrder(fromOrder)
 

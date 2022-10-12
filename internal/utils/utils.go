@@ -1,4 +1,4 @@
-package pkg
+package utils
 
 import (
 	"errors"
@@ -11,6 +11,7 @@ import (
 	"github.com/go-stack/stack"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
@@ -49,8 +50,8 @@ func GetTrace() string {
 }
 
 // OrderResponseToBotOrder - convert raw order response to bot order
-func OrderResponseToBotOrder(response CreateOrderResponse) BotOrder {
-	return BotOrder{
+func OrderResponseToBotOrder(response structs.CreateOrderResponse) structs.BotOrder {
+	return structs.BotOrder{
 		PairSymbol:    response.Symbol,
 		Type:          response.Type,
 		Qty:           response.OrigQuantity,
@@ -61,8 +62,8 @@ func OrderResponseToBotOrder(response CreateOrderResponse) BotOrder {
 }
 
 // OrderDataToBotOrder - convert order data to bot order
-func OrderDataToBotOrder(order OrderData) BotOrder {
-	return BotOrder{
+func OrderDataToBotOrder(order structs.OrderData) structs.BotOrder {
+	return structs.BotOrder{
 		PairSymbol:    order.Symbol,
 		Type:          order.Type,
 		Qty:           order.AwaitQty,
@@ -73,8 +74,8 @@ func OrderDataToBotOrder(order OrderData) BotOrder {
 }
 
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrderAdjusted, error) {
-	result := BotOrderAdjusted{
+func RoundPairOrderValues(order structs.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
+	result := structs.BotOrderAdjusted{
 		PairSymbol:       order.PairSymbol,
 		Type:             order.Type,
 		ClientOrderID:    order.ClientOrderID,
@@ -126,7 +127,7 @@ func RoundPairOrderValues(order BotOrder, pairLimits ExchangePairData) (BotOrder
 }
 
 // RoundDeposit - round deposit for grid by pair limits
-func RoundDeposit(deposit float64, pairLimits ExchangePairData) (float64, error) {
+func RoundDeposit(deposit float64, pairLimits structs.ExchangePairData) (float64, error) {
 	depositStep := pairLimits.PriceStep * pairLimits.QtyStep
 	depositRoundedStr := strconv.FormatFloat(deposit, 'f', GetFloatPrecision(depositStep), 64)
 	depositRounded, err := strconv.ParseFloat(depositRoundedStr, 64)
@@ -137,8 +138,8 @@ func RoundDeposit(deposit float64, pairLimits ExchangePairData) (float64, error)
 }
 
 // ParseAdjustedOrder - parse rounded order to bot order
-func ParseAdjustedOrder(order BotOrderAdjusted) (BotOrder, error) {
-	resultOrder := BotOrder{
+func ParseAdjustedOrder(order structs.BotOrderAdjusted) (structs.BotOrder, error) {
+	resultOrder := structs.BotOrder{
 		PairSymbol: order.PairSymbol,
 		Type:       order.Type,
 	}
@@ -203,8 +204,8 @@ func (r *RunTimeLimitHandler) Run() bool {
 }
 
 // GetDefaultPairData !
-func GetDefaultPairData() ExchangePairData {
-	return ExchangePairData{
+func GetDefaultPairData() structs.ExchangePairData {
+	return structs.ExchangePairData{
 		ExchangeID: consts.PairDefaultExchangeID,
 		BaseAsset:  consts.PairDefaultBaseAsset,
 		QuoteAsset: consts.PairDefaultQuoteAsset,
@@ -223,7 +224,7 @@ func RoundMinDeposit(pairMinDeposit float64) float64 {
 
 // OrderDataToTradeEvent data
 type TradeOrderConvertTask struct {
-	Order       OrderData
+	Order       structs.OrderData
 	ExchangeTag string
 }
 
