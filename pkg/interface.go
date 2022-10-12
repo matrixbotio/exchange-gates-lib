@@ -1,10 +1,10 @@
-package matrixgates
+package pkg
 
 import (
 	"context"
 	"errors"
 
-	"github.com/matrixbotio/exchange-gates-lib/workers"
+	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
 // ExchangeInterface - universal exchange adapter interface
@@ -36,9 +36,9 @@ type ExchangeInterface interface {
 	GetPairBalance(pair PairSymbolData) (PairBalance, error)
 
 	// Workers
-	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
-	GetCandleWorker() workers.ICandleWorker
-	GetTradeEventsWorker() workers.ITradeEventWorker
+	GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker
+	GetCandleWorker() workers2.ICandleWorker
+	GetTradeEventsWorker() workers2.ITradeEventWorker
 }
 
 // GetExchangeAdapter - get supported exchange adapter with interface

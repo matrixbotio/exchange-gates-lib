@@ -1,4 +1,4 @@
-package matrixgates
+package pkg
 
 import (
 	"errors"
@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/go-stack/stack"
-	"github.com/matrixbotio/exchange-gates-lib/workers"
+
+	"github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
 // GetFloatPrecision returns the number of decimal places in a float
