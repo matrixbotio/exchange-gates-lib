@@ -1,10 +1,10 @@
-package matrixgates
+package pkg
 
 import (
 	"context"
 	"time"
 
-	"github.com/matrixbotio/exchange-gates-lib/workers"
+	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
 // ExchangeAdapter - abstract universal exchange adapter
@@ -116,22 +116,22 @@ func (a *ExchangeAdapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 // GetTradeEventsWorker - create empty trade data worker
-func (a *ExchangeAdapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	w := workers.TradeEventWorker{}
+func (a *ExchangeAdapter) GetTradeEventsWorker() workers2.ITradeEventWorker {
+	w := workers2.TradeEventWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
 // GetPriceWorker - create empty market data worker
-func (a *ExchangeAdapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
-	w := workers.PriceWorker{}
+func (a *ExchangeAdapter) GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker {
+	w := workers2.PriceWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
 // GetCandleWorker - create empty market candle worker
-func (a *ExchangeAdapter) GetCandleWorker() workers.ICandleWorker {
-	w := workers.CandleWorker{}
+func (a *ExchangeAdapter) GetCandleWorker() workers2.ICandleWorker {
+	w := workers2.CandleWorker{}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
