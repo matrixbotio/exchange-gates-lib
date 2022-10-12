@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-stack/stack"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
@@ -204,20 +205,20 @@ func (r *RunTimeLimitHandler) Run() bool {
 // GetDefaultPairData !
 func GetDefaultPairData() ExchangePairData {
 	return ExchangePairData{
-		ExchangeID: PairDefaultExchangeID,
-		BaseAsset:  pairDefaultBaseAsset,
-		QuoteAsset: pairDefaultQuoteAsset,
-		MinQty:     PairDefaultMinQty,
-		MaxQty:     PairDefaultMaxQty,
-		MinDeposit: PairMinDeposit,
-		MinPrice:   PairDefaultMinPrice,
-		QtyStep:    PairDefaultQtyStep,
+		ExchangeID: consts.PairDefaultExchangeID,
+		BaseAsset:  consts.PairDefaultBaseAsset,
+		QuoteAsset: consts.PairDefaultQuoteAsset,
+		MinQty:     consts.PairDefaultMinQty,
+		MaxQty:     consts.PairDefaultMaxQty,
+		MinDeposit: consts.PairMinDeposit,
+		MinPrice:   consts.PairDefaultMinPrice,
+		QtyStep:    consts.PairDefaultQtyStep,
 	}
 }
 
 // RoundMinDeposit - update the value of the minimum deposit in accordance with the minimum threshold
 func RoundMinDeposit(pairMinDeposit float64) float64 {
-	return pairMinDeposit * (1 + MinDepositFix/100)
+	return pairMinDeposit * (1 + consts.MinDepositFix/100)
 }
 
 // OrderDataToTradeEvent data
@@ -237,7 +238,7 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 		ExchangeTag: task.ExchangeTag,
 	}
 
-	if task.Order.Type == OrderTypeBuy {
+	if task.Order.Type == consts.OrderTypeBuy {
 		e.BuyerOrderID = task.Order.OrderID
 	} else {
 		e.SellerOrderID = task.Order.OrderID

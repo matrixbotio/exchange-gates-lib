@@ -1,4 +1,4 @@
-package pkg
+package consts
 
 import "time"
 
@@ -11,13 +11,13 @@ const (
 	PairDefaultQtyStep            = 0.001
 	PairDefaultPriceStep          = 0.000001
 	PairMinDeposit                = 10
-	pairDefaultBaseAsset          = "BTC"
-	pairDefaultQuoteAsset         = "BUSD"
-	pairDefaultAsset              = pairDefaultBaseAsset + pairDefaultQuoteAsset
+	PairDefaultBaseAsset          = "BTC"
+	PairDefaultQuoteAsset         = "BUSD"
+	PairDefaultAsset              = PairDefaultBaseAsset + PairDefaultQuoteAsset
 	MinDepositFix         float64 = 10 // percent
 
-	candlesInterval          = "1m"
-	exchangeSetupConnTimeout = 3500 // ms
+	CandlesInterval          = "1m"
+	ExchangeSetupConnTimeout = 3500 // ms
 
 	OrderStatusNew             = "NEW"
 	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
@@ -31,7 +31,7 @@ const (
 	OrderTypeBuy  = "buy"
 	OrderTypeSell = "sell"
 
-	exchangeIDbinanceSpot = 1
-	pingRetryAttempts     = 3
-	pingRetryWaitTime     = time.Second * 2
+	ExchangeIDbinanceSpot = 1
+	PingRetryAttempts     = 3
+	PingRetryWaitTime     = time.Second * 2
 )

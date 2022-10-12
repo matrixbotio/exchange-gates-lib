@@ -6,6 +6,8 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 )
 
 func TestBinanceOrderConvert(t *testing.T) {
@@ -37,18 +39,18 @@ func TestBinanceOrderConvert(t *testing.T) {
 func TestBinanceAdapter(t *testing.T) {
 	a := NewBinanceSpotAdapter()
 	exchangeID := a.GetID()
-	require.Equal(t, exchangeID, exchangeIDbinanceSpot)
+	require.Equal(t, exchangeID, consts.ExchangeIDbinanceSpot)
 }
 
 func TestBinanceConvertOrderSide(t *testing.T) {
 	a := NewBinanceSpotAdapter()
 	orderSide, err := a.convertOrderSide(binance.SideTypeBuy)
 	assert.Nil(t, err)
-	assert.Equal(t, orderSide, OrderTypeBuy)
+	assert.Equal(t, orderSide, consts.OrderTypeBuy)
 
 	orderSide, err = a.convertOrderSide(binance.SideTypeSell)
 	assert.Nil(t, err)
-	assert.Equal(t, orderSide, OrderTypeSell)
+	assert.Equal(t, orderSide, consts.OrderTypeSell)
 
 	_, err = a.convertOrderSide("wtf")
 	assert.NotNil(t, err)

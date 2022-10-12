@@ -10,6 +10,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
@@ -25,7 +26,7 @@ func NewBinanceSpotAdapter() *BinanceSpotAdapter {
 	a := BinanceSpotAdapter{}
 	a.Name = "Binance Spot"
 	a.Tag = "binance-spot"
-	a.ExchangeID = exchangeIDbinanceSpot
+	a.ExchangeID = consts.ExchangeIDbinanceSpot
 	return &a
 }
 
@@ -84,7 +85,7 @@ func (a *BinanceSpotAdapter) getOrderFromService(
 	orderResponse, err := s.Do(context.Background())
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			tradeData.Status = OrderStatusUnknown
+			tradeData.Status = consts.OrderStatusUnknown
 			return nil, nil
 		}
 		return nil, errors.New("service request failed: " + err.Error() + GetTrace())
@@ -126,22 +127,22 @@ func (a *BinanceSpotAdapter) convertOrderSide(orderSide binance.SideType) (strin
 	default:
 		return "", errors.New("unknown order type: " + string(orderSide))
 	case binance.SideTypeBuy:
-		return OrderTypeBuy, nil
+		return consts.OrderTypeBuy, nil
 	case binance.SideTypeSell:
-		return OrderTypeSell, nil
+		return consts.OrderTypeSell, nil
 	}
 }
 
 // PlaceOrder - place order on exchange
 func (a *BinanceSpotAdapter) PlaceOrder(ctx context.Context, order BotOrderAdjusted) (CreateOrderResponse, error) {
 	r := CreateOrderResponse{}
-	orderSide := binance.SideType(OrderTypeBuy)
+	orderSide := binance.SideType(consts.OrderTypeBuy)
 	switch order.Type {
 	default:
 		return r, errors.New("data invalid error: unknown strategy given for order, stack: " + GetTrace())
-	case OrderTypeBuy:
+	case consts.OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
-	case OrderTypeSell:
+	case consts.OrderTypeSell:
 		orderSide = binance.SideTypeSell
 	}
 
@@ -308,13 +309,13 @@ func (a *BinanceSpotAdapter) GetPairOpenOrders(pairSymbol string) ([]OrderData, 
 
 func (a *BinanceSpotAdapter) ping() error {
 	var err error
-	for attemptNumber := 1; attemptNumber <= pingRetryAttempts; attemptNumber++ {
+	for attemptNumber := 1; attemptNumber <= consts.PingRetryAttempts; attemptNumber++ {
 		err := a.binanceAPI.NewPingService().Do(context.Background())
 		if err == nil {
 			return nil
 		}
 
-		time.Sleep(pingRetryWaitTime)
+		time.Sleep(consts.PingRetryWaitTime)
 	}
 
 	return errors.New("failed to ping exchange: " + err.Error())
@@ -343,12 +344,12 @@ func (a *BinanceSpotAdapter) getExchangePairData(symbolData binance.Symbol) (Exc
 		QuotePrecision: symbolData.QuotePrecision,
 		Status:         symbolData.Status,
 		Symbol:         symbolData.Symbol,
-		MinQty:         PairDefaultMinQty,
-		MaxQty:         PairDefaultMaxQty,
-		MinDeposit:     PairMinDeposit,
-		MinPrice:       PairDefaultMinPrice,
-		QtyStep:        PairDefaultQtyStep,
-		PriceStep:      PairDefaultPriceStep,
+		MinQty:         consts.PairDefaultMinQty,
+		MaxQty:         consts.PairDefaultMaxQty,
+		MinDeposit:     consts.PairMinDeposit,
+		MinPrice:       consts.PairDefaultMinPrice,
+		QtyStep:        consts.PairDefaultQtyStep,
+		PriceStep:      consts.PairDefaultPriceStep,
 		AllowedMargin:  symbolData.IsMarginTradingAllowed,
 		AllowedSpot:    symbolData.IsSpotTradingAllowed,
 	}
@@ -395,7 +396,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *ExchangePairD
 		return errors.New("data handle error: " + err.Error())
 	}
 	if pairData.MinPrice == 0 {
-		pairData.MinPrice = PairDefaultMinPrice
+		pairData.MinPrice = consts.PairDefaultMinPrice
 	}
 	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
@@ -422,7 +423,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *ExchangePai
 		return errors.New("failed to parse pair min qty: " + err.Error())
 	}
 	if pairData.MinQty == 0 {
-		pairData.MinQty = PairDefaultMinQty
+		pairData.MinQty = consts.PairDefaultMinQty
 	}
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
@@ -744,10 +745,10 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 	var openWsErr error
 	w.WsChannels = new(workers2.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
-		pairSymbol,      // symbol
-		candlesInterval, // interval
-		wsCandleHandler, // event handler
-		wsErrHandler,    // error handler
+		pairSymbol,             // symbol
+		consts.CandlesInterval, // interval
+		wsCandleHandler,        // event handler
+		wsErrHandler,           // error handler
 	)
 	if openWsErr != nil {
 		return errors.New("service request failed: " + openWsErr.Error())

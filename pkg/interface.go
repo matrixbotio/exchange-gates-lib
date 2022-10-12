@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
@@ -46,9 +47,9 @@ func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 	switch exchangeID {
 	default:
 		return nil, errors.New("exchange not found")
-	case exchangeIDbinanceSpot:
+	case consts.ExchangeIDbinanceSpot:
 		return NewBinanceSpotAdapter(), nil
-	case TestExchangeID:
+	case consts.TestExchangeID:
 		return GetTestExchangeAdapter(), nil
 	}
 }
@@ -56,13 +57,13 @@ func GetExchangeAdapter(exchangeID int) (ExchangeInterface, error) {
 // GetExchangeAdapters - get all supported exchange adapters
 func GetExchangeAdapters() map[int]ExchangeInterface {
 	return map[int]ExchangeInterface{
-		exchangeIDbinanceSpot: NewBinanceSpotAdapter(),
+		consts.ExchangeIDbinanceSpot: NewBinanceSpotAdapter(),
 	}
 }
 
 func GetTestExchangeAdapter() ExchangeInterface {
 	return &ExchangeAdapter{
-		ExchangeID: TestExchangeID,
+		ExchangeID: consts.TestExchangeID,
 		Name:       "Test Exchange",
 		Tag:        "test-exchange",
 	}
