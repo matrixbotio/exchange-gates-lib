@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
@@ -53,7 +54,7 @@ func (a *ExchangeAdapter) GetAccountData() (AccountData, error) {
 		CanTrade: true,
 		Balances: []Balance{
 			{
-				Asset:  pairDefaultAsset,
+				Asset:  consts.PairDefaultAsset,
 				Free:   0,
 				Locked: 0,
 			},
@@ -84,12 +85,12 @@ func (a *ExchangeAdapter) GetOrderData(pairSymbol string, orderID int64) (OrderD
 	return OrderData{
 		OrderID:       orderID,
 		ClientOrderID: "",
-		Status:        OrderStatusNew,
+		Status:        consts.OrderStatusNew,
 		AwaitQty:      100,
 		FilledQty:     10,
 		Price:         500,
 		Symbol:        pairSymbol,
-		Type:          OrderTypeBuy,
+		Type:          consts.OrderTypeBuy,
 		CreatedTime:   time.Now().UnixMilli(),
 		UpdatedTime:   time.Now().UnixMilli(),
 	}, nil
