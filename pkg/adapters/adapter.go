@@ -2,10 +2,7 @@ package adapters
 
 import (
 	"context"
-	"errors"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/adapters/binance"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	workers2 "github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
@@ -41,31 +38,4 @@ type Adapter interface {
 	GetPriceWorker(callback workers2.PriceEventCallback) workers2.IPriceWorker
 	GetCandleWorker() workers2.ICandleWorker
 	GetTradeEventsWorker() workers2.ITradeEventWorker
-}
-
-// GetExchangeAdapter - get supported exchange adapter with interface
-func GetExchangeAdapter(exchangeID int) (Adapter, error) {
-	switch exchangeID {
-	default:
-		return nil, errors.New("exchange not found")
-	case consts.ExchangeIDbinanceSpot:
-		return binance.NewBinanceSpotAdapter(), nil
-	case consts.TestExchangeID:
-		return GetTestExchangeAdapter(), nil
-	}
-}
-
-// GetExchangeAdapters - get all supported exchange adapters
-func GetExchangeAdapters() map[int]Adapter {
-	return map[int]Adapter{
-		consts.ExchangeIDbinanceSpot: binance.NewBinanceSpotAdapter(),
-	}
-}
-
-func GetTestExchangeAdapter() Adapter {
-	return &TestAdapter{
-		ExchangeID: consts.TestExchangeID,
-		Name:       "Test Exchange",
-		Tag:        "test-exchange",
-	}
 }
