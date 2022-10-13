@@ -8,7 +8,7 @@ import (
 )
 
 func parseOrderOriginalQty(orderRaw *binance.Order) (float64, error) {
-	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 32)
+	awaitQty, err := strconv.ParseFloat(orderRaw.OrigQuantity, 64)
 	if err != nil {
 		return 0, errors.New("failed to parse order original qty: " + err.Error())
 	}
@@ -16,7 +16,7 @@ func parseOrderOriginalQty(orderRaw *binance.Order) (float64, error) {
 }
 
 func parseOrderExecutedQty(orderRaw *binance.Order) (float64, error) {
-	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 32)
+	filledQty, err := strconv.ParseFloat(orderRaw.ExecutedQuantity, 64)
 	if err != nil {
 		return 0, errors.New("failed to parse order executed qty: " + err.Error())
 	}
@@ -24,7 +24,7 @@ func parseOrderExecutedQty(orderRaw *binance.Order) (float64, error) {
 }
 
 func parseOrderPrice(orderRaw *binance.Order) (float64, error) {
-	price, err := strconv.ParseFloat(orderRaw.Price, 32)
+	price, err := strconv.ParseFloat(orderRaw.Price, 64)
 	if err != nil {
 		return 0, errors.New("failed to parse order price: " + err.Error())
 	}
