@@ -7,6 +7,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/pkg/consts"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 // from binance format to our bot order type format
@@ -24,17 +25,17 @@ func convertOrderSide(orderSide binance.SideType) (string, error) {
 // converting the order from binance to our format
 func convertOrder(orderRaw *binance.Order) (structs.OrderData, error) {
 	r := structs.OrderData{}
-	awaitQty, err := parseOrderOriginalQty(orderRaw)
+	awaitQty, err := utils.ParseStringToFloat64(orderRaw.OrigQuantity, "await qty")
 	if err != nil {
 		return r, err
 	}
 
-	filledQty, err := parseOrderExecutedQty(orderRaw)
+	filledQty, err := utils.ParseStringToFloat64(orderRaw.ExecutedQuantity, "executed qty")
 	if err != nil {
 		return r, err
 	}
 
-	price, err := parseOrderPrice(orderRaw)
+	price, err := utils.ParseStringToFloat64(orderRaw.Price, "price")
 	if err != nil {
 		return r, err
 	}
