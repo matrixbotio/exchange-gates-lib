@@ -103,7 +103,7 @@ func (a *adapter) getOrderFromService(
 			tradeData.Status = consts.OrderStatusUnknown
 			return nil, nil
 		}
-		return nil, errors.New("service request failed: " + err.Error() + utils.GetTrace())
+		return nil, errors.New("service request failed: " + err.Error())
 	}
 
 	return orderResponse, nil
@@ -142,7 +142,7 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	orderSide := binance.SideType(consts.OrderTypeBuy)
 	switch order.Type {
 	default:
-		return r, errors.New("data invalid error: unknown strategy given for order, stack: " + utils.GetTrace())
+		return r, errors.New("data invalid error: unknown strategy given for order")
 	case consts.OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
 	case consts.OrderTypeSell:
@@ -165,17 +165,17 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	// place order
 	orderRes, err := orderService.Do(ctx)
 	if err != nil {
-		return r, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("service request failed: failed to create order, " + err.Error())
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("data handle error: failed to parse order origQty: " + convErr.Error())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error())
 	}
 
 	return structs.CreateOrderResponse{
@@ -197,7 +197,7 @@ func (a *adapter) getOrderType(orderSide binance.SideType) string {
 func (a *adapter) GetAccountData() (structs.AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
-		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error() + ", stack: " + utils.GetTrace())
+		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error())
 	}
 	accountDataResult := structs.AccountData{
 		CanTrade: binanceAccountData.CanTrade,
@@ -232,7 +232,7 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
 	if srvErr != nil {
 		return 0, errors.New("service request failed: failed to request last price, " +
-			srvErr.Error() + ", stack: " + utils.GetTrace())
+			srvErr.Error())
 	}
 	// until just brute force. need to be done faster
 	var price float64 = 0
@@ -242,7 +242,7 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 			price, parseErr = strconv.ParseFloat(p.Price, 64)
 			if parseErr != nil {
 				return 0, errors.New("data handle error: failed to parse " + p.Price +
-					" as float, stack: " + utils.GetTrace())
+					" as float")
 			}
 			break
 		}
@@ -450,7 +450,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
-		return nil, errors.New("service disconnected: error while connecting to ExchangeInfoService: " + err.Error() + ", stack: " + utils.GetTrace())
+		return nil, errors.New("service disconnected: error while connecting to ExchangeInfoService: " + err.Error())
 	}
 
 	var lastError error
