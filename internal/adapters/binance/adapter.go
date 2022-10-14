@@ -10,11 +10,10 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
 
-	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
 type adapter struct {
@@ -25,7 +24,7 @@ type adapter struct {
 	binanceAPI *binance.Client
 }
 
-func New() adp.Adapter {
+func New() *adapter {
 	stack.Caller(0)
 	a := adapter{}
 	a.Name = "Binance Spot"

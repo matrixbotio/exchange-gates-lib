@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 func TestGetFloatPrecision(t *testing.T) {

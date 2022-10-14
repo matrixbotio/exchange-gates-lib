@@ -5,7 +5,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/test"
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/consts"
 )
 
 func CreateAdapter(exchangeID int) (Adapter, error) {

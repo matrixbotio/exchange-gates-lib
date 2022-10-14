@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/consts"
 )
 
 func TestBinanceOrderConvert(t *testing.T) {

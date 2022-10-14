@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-stack/stack"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/workers"
 )
 
 // GetFloatPrecision returns the number of decimal places in a float
