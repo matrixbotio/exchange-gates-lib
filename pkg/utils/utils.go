@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -193,4 +194,12 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 	}
 
 	return e
+}
+
+func ParseStringToFloat64(s, fieldName string) (float64, error) {
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse %s: %w", fieldName, err)
+	}
+	return val, nil
 }
