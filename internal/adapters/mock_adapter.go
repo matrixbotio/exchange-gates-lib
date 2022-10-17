@@ -5,8 +5,10 @@ package adapters
 import (
 	context "context"
 
-	structs "github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	internalstructs "github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	mock "github.com/stretchr/testify/mock"
+
+	structs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 
 	workers "github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
@@ -140,14 +142,14 @@ func (_c *MockAdapter_Connect_Call) Return(_a0 error) *MockAdapter_Connect_Call 
 }
 
 // GetAccountData provides a mock function with given fields:
-func (_m *MockAdapter) GetAccountData() (structs.AccountData, error) {
+func (_m *MockAdapter) GetAccountData() (internalstructs.AccountData, error) {
 	ret := _m.Called()
 
-	var r0 structs.AccountData
-	if rf, ok := ret.Get(0).(func() structs.AccountData); ok {
+	var r0 internalstructs.AccountData
+	if rf, ok := ret.Get(0).(func() internalstructs.AccountData); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(structs.AccountData)
+		r0 = ret.Get(0).(internalstructs.AccountData)
 	}
 
 	var r1 error
@@ -177,7 +179,7 @@ func (_c *MockAdapter_GetAccountData_Call) Run(run func()) *MockAdapter_GetAccou
 	return _c
 }
 
-func (_c *MockAdapter_GetAccountData_Call) Return(_a0 structs.AccountData, _a1 error) *MockAdapter_GetAccountData_Call {
+func (_c *MockAdapter_GetAccountData_Call) Return(_a0 internalstructs.AccountData, _a1 error) *MockAdapter_GetAccountData_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
@@ -293,14 +295,14 @@ func (_c *MockAdapter_GetName_Call) Return(_a0 string) *MockAdapter_GetName_Call
 }
 
 // GetOrderByClientOrderID provides a mock function with given fields: pairSymbol, clientOrderID
-func (_m *MockAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
+func (_m *MockAdapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (internalstructs.OrderData, error) {
 	ret := _m.Called(pairSymbol, clientOrderID)
 
-	var r0 structs.OrderData
-	if rf, ok := ret.Get(0).(func(string, string) structs.OrderData); ok {
+	var r0 internalstructs.OrderData
+	if rf, ok := ret.Get(0).(func(string, string) internalstructs.OrderData); ok {
 		r0 = rf(pairSymbol, clientOrderID)
 	} else {
-		r0 = ret.Get(0).(structs.OrderData)
+		r0 = ret.Get(0).(internalstructs.OrderData)
 	}
 
 	var r1 error
@@ -332,20 +334,20 @@ func (_c *MockAdapter_GetOrderByClientOrderID_Call) Run(run func(pairSymbol stri
 	return _c
 }
 
-func (_c *MockAdapter_GetOrderByClientOrderID_Call) Return(_a0 structs.OrderData, _a1 error) *MockAdapter_GetOrderByClientOrderID_Call {
+func (_c *MockAdapter_GetOrderByClientOrderID_Call) Return(_a0 internalstructs.OrderData, _a1 error) *MockAdapter_GetOrderByClientOrderID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetOrderData provides a mock function with given fields: pairSymbol, orderID
-func (_m *MockAdapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+func (_m *MockAdapter) GetOrderData(pairSymbol string, orderID int64) (internalstructs.OrderData, error) {
 	ret := _m.Called(pairSymbol, orderID)
 
-	var r0 structs.OrderData
-	if rf, ok := ret.Get(0).(func(string, int64) structs.OrderData); ok {
+	var r0 internalstructs.OrderData
+	if rf, ok := ret.Get(0).(func(string, int64) internalstructs.OrderData); ok {
 		r0 = rf(pairSymbol, orderID)
 	} else {
-		r0 = ret.Get(0).(structs.OrderData)
+		r0 = ret.Get(0).(internalstructs.OrderData)
 	}
 
 	var r1 error
@@ -377,24 +379,24 @@ func (_c *MockAdapter_GetOrderData_Call) Run(run func(pairSymbol string, orderID
 	return _c
 }
 
-func (_c *MockAdapter_GetOrderData_Call) Return(_a0 structs.OrderData, _a1 error) *MockAdapter_GetOrderData_Call {
+func (_c *MockAdapter_GetOrderData_Call) Return(_a0 internalstructs.OrderData, _a1 error) *MockAdapter_GetOrderData_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetPairBalance provides a mock function with given fields: pair
-func (_m *MockAdapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
+func (_m *MockAdapter) GetPairBalance(pair internalstructs.PairSymbolData) (internalstructs.PairBalance, error) {
 	ret := _m.Called(pair)
 
-	var r0 structs.PairBalance
-	if rf, ok := ret.Get(0).(func(structs.PairSymbolData) structs.PairBalance); ok {
+	var r0 internalstructs.PairBalance
+	if rf, ok := ret.Get(0).(func(internalstructs.PairSymbolData) internalstructs.PairBalance); ok {
 		r0 = rf(pair)
 	} else {
-		r0 = ret.Get(0).(structs.PairBalance)
+		r0 = ret.Get(0).(internalstructs.PairBalance)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(structs.PairSymbolData) error); ok {
+	if rf, ok := ret.Get(1).(func(internalstructs.PairSymbolData) error); ok {
 		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
@@ -409,32 +411,32 @@ type MockAdapter_GetPairBalance_Call struct {
 }
 
 // GetPairBalance is a helper method to define mock.On call
-//  - pair structs.PairSymbolData
+//  - pair internalstructs.PairSymbolData
 func (_e *MockAdapter_Expecter) GetPairBalance(pair interface{}) *MockAdapter_GetPairBalance_Call {
 	return &MockAdapter_GetPairBalance_Call{Call: _e.mock.On("GetPairBalance", pair)}
 }
 
-func (_c *MockAdapter_GetPairBalance_Call) Run(run func(pair structs.PairSymbolData)) *MockAdapter_GetPairBalance_Call {
+func (_c *MockAdapter_GetPairBalance_Call) Run(run func(pair internalstructs.PairSymbolData)) *MockAdapter_GetPairBalance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(structs.PairSymbolData))
+		run(args[0].(internalstructs.PairSymbolData))
 	})
 	return _c
 }
 
-func (_c *MockAdapter_GetPairBalance_Call) Return(_a0 structs.PairBalance, _a1 error) *MockAdapter_GetPairBalance_Call {
+func (_c *MockAdapter_GetPairBalance_Call) Return(_a0 internalstructs.PairBalance, _a1 error) *MockAdapter_GetPairBalance_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetPairData provides a mock function with given fields: pairSymbol
-func (_m *MockAdapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
+func (_m *MockAdapter) GetPairData(pairSymbol string) (internalstructs.ExchangePairData, error) {
 	ret := _m.Called(pairSymbol)
 
-	var r0 structs.ExchangePairData
-	if rf, ok := ret.Get(0).(func(string) structs.ExchangePairData); ok {
+	var r0 internalstructs.ExchangePairData
+	if rf, ok := ret.Get(0).(func(string) internalstructs.ExchangePairData); ok {
 		r0 = rf(pairSymbol)
 	} else {
-		r0 = ret.Get(0).(structs.ExchangePairData)
+		r0 = ret.Get(0).(internalstructs.ExchangePairData)
 	}
 
 	var r1 error
@@ -465,7 +467,7 @@ func (_c *MockAdapter_GetPairData_Call) Run(run func(pairSymbol string)) *MockAd
 	return _c
 }
 
-func (_c *MockAdapter_GetPairData_Call) Return(_a0 structs.ExchangePairData, _a1 error) *MockAdapter_GetPairData_Call {
+func (_c *MockAdapter_GetPairData_Call) Return(_a0 internalstructs.ExchangePairData, _a1 error) *MockAdapter_GetPairData_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
@@ -515,15 +517,15 @@ func (_c *MockAdapter_GetPairLastPrice_Call) Return(_a0 float64, _a1 error) *Moc
 }
 
 // GetPairOpenOrders provides a mock function with given fields: pairSymbol
-func (_m *MockAdapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
+func (_m *MockAdapter) GetPairOpenOrders(pairSymbol string) ([]internalstructs.OrderData, error) {
 	ret := _m.Called(pairSymbol)
 
-	var r0 []structs.OrderData
-	if rf, ok := ret.Get(0).(func(string) []structs.OrderData); ok {
+	var r0 []internalstructs.OrderData
+	if rf, ok := ret.Get(0).(func(string) []internalstructs.OrderData); ok {
 		r0 = rf(pairSymbol)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]structs.OrderData)
+			r0 = ret.Get(0).([]internalstructs.OrderData)
 		}
 	}
 
@@ -555,26 +557,26 @@ func (_c *MockAdapter_GetPairOpenOrders_Call) Run(run func(pairSymbol string)) *
 	return _c
 }
 
-func (_c *MockAdapter_GetPairOpenOrders_Call) Return(_a0 []structs.OrderData, _a1 error) *MockAdapter_GetPairOpenOrders_Call {
+func (_c *MockAdapter_GetPairOpenOrders_Call) Return(_a0 []internalstructs.OrderData, _a1 error) *MockAdapter_GetPairOpenOrders_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetPairOrdersHistory provides a mock function with given fields: task
-func (_m *MockAdapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error) {
+func (_m *MockAdapter) GetPairOrdersHistory(task internalstructs.GetOrdersHistoryTask) ([]internalstructs.OrderData, error) {
 	ret := _m.Called(task)
 
-	var r0 []structs.OrderData
-	if rf, ok := ret.Get(0).(func(structs.GetOrdersHistoryTask) []structs.OrderData); ok {
+	var r0 []internalstructs.OrderData
+	if rf, ok := ret.Get(0).(func(internalstructs.GetOrdersHistoryTask) []internalstructs.OrderData); ok {
 		r0 = rf(task)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]structs.OrderData)
+			r0 = ret.Get(0).([]internalstructs.OrderData)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(structs.GetOrdersHistoryTask) error); ok {
+	if rf, ok := ret.Get(1).(func(internalstructs.GetOrdersHistoryTask) error); ok {
 		r1 = rf(task)
 	} else {
 		r1 = ret.Error(1)
@@ -589,33 +591,33 @@ type MockAdapter_GetPairOrdersHistory_Call struct {
 }
 
 // GetPairOrdersHistory is a helper method to define mock.On call
-//  - task structs.GetOrdersHistoryTask
+//  - task internalstructs.GetOrdersHistoryTask
 func (_e *MockAdapter_Expecter) GetPairOrdersHistory(task interface{}) *MockAdapter_GetPairOrdersHistory_Call {
 	return &MockAdapter_GetPairOrdersHistory_Call{Call: _e.mock.On("GetPairOrdersHistory", task)}
 }
 
-func (_c *MockAdapter_GetPairOrdersHistory_Call) Run(run func(task structs.GetOrdersHistoryTask)) *MockAdapter_GetPairOrdersHistory_Call {
+func (_c *MockAdapter_GetPairOrdersHistory_Call) Run(run func(task internalstructs.GetOrdersHistoryTask)) *MockAdapter_GetPairOrdersHistory_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(structs.GetOrdersHistoryTask))
+		run(args[0].(internalstructs.GetOrdersHistoryTask))
 	})
 	return _c
 }
 
-func (_c *MockAdapter_GetPairOrdersHistory_Call) Return(_a0 []structs.OrderData, _a1 error) *MockAdapter_GetPairOrdersHistory_Call {
+func (_c *MockAdapter_GetPairOrdersHistory_Call) Return(_a0 []internalstructs.OrderData, _a1 error) *MockAdapter_GetPairOrdersHistory_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetPairs provides a mock function with given fields:
-func (_m *MockAdapter) GetPairs() ([]structs.ExchangePairData, error) {
+func (_m *MockAdapter) GetPairs() ([]internalstructs.ExchangePairData, error) {
 	ret := _m.Called()
 
-	var r0 []structs.ExchangePairData
-	if rf, ok := ret.Get(0).(func() []structs.ExchangePairData); ok {
+	var r0 []internalstructs.ExchangePairData
+	if rf, ok := ret.Get(0).(func() []internalstructs.ExchangePairData); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]structs.ExchangePairData)
+			r0 = ret.Get(0).([]internalstructs.ExchangePairData)
 		}
 	}
 
@@ -646,7 +648,7 @@ func (_c *MockAdapter_GetPairs_Call) Run(run func()) *MockAdapter_GetPairs_Call 
 	return _c
 }
 
-func (_c *MockAdapter_GetPairs_Call) Return(_a0 []structs.ExchangePairData, _a1 error) *MockAdapter_GetPairs_Call {
+func (_c *MockAdapter_GetPairs_Call) Return(_a0 []internalstructs.ExchangePairData, _a1 error) *MockAdapter_GetPairs_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
@@ -691,15 +693,15 @@ func (_c *MockAdapter_GetPriceWorker_Call) Return(_a0 workers.IPriceWorker) *Moc
 }
 
 // GetPrices provides a mock function with given fields:
-func (_m *MockAdapter) GetPrices() ([]structs.SymbolPrice, error) {
+func (_m *MockAdapter) GetPrices() ([]internalstructs.SymbolPrice, error) {
 	ret := _m.Called()
 
-	var r0 []structs.SymbolPrice
-	if rf, ok := ret.Get(0).(func() []structs.SymbolPrice); ok {
+	var r0 []internalstructs.SymbolPrice
+	if rf, ok := ret.Get(0).(func() []internalstructs.SymbolPrice); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]structs.SymbolPrice)
+			r0 = ret.Get(0).([]internalstructs.SymbolPrice)
 		}
 	}
 
@@ -730,7 +732,7 @@ func (_c *MockAdapter_GetPrices_Call) Run(run func()) *MockAdapter_GetPrices_Cal
 	return _c
 }
 
-func (_c *MockAdapter_GetPrices_Call) Return(_a0 []structs.SymbolPrice, _a1 error) *MockAdapter_GetPrices_Call {
+func (_c *MockAdapter_GetPrices_Call) Return(_a0 []internalstructs.SymbolPrice, _a1 error) *MockAdapter_GetPrices_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
@@ -810,18 +812,18 @@ func (_c *MockAdapter_GetTradeEventsWorker_Call) Return(_a0 workers.ITradeEventW
 }
 
 // PlaceOrder provides a mock function with given fields: ctx, order
-func (_m *MockAdapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
+func (_m *MockAdapter) PlaceOrder(ctx context.Context, order internalstructs.BotOrderAdjusted) (internalstructs.CreateOrderResponse, error) {
 	ret := _m.Called(ctx, order)
 
-	var r0 structs.CreateOrderResponse
-	if rf, ok := ret.Get(0).(func(context.Context, structs.BotOrderAdjusted) structs.CreateOrderResponse); ok {
+	var r0 internalstructs.CreateOrderResponse
+	if rf, ok := ret.Get(0).(func(context.Context, internalstructs.BotOrderAdjusted) internalstructs.CreateOrderResponse); ok {
 		r0 = rf(ctx, order)
 	} else {
-		r0 = ret.Get(0).(structs.CreateOrderResponse)
+		r0 = ret.Get(0).(internalstructs.CreateOrderResponse)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, structs.BotOrderAdjusted) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, internalstructs.BotOrderAdjusted) error); ok {
 		r1 = rf(ctx, order)
 	} else {
 		r1 = ret.Error(1)
@@ -837,19 +839,19 @@ type MockAdapter_PlaceOrder_Call struct {
 
 // PlaceOrder is a helper method to define mock.On call
 //  - ctx context.Context
-//  - order structs.BotOrderAdjusted
+//  - order internalstructs.BotOrderAdjusted
 func (_e *MockAdapter_Expecter) PlaceOrder(ctx interface{}, order interface{}) *MockAdapter_PlaceOrder_Call {
 	return &MockAdapter_PlaceOrder_Call{Call: _e.mock.On("PlaceOrder", ctx, order)}
 }
 
-func (_c *MockAdapter_PlaceOrder_Call) Run(run func(ctx context.Context, order structs.BotOrderAdjusted)) *MockAdapter_PlaceOrder_Call {
+func (_c *MockAdapter_PlaceOrder_Call) Run(run func(ctx context.Context, order internalstructs.BotOrderAdjusted)) *MockAdapter_PlaceOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(structs.BotOrderAdjusted))
+		run(args[0].(context.Context), args[1].(internalstructs.BotOrderAdjusted))
 	})
 	return _c
 }
 
-func (_c *MockAdapter_PlaceOrder_Call) Return(_a0 structs.CreateOrderResponse, _a1 error) *MockAdapter_PlaceOrder_Call {
+func (_c *MockAdapter_PlaceOrder_Call) Return(_a0 internalstructs.CreateOrderResponse, _a1 error) *MockAdapter_PlaceOrder_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

@@ -1,12 +1,14 @@
 package workers
 
+import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+
 // PriceEventCallback - callback to handle price event
 type PriceEventCallback func(event PriceEvent)
 
 // PriceWorker - a worker interface based on data from a specific market, such as quotes
 type PriceWorker struct {
 	ExchangeTag         string
-	WsChannels          *WorkerChannels
+	WsChannels          *structs.WorkerChannels
 	HandleEventCallback PriceEventCallback
 }
 
@@ -16,7 +18,7 @@ type IPriceWorker interface {
 		pairSymbols []string,
 		eventCallback PriceEventCallback,
 		errorHandler func(err error),
-	) (map[string]WorkerChannels, error)
+	) (map[string]structs.WorkerChannels, error)
 
 	GetExchangeTag() string
 
@@ -28,9 +30,9 @@ func (w *PriceWorker) SubscribeToPriceEvents(
 	pairSymbols []string,
 	eventCallback PriceEventCallback,
 	errorHandler func(err error),
-) (map[string]WorkerChannels, error) {
+) (map[string]structs.WorkerChannels, error) {
 	// placeholder
-	return map[string]WorkerChannels{}, nil
+	return map[string]structs.WorkerChannels{}, nil
 }
 
 // GetExchangeTag - get worker exchange tag from exchange adapter

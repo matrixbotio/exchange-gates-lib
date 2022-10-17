@@ -19,18 +19,6 @@ const (
 	CandlesInterval          = "1m"
 	ExchangeSetupConnTimeout = 3500 // ms
 
-	OrderStatusNew             = "NEW"
-	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
-	OrderStatusFilled          = "FILLED"
-	OrderStatusCancelled       = "CANCELED"
-	OrderStatusPendingCancel   = "PENDING_CANCEL"
-	OrderStatusRejected        = "REJECTED"
-	OrderStatusExpired         = "EXPIRED"
-	OrderStatusUnknown         = "UNKNOWN"
-
-	OrderTypeBuy  = "buy"
-	OrderTypeSell = "sell"
-
 	ExchangeIDbinanceSpot = 1
 	PingRetryAttempts     = 3
 	PingRetryWaitTime     = time.Second * 2

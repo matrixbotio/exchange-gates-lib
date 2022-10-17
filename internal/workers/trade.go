@@ -1,9 +1,11 @@
 package workers
 
+import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+
 // TradeEventWorker - a worker interface based on pair trade events
 type TradeEventWorker struct {
 	ExchangeTag string
-	WsChannels  *WorkerChannels
+	WsChannels  *structs.WorkerChannels
 }
 
 // ITradeEventWorker - interface for PriceWorker

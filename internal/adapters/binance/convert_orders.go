@@ -5,8 +5,8 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 // from binance format to our bot order type format
@@ -15,9 +15,9 @@ func convertOrderSide(orderSide binance.SideType) (string, error) {
 	default:
 		return "", errors.New("unknown order type: " + string(orderSide))
 	case binance.SideTypeBuy:
-		return consts.OrderTypeBuy, nil
+		return structs2.OrderTypeBuy, nil
 	case binance.SideTypeSell:
-		return consts.OrderTypeSell, nil
+		return structs2.OrderTypeSell, nil
 	}
 }
 
