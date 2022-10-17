@@ -7,8 +7,9 @@ import (
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/utils"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 type adapter struct {
@@ -43,7 +44,7 @@ func (a *adapter) GetID() int {
 // Placeholders
 
 // Connect to exchange
-func (a *adapter) Connect(credentials structs.APICredentials) error {
+func (a *adapter) Connect(credentials structs2.APICredentials) error {
 	return nil
 }
 
@@ -95,12 +96,12 @@ func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderD
 	return structs.OrderData{
 		OrderID:       orderID,
 		ClientOrderID: "",
-		Status:        consts.OrderStatusNew,
+		Status:        structs2.OrderStatusNew,
 		AwaitQty:      100,
 		FilledQty:     10,
 		Price:         500,
 		Symbol:        pairSymbol,
-		Type:          consts.OrderTypeBuy,
+		Type:          structs2.OrderTypeBuy,
 		CreatedTime:   time.Now().UnixMilli(),
 		UpdatedTime:   time.Now().UnixMilli(),
 	}, nil

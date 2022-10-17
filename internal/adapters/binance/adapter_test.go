@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 func TestBinanceOrderConvert(t *testing.T) {
@@ -43,11 +44,11 @@ func TestBinanceAdapter(t *testing.T) {
 func TestBinanceConvertOrderSide(t *testing.T) {
 	orderSide, err := convertOrderSide(binance.SideTypeBuy)
 	assert.Nil(t, err)
-	assert.Equal(t, orderSide, consts.OrderTypeBuy)
+	assert.Equal(t, orderSide, structs.OrderTypeBuy)
 
 	orderSide, err = convertOrderSide(binance.SideTypeSell)
 	assert.Nil(t, err)
-	assert.Equal(t, orderSide, consts.OrderTypeSell)
+	assert.Equal(t, orderSide, structs.OrderTypeSell)
 
 	_, err = convertOrderSide("wtf")
 	assert.NotNil(t, err)

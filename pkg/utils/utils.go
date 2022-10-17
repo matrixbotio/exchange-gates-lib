@@ -13,6 +13,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 // GetFloatPrecision returns the number of decimal places in a float
@@ -50,8 +51,8 @@ func GetTrace() string {
 }
 
 // OrderResponseToBotOrder - convert raw order response to bot order
-func OrderResponseToBotOrder(response structs.CreateOrderResponse) structs.BotOrder {
-	return structs.BotOrder{
+func OrderResponseToBotOrder(response structs.CreateOrderResponse) structs2.BotOrder {
+	return structs2.BotOrder{
 		PairSymbol:    response.Symbol,
 		Type:          response.Type,
 		Qty:           response.OrigQuantity,
@@ -62,8 +63,8 @@ func OrderResponseToBotOrder(response structs.CreateOrderResponse) structs.BotOr
 }
 
 // OrderDataToBotOrder - convert order data to bot order
-func OrderDataToBotOrder(order structs.OrderData) structs.BotOrder {
-	return structs.BotOrder{
+func OrderDataToBotOrder(order structs.OrderData) structs2.BotOrder {
+	return structs2.BotOrder{
 		PairSymbol:    order.Symbol,
 		Type:          order.Type,
 		Qty:           order.AwaitQty,
@@ -74,7 +75,7 @@ func OrderDataToBotOrder(order structs.OrderData) structs.BotOrder {
 }
 
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func RoundPairOrderValues(order structs.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
+func RoundPairOrderValues(order structs2.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
 	result := structs.BotOrderAdjusted{
 		PairSymbol:       order.PairSymbol,
 		Type:             order.Type,
@@ -138,8 +139,8 @@ func RoundDeposit(deposit float64, pairLimits structs.ExchangePairData) (float64
 }
 
 // ParseAdjustedOrder - parse rounded order to bot order
-func ParseAdjustedOrder(order structs.BotOrderAdjusted) (structs.BotOrder, error) {
-	resultOrder := structs.BotOrder{
+func ParseAdjustedOrder(order structs.BotOrderAdjusted) (structs2.BotOrder, error) {
+	resultOrder := structs2.BotOrder{
 		PairSymbol: order.PairSymbol,
 		Type:       order.Type,
 	}
@@ -239,7 +240,7 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 		ExchangeTag: task.ExchangeTag,
 	}
 
-	if task.Order.Type == consts.OrderTypeBuy {
+	if task.Order.Type == structs2.OrderTypeBuy {
 		e.BuyerOrderID = task.Order.OrderID
 	} else {
 		e.SellerOrderID = task.Order.OrderID

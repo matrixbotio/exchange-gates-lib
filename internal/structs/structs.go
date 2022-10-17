@@ -2,22 +2,6 @@ package structs
 
 import "context"
 
-/*
-BotOrder - structure containing information about the order placed by the bot.
-Used when auto-resuming trades
-*/
-type BotOrder struct {
-	// required
-	PairSymbol string  `json:"pair"`
-	Type       string  `json:"type"`
-	Qty        float64 `json:"qty"`
-	Price      float64 `json:"price"`
-	Deposit    float64 `json:"deposit"`
-
-	// optional
-	ClientOrderID string `json:"clientOrderID"`
-}
-
 // BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
 type BotOrderAdjusted struct {
 	// required
@@ -116,38 +100,11 @@ type ExchangePairData struct {
 	InUse              bool    `json:"inUse"`
 }
 
-// APICredentialsType - API credentials type ^ↀᴥↀ^
-type APICredentialsType string
-
-// APIKeypair - data for authorization via public and private keys
-type APIKeypair struct {
-	Public string `json:"public"`
-	Secret string `json:"secret"`
-}
-
 // APIPassword - password authentication
 type APIPassword string
 
 // APIEmail - email authentication
 type APIEmail string
-
-// APICredentialsTypeKeypair - public and private key pair
-var APICredentialsTypeKeypair APICredentialsType = "keypair"
-
-// APICredentials - data for authorization to the exchange API
-type APICredentials struct {
-	Type APICredentialsType `json:"type"`
-
-	Keypair  APIKeypair  `json:"keypair"`
-	Password APIPassword `json:"password"`
-	Email    APIEmail    `json:"email"`
-}
-
-// CheckOrdersResponse - data on checked and restored orders
-type CheckOrdersResponse struct {
-	ExecutedOrders  []OrderData
-	CancelledOrders []OrderData
-}
 
 // GetOrdersHistoryTask - data for GetPairOrdersHistory request
 type GetOrdersHistoryTask struct {

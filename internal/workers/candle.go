@@ -1,9 +1,11 @@
 package workers
 
+import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
 	ExchangeTag string
-	WsChannels  *WorkerChannels
+	WsChannels  *structs.WorkerChannels
 }
 
 // ICandleWorker - interface for CandleWorker
