@@ -5,7 +5,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 type Adapter interface {
@@ -15,7 +15,7 @@ type Adapter interface {
 	GetID() int
 
 	// Methods
-	Connect(credentials structs2.APICredentials) error
+	Connect(credentials pkgStructs.APICredentials) error
 	GetAccountData() (structs.AccountData, error) // account data with balances
 	VerifyAPIKeys(keyPublic, keySecret string) error
 
