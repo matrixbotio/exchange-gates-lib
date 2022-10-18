@@ -600,7 +600,6 @@ func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) 
 // returns map[pair symbol] -> worker channels
 func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	pairSymbols []string,
-	eventCallback workers.PriceEventCallback,
 	errorHandler func(err error),
 ) (map[string]pkgStructs.WorkerChannels, error) {
 	result := map[string]pkgStructs.WorkerChannels{}
