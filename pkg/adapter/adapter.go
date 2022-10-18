@@ -27,3 +27,9 @@ type (
 	ITradeEventWorker  = workers.ITradeEventWorker
 	PriceEventCallback = workers.PriceEventCallback
 )
+
+// events
+type (
+	PriceEvent = workers.PriceEvent
+	TradeEvent = workers.TradeEvent
+)
