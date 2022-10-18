@@ -16,7 +16,6 @@ type PriceWorker struct {
 type IPriceWorker interface {
 	SubscribeToPriceEvents(
 		pairSymbols []string,
-		eventCallback PriceEventCallback,
 		errorHandler func(err error),
 	) (map[string]structs.WorkerChannels, error)
 
@@ -28,7 +27,6 @@ type IPriceWorker interface {
 // SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange (placeholder)
 func (w *PriceWorker) SubscribeToPriceEvents(
 	pairSymbols []string,
-	eventCallback PriceEventCallback,
 	errorHandler func(err error),
 ) (map[string]structs.WorkerChannels, error) {
 	// placeholder
