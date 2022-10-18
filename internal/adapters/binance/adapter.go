@@ -14,7 +14,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
@@ -48,8 +48,8 @@ func (a *adapter) GetName() string {
 }
 
 // Connect to exchange
-func (a *adapter) Connect(credentials structs2.APICredentials) error {
-	if credentials.Type != structs2.APICredentialsTypeKeypair {
+func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
+	if credentials.Type != pkgStructs.APICredentialsTypeKeypair {
 		return errors.New("invalid credentials to connect to Binance")
 	}
 
@@ -102,7 +102,7 @@ func (a *adapter) getOrderFromService(
 	orderResponse, err := s.Do(context.Background())
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
-			tradeData.Status = structs2.OrderStatusUnknown
+			tradeData.Status = pkgStructs.OrderStatusUnknown
 			return nil, nil
 		}
 		return nil, errors.New("service request failed: " + err.Error() + utils.GetTrace())
@@ -141,13 +141,13 @@ func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID strin
 // PlaceOrder - place order on exchange
 func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
 	r := structs.CreateOrderResponse{}
-	orderSide := binance.SideType(structs2.OrderTypeBuy)
+	orderSide := binance.SideType(pkgStructs.OrderTypeBuy)
 	switch order.Type {
 	default:
 		return r, errors.New("data invalid error: unknown strategy given for order, stack: " + utils.GetTrace())
-	case structs2.OrderTypeBuy:
+	case pkgStructs.OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
-	case structs2.OrderTypeSell:
+	case pkgStructs.OrderTypeSell:
 		orderSide = binance.SideTypeSell
 	}
 
@@ -601,15 +601,15 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	pairSymbols []string,
 	eventCallback workers.PriceEventCallback,
 	errorHandler func(err error),
-) (map[string]structs2.WorkerChannels, error) {
-	result := map[string]structs2.WorkerChannels{}
+) (map[string]pkgStructs.WorkerChannels, error) {
+	result := map[string]pkgStructs.WorkerChannels{}
 
 	// event handler func
-	w.WsChannels = new(structs2.WorkerChannels)
+	w.WsChannels = new(pkgStructs.WorkerChannels)
 
 	var openWsErr error
 	for _, pairSymbol := range pairSymbols {
-		newChannels := structs2.WorkerChannels{}
+		newChannels := pkgStructs.WorkerChannels{}
 		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
 		if openWsErr != nil {
 			return result, errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
@@ -673,7 +673,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		errorHandler(errors.New("service request failed: " + err.Error()))
 	}
 	var openWsErr error
-	w.WsChannels = new(structs2.WorkerChannels)
+	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
 		pairSymbol,             // symbol
 		consts.CandlesInterval, // interval
@@ -734,7 +734,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 	}
 
 	var openWsErr error
-	w.WsChannels = new(structs2.WorkerChannels)
+	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
 	if openWsErr != nil {
 		return errors.New("failed to subscribe to trade events: " + openWsErr.Error())
