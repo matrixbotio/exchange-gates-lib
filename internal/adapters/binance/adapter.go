@@ -396,18 +396,18 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *structs.Excha
 	}
 
 	minPriceRaw := priceFilter.MinPrice
-	pairData.MinPrice, err = utils.ParseStringToFloat64(minPriceRaw, "min price")
+	pairData.MinPrice, err = utils.ParseStringToFloat64(minPriceRaw)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse min price: %w", err)
 	}
 	if pairData.MinPrice == 0 {
 		pairData.MinPrice = consts.PairDefaultMinPrice
 	}
 
 	priceStepRaw := priceFilter.TickSize
-	pairData.PriceStep, err = utils.ParseStringToFloat64(priceStepRaw, "price step")
+	pairData.PriceStep, err = utils.ParseStringToFloat64(priceStepRaw)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse price step: %w", err)
 	}
 	if pairData.PriceStep == 0 {
 		pairData.PriceStep = pairData.MinPrice

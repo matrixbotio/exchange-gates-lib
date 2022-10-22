@@ -2,6 +2,7 @@ package binance
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/adshao/go-binance/v2"
 
@@ -25,19 +26,19 @@ func convertOrderSide(orderSide binance.SideType) (string, error) {
 // converting the order from binance to our format
 func convertOrder(orderRaw *binance.Order) (structs.OrderData, error) {
 	r := structs.OrderData{}
-	awaitQty, err := utils.ParseStringToFloat64(orderRaw.OrigQuantity, "await qty")
+	awaitQty, err := utils.ParseStringToFloat64(orderRaw.OrigQuantity)
 	if err != nil {
-		return r, err
+		return r, fmt.Errorf("failed to parse await qty: %w", err)
 	}
 
-	filledQty, err := utils.ParseStringToFloat64(orderRaw.ExecutedQuantity, "executed qty")
+	filledQty, err := utils.ParseStringToFloat64(orderRaw.ExecutedQuantity)
 	if err != nil {
-		return r, err
+		return r, fmt.Errorf("failed to parse executed qty: %w", err)
 	}
 
-	price, err := utils.ParseStringToFloat64(orderRaw.Price, "price")
+	price, err := utils.ParseStringToFloat64(orderRaw.Price)
 	if err != nil {
-		return r, err
+		return r, fmt.Errorf("failed to parse price: %w", err)
 	}
 
 	orderType, err := convertOrderSide(orderRaw.Side)

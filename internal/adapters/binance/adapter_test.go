@@ -2,7 +2,6 @@ package binance
 
 import (
 	"testing"
-	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
@@ -56,29 +55,7 @@ func TestBinanceConvertOrderSide(t *testing.T) {
 }
 
 func TestParseOrderOriginalQty(t *testing.T) {
-	order := binance.Order{
-		Symbol:           "LTCBUSD",
-		OrderID:          102140140,
-		ClientOrderID:    "123-456-789-ABC",
-		Price:            "19236.86",
-		OrigQuantity:     "0.00081",
-		ExecutedQuantity: "0.00095",
-		Status:           binance.OrderStatusTypeNew,
-		Type:             binance.OrderTypeLimit,
-		Side:             binance.SideTypeSell,
-		Time:             time.Now().UnixMilli(),
-		UpdateTime:       time.Now().UnixMilli(),
-	}
-
-	qty, err := utils.ParseStringToFloat64(order.OrigQuantity, "await qty")
+	qty, err := utils.ParseStringToFloat64("0.00081")
 	require.NoError(t, err)
 	assert.Equal(t, float64(0.00081), qty)
-
-	qty, err = utils.ParseStringToFloat64(order.ExecutedQuantity, "executed qty")
-	require.NoError(t, err)
-	assert.Equal(t, float64(0.00095), qty)
-
-	price, err := utils.ParseStringToFloat64(order.Price, "price")
-	require.NoError(t, err)
-	assert.Equal(t, float64(19236.86), price)
 }
