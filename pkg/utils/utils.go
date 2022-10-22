@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -121,7 +122,7 @@ func RoundDeposit(deposit float64, pairLimits structs.ExchangePairData) (float64
 	depositRoundedStr := strconv.FormatFloat(deposit, 'f', GetFloatPrecision(depositStep), 64)
 	depositRounded, err := strconv.ParseFloat(depositRoundedStr, 64)
 	if err != nil {
-		return 0, errors.New("failed to round deposit: " + err.Error())
+		return 0, fmt.Errorf("round deposit: %w", err)
 	}
 	return depositRounded, nil
 }
@@ -136,17 +137,17 @@ func ParseAdjustedOrder(order structs.BotOrderAdjusted) (pkgStructs.BotOrder, er
 	var err error
 	resultOrder.Qty, err = strconv.ParseFloat(order.Qty, 64)
 	if err != nil {
-		return resultOrder, errors.New("failed to parse order qty: " + err.Error())
+		return resultOrder, fmt.Errorf("parse order qty: %w", err)
 	}
 	// parse price
 	resultOrder.Price, err = strconv.ParseFloat(order.Price, 64)
 	if err != nil {
-		return resultOrder, errors.New("failed to parse order price: " + err.Error())
+		return resultOrder, fmt.Errorf("parse order price: %w", err)
 	}
 	// parse deposit
 	resultOrder.Deposit, err = strconv.ParseFloat(order.Deposit, 64)
 	if err != nil {
-		return resultOrder, errors.New("failed to parse order deposit: " + err.Error())
+		return resultOrder, fmt.Errorf("parse order deposit: %w", err)
 	}
 	return resultOrder, nil
 }

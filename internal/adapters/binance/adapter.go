@@ -57,7 +57,7 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	a.binanceAPI = binance.NewClient(credentials.Keypair.Public, credentials.Keypair.Secret)
 	err := a.ping()
 	if err != nil {
-		return errors.New("failed to ping binance: " + err.Error())
+		return fmt.Errorf("ping binance: %w", err)
 	}
 
 	// sync time
@@ -72,14 +72,14 @@ func (a *adapter) sync() {
 func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
 	prices, err := a.binanceAPI.NewListPricesService().Do(context.Background())
 	if err != nil {
-		return nil, errors.New("failed to get prices: " + err.Error())
+		return nil, fmt.Errorf("get prices: %w", err)
 	}
 
 	r := []structs.SymbolPrice{}
 	for _, priceData := range prices {
 		pairPrice, err := strconv.ParseFloat(priceData.Price, 64)
 		if err != nil {
-			return nil, errors.New("failed to parse price for symbol `" + priceData.Symbol + "`: " + err.Error())
+			return nil, fmt.Errorf("parse price for symbol %q: %w", priceData.Symbol, err)
 		}
 		r = append(r, structs.SymbolPrice{Price: pairPrice, Symbol: priceData.Symbol})
 	}
@@ -106,7 +106,7 @@ func (a *adapter) getOrderFromService(
 			tradeData.Status = pkgStructs.OrderStatusUnknown
 			return nil, nil
 		}
-		return nil, errors.New("service request failed: " + err.Error())
+		return nil, err
 	}
 
 	return orderResponse, nil
@@ -168,17 +168,17 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	// place order
 	orderRes, err := orderService.Do(ctx)
 	if err != nil {
-		return r, errors.New("service request failed: failed to create order, " + err.Error())
+		return r, fmt.Errorf("create order: %w", err)
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order origQty, " + convErr.Error())
+		return r, fmt.Errorf("parse order origQty: %w", err)
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error())
+		return r, fmt.Errorf("parse order price: %w", err)
 	}
 
 	return structs.CreateOrderResponse{
@@ -200,7 +200,7 @@ func (a *adapter) getOrderType(orderSide binance.SideType) string {
 func (a *adapter) GetAccountData() (structs.AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
-		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error())
+		return structs.AccountData{}, errors.New("send request to trade, " + clientErr.Error())
 	}
 	accountDataResult := structs.AccountData{
 		CanTrade: binanceAccountData.CanTrade,
@@ -232,11 +232,11 @@ func (a *adapter) GetAccountData() (structs.AccountData, error) {
 // GetPairLastPrice - get pair last price ^ↀᴥↀ^
 func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	tickerService := a.binanceAPI.NewListPricesService()
-	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
-	if srvErr != nil {
-		return 0, errors.New("service request failed: failed to request last price, " +
-			srvErr.Error())
+	prices, err := tickerService.Symbol(pairSymbol).Do(context.Background())
+	if err != nil {
+		return 0, fmt.Errorf("last price: %w", err)
 	}
+
 	// until just brute force. need to be done faster
 	var price float64 = 0
 	var parseErr error
@@ -244,8 +244,7 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 		if p.Symbol == pairSymbol {
 			price, parseErr = strconv.ParseFloat(p.Price, 64)
 			if parseErr != nil {
-				return 0, errors.New("data handle error: failed to parse " + p.Price +
-					" as float")
+				return 0, fmt.Errorf("parse price %q: %w", p.Price, err)
 			}
 			break
 		}
@@ -324,7 +323,7 @@ func (a *adapter) ping() error {
 		time.Sleep(consts.PingRetryWaitTime)
 	}
 
-	return errors.New("failed to ping exchange: " + err.Error())
+	return fmt.Errorf("ping exchange: %w", err)
 }
 
 // VerifyAPIKeys - create new exchange client & attempt to get account data
@@ -332,10 +331,10 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	newClient := binance.NewClient(keyPublic, keySecret)
 	accountService, err := newClient.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		return errors.New("invalid api key: " + err.Error())
+		return fmt.Errorf("invalid api key: %w", err)
 	}
 	if !accountService.CanTrade {
-		return errors.New("service no access: Your API key does not have permission to trade, change its restrictions")
+		return errors.New("your API key does not have permission to trade, change its restrictions")
 	}
 	return nil
 }
@@ -384,7 +383,7 @@ func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *structs
 	minNotionalFilter := symbolData.MinNotionalFilter()
 	pairData.OriginalMinDeposit, err = strconv.ParseFloat(minNotionalFilter.MinNotional, 64)
 	if err != nil {
-		return errors.New("failed to parse float: " + err.Error())
+		return fmt.Errorf("parse float: %w", err)
 	}
 	pairData.MinDeposit = utils.RoundMinDeposit(pairData.OriginalMinDeposit)
 	return nil
@@ -394,20 +393,22 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *structs.Excha
 	var err error
 	priceFilter := symbolData.PriceFilter()
 	if priceFilter == nil {
-		return errors.New("failed to get price filter for symbol data")
+		return errors.New("get price filter for symbol data")
 	}
+
 	minPriceRaw := priceFilter.MinPrice
 	pairData.MinPrice, err = strconv.ParseFloat(minPriceRaw, 64)
 	if err != nil {
-		return errors.New("data handle error: " + err.Error())
+		return fmt.Errorf("data handle error: %w", err)
 	}
 	if pairData.MinPrice == 0 {
 		pairData.MinPrice = consts.PairDefaultMinPrice
 	}
+
 	priceStepRaw := priceFilter.TickSize
 	pairData.PriceStep, err = strconv.ParseFloat(priceStepRaw, 64)
 	if err != nil {
-		return errors.New("data handle error: " + err.Error())
+		return fmt.Errorf("data handle error: %w", err)
 	}
 	if pairData.PriceStep == 0 {
 		pairData.PriceStep = pairData.MinPrice
@@ -418,7 +419,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *structs.Excha
 func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.ExchangePairData) error {
 	lotSizeFilter := symbolData.LotSizeFilter()
 	if lotSizeFilter == nil {
-		return errors.New("failed to get lot size filter for symbol data: " + symbolData.Symbol)
+		return fmt.Errorf("lot size filter for symbol %q not found", symbolData.Symbol)
 	}
 	minQtyRaw := lotSizeFilter.MinQuantity
 	maxQtyRaw := lotSizeFilter.MaxQuantity
@@ -426,7 +427,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.Exc
 	var err error
 	pairData.MinQty, err = strconv.ParseFloat(minQtyRaw, 64)
 	if err != nil {
-		return fmt.Errorf("failed to parse pair min qty: %w", err)
+		return fmt.Errorf("parse pair min qty: %w", err)
 	}
 	if pairData.MinQty == 0 {
 		pairData.MinQty = consts.PairDefaultMinQty
@@ -434,13 +435,13 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.Exc
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
 	if err != nil {
-		return fmt.Errorf("failed to parse pair max qty: %w", err)
+		return fmt.Errorf("parse pair max qty: %w", err)
 	}
 
 	qtyStepRaw := lotSizeFilter.StepSize
 	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
 	if err != nil {
-		return fmt.Errorf("failed to parse pair qty step: %w", err)
+		return fmt.Errorf("parse pair qty step: %w", err)
 	}
 	if pairData.QtyStep == 0 {
 		pairData.QtyStep = pairData.MinQty
@@ -453,7 +454,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("(exchange) failed to connect: %w", err)
+		return nil, fmt.Errorf("connect: %w", err)
 	}
 
 	var lastError error
@@ -493,10 +494,10 @@ func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]str
 	// send request
 	ordersRaw, err := service.Do(task.Ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get orders history: %w", err)
+		return nil, fmt.Errorf("get orders history: %w", err)
 	}
 	if ordersRaw == nil {
-		return nil, errors.New("failed to request orders history: orders is nil")
+		return nil, errors.New("request orders history: orders not set")
 	}
 
 	// convert orders
@@ -612,7 +613,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		newChannels := pkgStructs.WorkerChannels{}
 		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
 		if openWsErr != nil {
-			return result, fmt.Errorf("failed to subscribe to %q price: %w", pairSymbol, openWsErr)
+			return result, fmt.Errorf("subscribe to %q price: %w", pairSymbol, openWsErr)
 		}
 
 		result[pairSymbol] = newChannels
@@ -670,7 +671,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		}
 	}
 	wsErrHandler := func(err error) {
-		errorHandler(fmt.Errorf("service request failed: %w", err))
+		errorHandler(err)
 	}
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
@@ -680,10 +681,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		wsCandleHandler,        // event handler
 		wsErrHandler,           // error handler
 	)
-	if openWsErr != nil {
-		return fmt.Errorf("service request failed: %w", openWsErr)
-	}
-	return nil
+	return openWsErr
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
@@ -706,7 +704,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 ) error {
 
 	wsErrHandler := func(err error) {
-		errorHandler(fmt.Errorf("service request failed: %w", err))
+		errorHandler(err)
 	}
 
 	wsTradeHandler := func(event *binance.WsTradeEvent) {
@@ -737,7 +735,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
 	if err != nil {
-		return fmt.Errorf("failed to subscribe to trade events: %w", err)
+		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
 	return nil
 }
