@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -105,7 +106,7 @@ func (a *adapter) getOrderFromService(
 			tradeData.Status = pkgStructs.OrderStatusUnknown
 			return nil, nil
 		}
-		return nil, errors.New("service request failed: " + err.Error() + utils.GetTrace())
+		return nil, errors.New("service request failed: " + err.Error())
 	}
 
 	return orderResponse, nil
@@ -144,7 +145,7 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	orderSide := binance.SideType(pkgStructs.OrderTypeBuy)
 	switch order.Type {
 	default:
-		return r, errors.New("data invalid error: unknown strategy given for order, stack: " + utils.GetTrace())
+		return r, errors.New("data invalid error: unknown strategy given for order")
 	case pkgStructs.OrderTypeBuy:
 		orderSide = binance.SideTypeBuy
 	case pkgStructs.OrderTypeSell:
@@ -167,17 +168,17 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	// place order
 	orderRes, err := orderService.Do(ctx)
 	if err != nil {
-		return r, errors.New("service request failed: failed to create order, " + err.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("service request failed: failed to create order, " + err.Error())
 	}
 
 	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order origQty, " + convErr.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("data handle error: failed to parse order origQty, " + convErr.Error())
 	}
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
-		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error() + ", stack: " + utils.GetTrace())
+		return r, errors.New("data handle error: failed to parse order price, " + convErr.Error())
 	}
 
 	return structs.CreateOrderResponse{
@@ -199,7 +200,7 @@ func (a *adapter) getOrderType(orderSide binance.SideType) string {
 func (a *adapter) GetAccountData() (structs.AccountData, error) {
 	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
 	if clientErr != nil {
-		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error() + ", stack: " + utils.GetTrace())
+		return structs.AccountData{}, errors.New("data invalid error: failed to send request to trade, " + clientErr.Error())
 	}
 	accountDataResult := structs.AccountData{
 		CanTrade: binanceAccountData.CanTrade,
@@ -234,7 +235,7 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	prices, srvErr := tickerService.Symbol(pairSymbol).Do(context.Background())
 	if srvErr != nil {
 		return 0, errors.New("service request failed: failed to request last price, " +
-			srvErr.Error() + ", stack: " + utils.GetTrace())
+			srvErr.Error())
 	}
 	// until just brute force. need to be done faster
 	var price float64 = 0
@@ -244,7 +245,7 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 			price, parseErr = strconv.ParseFloat(p.Price, 64)
 			if parseErr != nil {
 				return 0, errors.New("data handle error: failed to parse " + p.Price +
-					" as float, stack: " + utils.GetTrace())
+					" as float")
 			}
 			break
 		}
@@ -425,7 +426,7 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.Exc
 	var err error
 	pairData.MinQty, err = strconv.ParseFloat(minQtyRaw, 64)
 	if err != nil {
-		return errors.New("failed to parse pair min qty: " + err.Error())
+		return fmt.Errorf("failed to parse pair min qty: %w", err)
 	}
 	if pairData.MinQty == 0 {
 		pairData.MinQty = consts.PairDefaultMinQty
@@ -433,13 +434,13 @@ func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.Exc
 
 	pairData.MaxQty, err = strconv.ParseFloat(maxQtyRaw, 64)
 	if err != nil {
-		return errors.New("failed to parse pair max qty: " + err.Error())
+		return fmt.Errorf("failed to parse pair max qty: %w", err)
 	}
 
 	qtyStepRaw := lotSizeFilter.StepSize
 	pairData.QtyStep, err = strconv.ParseFloat(qtyStepRaw, 64)
 	if err != nil {
-		return errors.New("failed to parse pair qty step: " + err.Error())
+		return fmt.Errorf("failed to parse pair qty step: %w", err)
 	}
 	if pairData.QtyStep == 0 {
 		pairData.QtyStep = pairData.MinQty
@@ -452,7 +453,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
 	res, err := service.Do(context.Background())
 	if err != nil {
-		return nil, errors.New("service disconnected: error while connecting to ExchangeInfoService: " + err.Error() + ", stack: " + utils.GetTrace())
+		return nil, fmt.Errorf("(exchange) failed to connect: %w", err)
 	}
 
 	var lastError error
@@ -492,7 +493,7 @@ func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]str
 	// send request
 	ordersRaw, err := service.Do(task.Ctx)
 	if err != nil {
-		return nil, errors.New("failed to get orders history: " + err.Error())
+		return nil, fmt.Errorf("failed to get orders history: %w", err)
 	}
 	if ordersRaw == nil {
 		return nil, errors.New("failed to request orders history: orders is nil")
@@ -612,7 +613,7 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 		newChannels := pkgStructs.WorkerChannels{}
 		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
 		if openWsErr != nil {
-			return result, errors.New("failed to subscribe to `" + pairSymbol + "` price: " + openWsErr.Error())
+			return result, fmt.Errorf("failed to subscribe to %q price: %w", pairSymbol, openWsErr)
 		}
 
 		result[pairSymbol] = newChannels
@@ -670,7 +671,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		}
 	}
 	wsErrHandler := func(err error) {
-		errorHandler(errors.New("service request failed: " + err.Error()))
+		errorHandler(fmt.Errorf("service request failed: %w", err))
 	}
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
@@ -681,7 +682,7 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		wsErrHandler,           // error handler
 	)
 	if openWsErr != nil {
-		return errors.New("service request failed: " + openWsErr.Error())
+		return fmt.Errorf("service request failed: %w", openWsErr)
 	}
 	return nil
 }
@@ -706,7 +707,7 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 ) error {
 
 	wsErrHandler := func(err error) {
-		errorHandler(errors.New("service request failed: " + err.Error()))
+		errorHandler(fmt.Errorf("service request failed: %w", err))
 	}
 
 	wsTradeHandler := func(event *binance.WsTradeEvent) {
@@ -733,11 +734,11 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 		}
 	}
 
-	var openWsErr error
+	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
-	if openWsErr != nil {
-		return errors.New("failed to subscribe to trade events: " + openWsErr.Error())
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
+	if err != nil {
+		return fmt.Errorf("failed to subscribe to trade events: %w", err)
 	}
 	return nil
 }
