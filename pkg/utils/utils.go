@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-stack/stack"
-
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -39,15 +37,6 @@ func LogNotNilError(errs []error) bool {
 		}
 	}
 	return false
-}
-
-// GetTrace - get stack string
-func GetTrace() string {
-	stackTrace := stack.Trace()
-	if len(stackTrace) == 0 {
-		return ""
-	}
-	return stack.Trace().TrimRuntime().String()
 }
 
 // OrderResponseToBotOrder - convert raw order response to bot order
