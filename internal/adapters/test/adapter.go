@@ -8,7 +8,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
@@ -44,13 +44,13 @@ func (a *adapter) GetID() int {
 // Placeholders
 
 // Connect to exchange
-func (a *adapter) Connect(credentials structs2.APICredentials) error {
+func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	return nil
 }
 
 // PlaceOrder - place order on exchange
 func (a *adapter) PlaceOrder(
-	ctx context.Context, order structs.BotOrderAdjusted,
+	ctx context.Context, order pkgStructs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
 	return structs.CreateOrderResponse{
 		OrderID:       1,
@@ -96,12 +96,12 @@ func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderD
 	return structs.OrderData{
 		OrderID:       orderID,
 		ClientOrderID: "",
-		Status:        structs2.OrderStatusNew,
+		Status:        pkgStructs.OrderStatusNew,
 		AwaitQty:      100,
 		FilledQty:     10,
 		Price:         500,
 		Symbol:        pairSymbol,
-		Type:          structs2.OrderTypeBuy,
+		Type:          pkgStructs.OrderTypeBuy,
 		CreatedTime:   time.Now().UnixMilli(),
 		UpdatedTime:   time.Now().UnixMilli(),
 	}, nil
