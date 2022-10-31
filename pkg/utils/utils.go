@@ -64,8 +64,11 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 }
 
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
-	result := structs.BotOrderAdjusted{
+func RoundPairOrderValues(
+	order pkgStructs.BotOrder,
+	pairLimits structs.ExchangePairData,
+) (pkgStructs.BotOrderAdjusted, error) {
+	result := pkgStructs.BotOrderAdjusted{
 		PairSymbol:       order.PairSymbol,
 		Type:             order.Type,
 		ClientOrderID:    order.ClientOrderID,
@@ -128,7 +131,7 @@ func RoundDeposit(deposit float64, pairLimits structs.ExchangePairData) (float64
 }
 
 // ParseAdjustedOrder - parse rounded order to bot order
-func ParseAdjustedOrder(order structs.BotOrderAdjusted) (pkgStructs.BotOrder, error) {
+func ParseAdjustedOrder(order pkgStructs.BotOrderAdjusted) (pkgStructs.BotOrder, error) {
 	resultOrder := pkgStructs.BotOrder{
 		PairSymbol: order.PairSymbol,
 		Type:       order.Type,

@@ -50,3 +50,22 @@ type APIKeypair struct {
 	Public string `json:"public"`
 	Secret string `json:"secret"`
 }
+
+// BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
+type BotOrderAdjusted struct {
+	// required
+	PairSymbol string `json:"pair"`
+	Type       string `json:"type"`
+	Qty        string `json:"qty"`
+	Price      string `json:"price"`
+	Deposit    string `json:"deposit"`
+
+	// optional
+	ClientOrderID string `json:"clientOrderID"`
+
+	// calculated
+	MinQty           float64 `json:"minQty"`
+	MinQtyPassed     bool    `json:"minQtyPassed"`
+	MinDeposit       float64 `json:"minDeposit"`
+	MinDepositPassed bool    `json:"minDepositPassed"`
+}

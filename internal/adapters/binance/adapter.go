@@ -140,7 +140,10 @@ func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID strin
 }
 
 // PlaceOrder - place order on exchange
-func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
+func (a *adapter) PlaceOrder(
+	ctx context.Context,
+	order pkgStructs.BotOrderAdjusted,
+) (structs.CreateOrderResponse, error) {
 	r := structs.CreateOrderResponse{}
 	orderSide := binance.SideType(pkgStructs.OrderTypeBuy)
 	switch order.Type {

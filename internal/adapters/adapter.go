@@ -23,7 +23,7 @@ type Adapter interface {
 	GetPrices() ([]structs.SymbolPrice, error)
 	GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error)
 	GetOrderByClientOrderID(pairSymbol, clientOrderID string) (structs.OrderData, error)
-	PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error)
+	PlaceOrder(ctx context.Context, order pkgStructs.BotOrderAdjusted) (structs.CreateOrderResponse, error)
 
 	// Pair
 	GetPairData(pairSymbol string) (structs.ExchangePairData, error)

@@ -812,18 +812,18 @@ func (_c *MockAdapter_GetTradeEventsWorker_Call) Return(_a0 workers.ITradeEventW
 }
 
 // PlaceOrder provides a mock function with given fields: ctx, order
-func (_m *MockAdapter) PlaceOrder(ctx context.Context, order internalstructs.BotOrderAdjusted) (internalstructs.CreateOrderResponse, error) {
+func (_m *MockAdapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (internalstructs.CreateOrderResponse, error) {
 	ret := _m.Called(ctx, order)
 
 	var r0 internalstructs.CreateOrderResponse
-	if rf, ok := ret.Get(0).(func(context.Context, internalstructs.BotOrderAdjusted) internalstructs.CreateOrderResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, structs.BotOrderAdjusted) internalstructs.CreateOrderResponse); ok {
 		r0 = rf(ctx, order)
 	} else {
 		r0 = ret.Get(0).(internalstructs.CreateOrderResponse)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, internalstructs.BotOrderAdjusted) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, structs.BotOrderAdjusted) error); ok {
 		r1 = rf(ctx, order)
 	} else {
 		r1 = ret.Error(1)
@@ -844,9 +844,9 @@ func (_e *MockAdapter_Expecter) PlaceOrder(ctx interface{}, order interface{}) *
 	return &MockAdapter_PlaceOrder_Call{Call: _e.mock.On("PlaceOrder", ctx, order)}
 }
 
-func (_c *MockAdapter_PlaceOrder_Call) Run(run func(ctx context.Context, order internalstructs.BotOrderAdjusted)) *MockAdapter_PlaceOrder_Call {
+func (_c *MockAdapter_PlaceOrder_Call) Run(run func(ctx context.Context, order structs.BotOrderAdjusted)) *MockAdapter_PlaceOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(internalstructs.BotOrderAdjusted))
+		run(args[0].(context.Context), args[1].(structs.BotOrderAdjusted))
 	})
 	return _c
 }
