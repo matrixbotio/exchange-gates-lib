@@ -15,6 +15,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
@@ -104,7 +105,7 @@ func (a *adapter) getOrderFromService(
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
 			tradeData.Status = pkgStructs.OrderStatusUnknown
-			return nil, nil
+			return nil, errs.OrderNotFound
 		}
 		return nil, err
 	}
