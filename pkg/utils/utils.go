@@ -63,6 +63,15 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 	}
 }
 
+func roundFloatFloor(val float64, precision int) float64 {
+	powLevel := math.Pow10(precision)
+	return math.Floor(val*powLevel) / powLevel
+}
+
+func formatFloatFloor(val float64, precision int) string {
+	return strconv.FormatFloat(roundFloatFloor(val, precision), 'f', precision, 64)
+}
+
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
 func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
 	result := structs.BotOrderAdjusted{
@@ -97,10 +106,8 @@ func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.Exchange
 	}
 
 	// round order values
-	var quantityPrecision int = GetFloatPrecision(pairLimits.QtyStep)
-	result.Qty = strconv.FormatFloat(order.Qty, 'f', quantityPrecision, 64)
-	var ratePrecision int = GetFloatPrecision(pairLimits.PriceStep)
-	result.Price = strconv.FormatFloat(order.Price, 'f', ratePrecision, 64)
+	result.Qty = formatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
+	result.Price = formatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
 
 	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
 	if err != nil {
