@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetFloatPrecision(t *testing.T) {
@@ -37,4 +39,39 @@ func TestOrderResponseToBotOrder(t *testing.T) {
 	if toOrder.Price != fromOrder.Price {
 		t.Fatal("Price is not equal in orders")
 	}
+}
+
+func TestRoundPairOrderValues(t *testing.T) {
+	originalOrder := pkgStructs.BotOrder{
+		Qty:   0.666666666666,
+		Price: 100.66666666666666,
+	}
+	originalOrder.Deposit = originalOrder.Qty * originalOrder.Price
+
+	pairData := structs.ExchangePairData{
+		BaseAsset:          "ETH",
+		QuoteAsset:         "USDT",
+		BasePrecision:      8,
+		QuotePrecision:     8,
+		Symbol:             "ETHUSDT",
+		MinQty:             0.0001,
+		MaxQty:             9000,
+		OriginalMinDeposit: 10,
+		MinDeposit:         11,
+		MinPrice:           0.01,
+		QtyStep:            0.0001,
+		PriceStep:          0.01,
+	}
+
+	roundedOrder, err := RoundPairOrderValues(originalOrder, pairData)
+	require.Nil(t, err)
+
+	parsedOrder, err := ParseAdjustedOrder(roundedOrder)
+	require.Nil(t, err)
+
+	require.LessOrEqual(t, parsedOrder.Deposit, originalOrder.Deposit)
+}
+
+func TestFormatFloatFloor(t *testing.T) {
+	require.Equal(t, "0.11", formatFloatFloor(0.111, 2))
 }
