@@ -73,5 +73,5 @@ func TestRoundPairOrderValues(t *testing.T) {
 }
 
 func TestFormatFloatFloor(t *testing.T) {
-	require.Equal(t, "0.11", formatFloatFloor(0.111, 2))
+	require.Equal(t, "0.11", FormatFloatFloor(0.111, 2))
 }

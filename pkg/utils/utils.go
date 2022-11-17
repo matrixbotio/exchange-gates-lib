@@ -68,7 +68,7 @@ func roundFloatFloor(val float64, precision int) float64 {
 	return math.Floor(val*powLevel) / powLevel
 }
 
-func formatFloatFloor(val float64, precision int) string {
+func FormatFloatFloor(val float64, precision int) string {
 	return strconv.FormatFloat(roundFloatFloor(val, precision), 'f', precision, 64)
 }
 
@@ -106,8 +106,8 @@ func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.Exchange
 	}
 
 	// round order values
-	result.Qty = formatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
-	result.Price = formatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
+	result.Qty = FormatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
+	result.Price = FormatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
 
 	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
 	if err != nil {
