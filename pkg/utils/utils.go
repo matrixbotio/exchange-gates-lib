@@ -63,13 +63,13 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 	}
 }
 
-func roundFloatFloor(val float64, precision int) float64 {
+func RoundFloatFloor(val float64, precision int) float64 {
 	powLevel := math.Pow10(precision)
 	return math.Floor(val*powLevel) / powLevel
 }
 
 func formatFloatFloor(val float64, precision int) string {
-	return strconv.FormatFloat(roundFloatFloor(val, precision), 'f', precision, 64)
+	return strconv.FormatFloat(RoundFloatFloor(val, precision), 'f', precision, 64)
 }
 
 // RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
