@@ -173,11 +173,6 @@ func GetDefaultPairData() structs.ExchangePairData {
 	}
 }
 
-// RoundMinDeposit - update the value of the minimum deposit in accordance with the minimum threshold
-func RoundMinDeposit(pairMinDeposit float64) float64 {
-	return pairMinDeposit * (1 + consts.MinDepositFix/100)
-}
-
 // OrderDataToTradeEvent data
 type TradeOrderConvertTask struct {
 	Order       structs.OrderData
