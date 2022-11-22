@@ -12,3 +12,7 @@ type BotOrder struct {
 	// optional
 	ClientOrderID string `json:"clientOrderID"`
 }
+
+func (o BotOrder) IsEmpty() bool {
+	return o.PairSymbol == ""
+}
