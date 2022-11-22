@@ -21,7 +21,7 @@ type BotOrderAdjusted struct {
 	MinDepositPassed bool    `json:"minDepositPassed"`
 }
 
-// CreateOrderResponse ..
+// CreateOrderResponse - response from the exchange about the placed order
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
@@ -44,7 +44,7 @@ type AccountData struct {
 	Balances []Balance `json:"balances"`
 }
 
-// OrderData - placed order data
+// OrderData - the result of checking the data of the placed order
 type OrderData struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
