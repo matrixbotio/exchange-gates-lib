@@ -29,22 +29,6 @@ type CheckOrdersResponse struct {
 	CancelledOrders []structs.OrderData
 }
 
-/*
-BotOrder - structure containing information about the order placed by the bot.
-Used when auto-resuming trades
-*/
-type BotOrder struct {
-	// required
-	PairSymbol string  `json:"pair"`
-	Type       string  `json:"type"`
-	Qty        float64 `json:"qty"`
-	Price      float64 `json:"price"`
-	Deposit    float64 `json:"deposit"`
-
-	// optional
-	ClientOrderID string `json:"clientOrderID"`
-}
-
 // APIKeypair - data for authorization via public and private keys
 type APIKeypair struct {
 	Public string `json:"public"`
