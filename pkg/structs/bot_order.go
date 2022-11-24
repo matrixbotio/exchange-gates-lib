@@ -14,5 +14,5 @@ type BotOrder struct {
 }
 
 func (o BotOrder) IsEmpty() bool {
-	return o.PairSymbol == ""
+	return o.PairSymbol == "" && o.Price == 0
 }
