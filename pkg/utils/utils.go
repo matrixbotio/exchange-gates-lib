@@ -64,8 +64,18 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 }
 
 func RoundFloatFloor(val float64, precision int) float64 {
-	powLevel := math.Pow10(precision)
-	return math.Floor(val*powLevel) / powLevel
+	var rounder float64
+	pow := math.Pow(10, float64(precision))
+	intermed := val * pow
+
+	_, frac := math.Modf(intermed)
+	if frac >= 0.99999 {
+		rounder = math.Ceil(intermed)
+	} else {
+		rounder = math.Floor(intermed)
+	}
+
+	return rounder / pow
 }
 
 func formatFloatFloor(val float64, precision int) string {
