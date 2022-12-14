@@ -12,6 +12,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/shopspring/decimal"
 )
 
 // GetFloatPrecision returns the number of decimal places in a float
@@ -64,8 +65,8 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 }
 
 func RoundFloatFloor(val float64, precision int) float64 {
-	powLevel := math.Pow10(precision)
-	return math.Floor(val*powLevel) / powLevel
+	f, _ := decimal.NewFromFloat(val).RoundFloor(int32(precision)).Float64()
+	return f
 }
 
 func formatFloatFloor(val float64, precision int) string {
