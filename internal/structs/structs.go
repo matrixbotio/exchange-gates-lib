@@ -25,7 +25,7 @@ type BotOrderAdjusted struct {
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
-	OrigQuantity  float64 `json:"origQty"`
+	OrigQuantity  float64 `json:"originalQty"`
 	Price         float64 `json:"price"`
 	Symbol        string  `json:"symbol"`
 	Type          string  `json:"orderRes"`
@@ -48,9 +48,9 @@ type AccountData struct {
 type OrderData struct {
 	OrderID       int64   `json:"orderID"`
 	ClientOrderID string  `json:"clientOrderID"`
-	Status        string  `json:"status"`    // used in bot.getOrderData
-	AwaitQty      float64 `json:"awaitQty"`  // initial order qty
-	FilledQty     float64 `json:"filledQty"` // event executed qty
+	Status        string  `json:"status"`      // used in bot.getOrderData
+	AwaitQty      float64 `json:"originalQty"` // initial order qty
+	FilledQty     float64 `json:"filledQty"`   // event executed qty
 	Price         float64 `json:"price"`
 	Symbol        string  `json:"symbol"`
 	Type          string  `json:"type"`        // "buy" or "sell"
