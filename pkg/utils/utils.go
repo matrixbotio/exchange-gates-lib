@@ -337,3 +337,9 @@ func calcLongOrder(
 		ClientOrderID: GenerateUUID(),
 	}
 }
+
+func GetValueStep(minValue float64) float64 {
+	base := decimal.NewFromFloat(math.Pow10(int(GetFloatPrecision(minValue))))
+	f, _ := decimal.NewFromInt(1).Div(base).Float64()
+	return f
+}

@@ -13,13 +13,22 @@ const (
 	PairMinDeposit        = 10
 	PairDefaultBaseAsset  = "BTC"
 	PairDefaultQuoteAsset = "BUSD"
+	PairDefaultStatus     = "TRADING"
 	PairDefaultAsset      = PairDefaultBaseAsset + PairDefaultQuoteAsset
+)
 
+const (
 	CandlesInterval          = "1m"
 	ExchangeSetupConnTimeout = 3500 // ms
 	ReadTimeout              = time.Second * 5
+)
 
+const (
+	PingRetryAttempts = 3
+	PingRetryWaitTime = time.Second * 2
+)
+
+const (
 	ExchangeIDbinanceSpot = 1
-	PingRetryAttempts     = 3
-	PingRetryWaitTime     = time.Second * 2
+	ExchangeIDbybitSpot   = 2
 )

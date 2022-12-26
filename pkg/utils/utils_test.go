@@ -33,6 +33,18 @@ func TestGetFloatPrecision2(t *testing.T) {
 	assert.Equal(t, precisionExpected, precision)
 }
 
+func TestGetFloatPrecision3(t *testing.T) {
+	// given
+	var val float64 = 0.000048
+	var precisionExpected int = 6
+
+	// when
+	var precision = GetFloatPrecision(val)
+
+	// then
+	assert.Equal(t, precisionExpected, precision)
+}
+
 func TestOrderResponseToBotOrder(t *testing.T) {
 	fromOrder := structs.CreateOrderResponse{}
 
@@ -410,4 +422,28 @@ func TestRoundDeposit3(t *testing.T) {
 	// then
 	require.NoError(t, err)
 	assert.Equal(t, float64(100), roundedDeposit)
+}
+
+func TestGetQtyStep(t *testing.T) {
+	// given
+	var minQty = 0.000048
+	var qtyStepExpected = 0.000001
+
+	// when
+	qtyStep := GetValueStep(minQty)
+
+	// then
+	assert.Equal(t, qtyStepExpected, qtyStep)
+}
+
+func TestGetQtyStep2(t *testing.T) {
+	// given
+	var minQty = 0.00001
+	var qtyStepExpected = 0.00001
+
+	// when
+	qtyStep := GetValueStep(minQty)
+
+	// then
+	assert.Equal(t, qtyStepExpected, qtyStep)
 }

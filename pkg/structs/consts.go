@@ -9,6 +9,9 @@ const (
 	OrderStatusRejected        = "REJECTED"
 	OrderStatusExpired         = "EXPIRED"
 	OrderStatusUnknown         = "UNKNOWN"
+	OrderStatusUntriggered     = "UNTRIGGERED"
+	OrderStatusTriggered       = "TRIGGERED"
+	OrderStatusDeactivated     = "DEACTIVATED"
 )
 
 const (
