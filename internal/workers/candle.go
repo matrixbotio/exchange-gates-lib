@@ -9,6 +9,8 @@ type CandleEvent struct {
 	QuoteAsset string     `json:"quoteAsset"`
 	Candle     CandleData `json:"candle"`
 	Time       int64      `json:"time"`
+
+	IsFinished bool
 }
 
 // CandleData - trading candle

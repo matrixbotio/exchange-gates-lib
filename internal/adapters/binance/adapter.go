@@ -14,10 +14,8 @@ import (
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 type adapter struct {
@@ -144,12 +142,18 @@ func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderD
 }
 
 // GetClientOrderData - get order data by client order ID
-func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
+func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (
+	structs.OrderData,
+	error,
+) {
 	return a.getOrderData(pairSymbol, 0, clientOrderID)
 }
 
 // PlaceOrder - place order on exchange
-func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error) {
+func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (
+	structs.CreateOrderResponse,
+	error,
+) {
 	r := structs.CreateOrderResponse{}
 	orderSide := binance.SideType(pkgStructs.OrderTypeBuy)
 	switch order.Type {
@@ -205,37 +209,13 @@ func (a *adapter) getOrderType(orderSide binance.SideType) string {
 	return strings.ToLower(string(orderSide))
 }
 
-// GetAccountData - get account data ^ↀᴥↀ^
-func (a *adapter) GetAccountData() (structs.AccountData, error) {
-	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
+func (a *adapter) CanTrade() (bool, error) {
+	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().
+		Do(context.Background())
 	if clientErr != nil {
-		return structs.AccountData{}, errors.New("send request to trade, " + clientErr.Error())
+		return false, errors.New("send request to trade, " + clientErr.Error())
 	}
-	accountDataResult := structs.AccountData{
-		CanTrade: binanceAccountData.CanTrade,
-	}
-
-	balances := []structs.Balance{}
-	for _, binanceBalanceData := range binanceAccountData.Balances {
-		// convert strings to float64
-		balanceFree, convErr := strconv.ParseFloat(binanceBalanceData.Free, 64)
-		if convErr != nil {
-			balanceFree = 0
-		}
-		balanceLocked, convErr := strconv.ParseFloat(binanceBalanceData.Locked, 64)
-		if convErr != nil {
-			balanceLocked = 0
-		}
-		if balanceFree != 0 || balanceLocked != 0 {
-			balances = append(balances, structs.Balance{
-				Asset:  binanceBalanceData.Asset,
-				Free:   balanceFree,
-				Locked: balanceLocked,
-			})
-		}
-	}
-	accountDataResult.Balances = balances
-	return accountDataResult, nil
+	return binanceAccountData.CanTrade, nil
 }
 
 // GetPairLastPrice - get pair last price ^ↀᴥↀ^
@@ -298,7 +278,8 @@ func (a *adapter) isErrorAboutUnknownOrder(err error) bool {
 
 // GetPairData - get pair data & limits
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
-	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().Symbol(pairSymbol).Do(context.Background())
+	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().
+		Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return structs.ExchangePairData{}, err
 	}
@@ -311,9 +292,10 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 	return structs.ExchangePairData{}, errors.New("data for " + pairSymbol + " pair not found")
 }
 
-//GetPairOpenOrders - get open orders array
+// GetPairOpenOrders - get open orders array
 func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
-	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().Symbol(pairSymbol).Do(context.Background())
+	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().
+		Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +325,8 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 		return fmt.Errorf("invalid api key: %w", err)
 	}
 	if !accountService.CanTrade {
-		return errors.New("your API key does not have permission to trade, change its restrictions")
+		return errors.New("your API key does not have permission to trade," +
+			" change its restrictions")
 	}
 	return nil
 }
@@ -369,8 +352,10 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	return pairs, lastError
 }
 
-func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error) {
-	// check data
+func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) (
+	[]structs.OrderData,
+	error,
+) {
 	if task.PairSymbol == "" {
 		return nil, errors.New("pair symbol is not set")
 	}
@@ -401,238 +386,4 @@ func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]str
 
 	// convert orders
 	return convertOrders(ordersRaw)
-}
-
-// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
-func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
-	accountData, err := a.GetAccountData()
-	if err != nil {
-		return structs.PairBalance{}, err
-	}
-
-	pairBalanceData := structs.PairBalance{}
-	for _, balanceData := range accountData.Balances {
-		if balanceData.Asset == pair.BaseTicker {
-			// base asset found
-			pairBalanceData.BaseAsset = &structs.AssetBalance{
-				Ticker: balanceData.Asset,
-				Free:   balanceData.Free,
-				Locked: balanceData.Locked,
-			}
-		}
-		if balanceData.Asset == pair.QuoteTicker {
-			// quote asset found
-			pairBalanceData.QuoteAsset = &structs.AssetBalance{
-				Ticker: balanceData.Asset,
-				Free:   balanceData.Free,
-				Locked: balanceData.Locked,
-			}
-		}
-		if pairBalanceData.BaseAsset != nil && pairBalanceData.QuoteAsset != nil {
-			// found
-			break
-		}
-	}
-	if pairBalanceData.BaseAsset == nil {
-		pairBalanceData.BaseAsset = &structs.AssetBalance{
-			Ticker: pair.BaseTicker,
-			Free:   0,
-			Locked: 0,
-		}
-	}
-	if pairBalanceData.QuoteAsset == nil {
-		pairBalanceData.QuoteAsset = &structs.AssetBalance{
-			Ticker: pair.QuoteTicker,
-			Free:   0,
-			Locked: 0,
-		}
-	}
-	return pairBalanceData, nil
-}
-
-func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), consts.ReadTimeout)
-	defer cancel()
-
-	klines, err := a.binanceAPI.NewKlinesService().Symbol(symbol).Interval(interval).Limit(limit).Do(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles rq: %w", err)
-	}
-
-	candles, err := ConvertCandles(klines, interval)
-	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles convert: %w", err)
-	}
-
-	return candles, nil
-}
-
-/*
-                    _
-                   | |
-__      _____  _ __| | _____ _ __ ___
-\ \ /\ / / _ \| '__| |/ / _ \ '__/ __|
- \ V  V / (_) | |  |   <  __/ |  \__ \
-  \_/\_/ \___/|_|  |_|\_\___|_|  |___/
-
-*/
-
-// PriceWorkerBinance - MarketDataWorker for binance
-type PriceWorkerBinance struct {
-	workers.PriceWorker
-}
-
-// GetPriceWorker - create new market data worker
-func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
-	w := PriceWorkerBinance{}
-	w.PriceWorker.ExchangeTag = a.Tag
-	w.PriceWorker.HandleEventCallback = callback
-	return &w
-}
-
-func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) {
-	if event == nil {
-		return
-	}
-
-	eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
-	if convErr != nil {
-		return // ignore event
-	}
-
-	eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
-	if convErr != nil {
-		return // ignore event
-	}
-
-	w.HandleEventCallback(workers.PriceEvent{
-		ExchangeTag: w.ExchangeTag,
-		Symbol:      event.Symbol,
-		Ask:         eventAsk,
-		Bid:         eventBid,
-	})
-}
-
-// SubscribeToPriceEvents - websocket subscription to change quotes and ask-, bid-qty on the exchange
-// returns map[pair symbol] -> worker channels
-func (w *PriceWorkerBinance) SubscribeToPriceEvents(
-	pairSymbols []string,
-	errorHandler func(err error),
-) (map[string]pkgStructs.WorkerChannels, error) {
-	result := map[string]pkgStructs.WorkerChannels{}
-
-	// event handler func
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-
-	var openWsErr error
-	for _, pairSymbol := range pairSymbols {
-		newChannels := pkgStructs.WorkerChannels{}
-		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
-		if openWsErr != nil {
-			return result, fmt.Errorf("subscribe to %q price: %w", pairSymbol, openWsErr)
-		}
-
-		result[pairSymbol] = newChannels
-	}
-
-	return result, nil
-}
-
-// CandleWorkerBinance - MarketDataWorker for binance
-type CandleWorkerBinance struct {
-	workers.CandleWorker
-}
-
-// GetCandleWorker - create new market candle worker
-func (a *adapter) GetCandleWorker() workers.ICandleWorker {
-	w := CandleWorkerBinance{}
-	w.ExchangeTag = a.GetTag()
-	return &w
-}
-
-func (w *CandleWorkerBinance) SubscribeToCandle(
-	pairSymbol string,
-	eventCallback func(event workers.CandleEvent),
-	errorHandler func(err error),
-) error {
-	var openWsErr error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
-		pairSymbol,
-		consts.CandlesInterval,
-		getCandleEventsHandler(eventCallback, errorHandler),
-		errorHandler,
-	)
-	return openWsErr
-}
-
-func (w *CandleWorkerBinance) SubscribeToCandlesList(
-	intervalsPerPair map[string]string,
-	eventCallback func(event workers.CandleEvent),
-	errorHandler func(err error),
-) error {
-	var openWsErr error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(
-		intervalsPerPair,
-		getCandleEventsHandler(eventCallback, errorHandler),
-		errorHandler,
-	)
-	return openWsErr
-}
-
-// TradeEventWorkerBinance - TradeEventWorker for binance
-type TradeEventWorkerBinance struct {
-	workers.TradeEventWorker
-}
-
-// GetTradeEventsWorker - create new market candle worker
-func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	w := TradeEventWorkerBinance{}
-	w.ExchangeTag = a.GetTag()
-	return &w
-}
-
-// SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
-func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
-	symbol string,
-	eventCallback func(event workers.TradeEvent),
-	errorHandler func(err error),
-) error {
-
-	wsErrHandler := func(err error) {
-		errorHandler(err)
-	}
-
-	wsTradeHandler := func(event *binance.WsTradeEvent) {
-		if event != nil {
-			// fix event.Time
-			if strings.HasSuffix(strconv.FormatInt(event.Time, 10), "999") {
-				event.Time++
-			}
-			wEvent := workers.TradeEvent{
-				ID:            event.TradeID,
-				Time:          event.Time,
-				Symbol:        event.Symbol,
-				ExchangeTag:   w.ExchangeTag,
-				BuyerOrderID:  event.BuyerOrderID,
-				SellerOrderID: event.SellerOrderID,
-			}
-			errs := make([]error, 2)
-			wEvent.Price, errs[0] = strconv.ParseFloat(event.Price, 64)
-			wEvent.Quantity, errs[0] = strconv.ParseFloat(event.Quantity, 64)
-			if utils.LogNotNilError(errs) {
-				return
-			}
-			eventCallback(wEvent)
-		}
-	}
-
-	var err error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
-	if err != nil {
-		return fmt.Errorf("subscribe to trade events: %w", err)
-	}
-	return nil
 }

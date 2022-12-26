@@ -30,6 +30,7 @@ type (
 
 // events
 type (
-	PriceEvent = workers.PriceEvent
-	TradeEvent = workers.TradeEvent
+	PriceEvent  = workers.PriceEvent
+	TradeEvent  = workers.TradeEvent
+	CandleEvent = workers.CandleEvent
 )

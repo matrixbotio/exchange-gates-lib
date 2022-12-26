@@ -59,18 +59,8 @@ func (a *adapter) PlaceOrder(
 	}, nil
 }
 
-// GetAccountData ..
-func (a *adapter) GetAccountData() (structs.AccountData, error) {
-	return structs.AccountData{
-		CanTrade: true,
-		Balances: []structs.Balance{
-			{
-				Asset:  consts.PairDefaultAsset,
-				Free:   0,
-				Locked: 0,
-			},
-		},
-	}, nil
+func (a *adapter) CanTrade() (bool, error) {
+	return true, nil
 }
 
 // GetPairLastPrice ..
