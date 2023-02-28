@@ -64,17 +64,35 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 	}
 }
 
-func RoundFloatFloor(val float64, precision int) float64 {
+func RoundFloatFloor(val float64, precision int) (float64, error) {
+	if math.IsNaN(val) {
+		return 0, errors.New("value is NaN")
+	}
+	if math.IsInf(val, 0) {
+		return 0, errors.New("value is Inf")
+	}
+
 	f, _ := decimal.NewFromFloat(val).RoundFloor(int32(precision)).Float64()
-	return f
+	return f, nil
 }
 
-func formatFloatFloor(val float64, precision int) string {
-	return strconv.FormatFloat(RoundFloatFloor(val, precision), 'f', precision, 64)
+func formatFloatFloor(val float64, precision int) (string, error) {
+	valRounded, err := RoundFloatFloor(val, precision)
+	if err != nil {
+		return "", fmt.Errorf("round value: %w", err)
+	}
+
+	return strconv.FormatFloat(valRounded, 'f', precision, 64), nil
 }
 
-// RoundPairOrderValues - adjusts the order values in accordance with the trading pair parameters
-func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.ExchangePairData) (structs.BotOrderAdjusted, error) {
+/*
+	RoundPairOrderValues - adjusts the order values in accordance
+	with the trading pair parameters
+*/
+func RoundPairOrderValues(
+	order pkgStructs.BotOrder,
+	pairLimits structs.ExchangePairData,
+) (structs.BotOrderAdjusted, error) {
 	result := structs.BotOrderAdjusted{
 		PairSymbol:       order.PairSymbol,
 		Type:             order.Type,
@@ -107,8 +125,15 @@ func RoundPairOrderValues(order pkgStructs.BotOrder, pairLimits structs.Exchange
 	}
 
 	// round order values
-	result.Qty = formatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
-	result.Price = formatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
+	var err error
+	result.Qty, err = formatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
+	if err != nil {
+		return result, fmt.Errorf("format qty: %w", err)
+	}
+	result.Price, err = formatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
+	if err != nil {
+		return result, fmt.Errorf("format price: %w", err)
+	}
 
 	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
 	if err != nil {

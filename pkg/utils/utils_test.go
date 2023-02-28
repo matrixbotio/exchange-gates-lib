@@ -77,18 +77,57 @@ func TestRoundPairOrderValues(t *testing.T) {
 }
 
 func TestFormatFloatFloor(t *testing.T) {
-	require.Equal(t, "0.00056", formatFloatFloor(0.00056, 5))
+	// given
+	qty := float64(0.00056)
+	precision := int(5)
+	qtyFormatedExpected := "0.00056"
+
+	// when
+	qtyFormated, err := formatFloatFloor(qty, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, qtyFormatedExpected, qtyFormated)
 }
 
-func TestRoundFloatFloor(t *testing.T) {
-	var val float64 = 0.00053
-	assert.Equal(t, val, RoundFloatFloor(val, 5))
+func TestRoundFloatFloor1(t *testing.T) {
+	// given
+	val := float64(0.00053)
+	precision := int(5)
 
-	val = 0.00056
-	assert.Equal(t, val, RoundFloatFloor(val, 5))
+	// when
+	valRounded, err := RoundFloatFloor(val, precision)
 
-	val = 0.666666666666
-	assert.Equal(t, 0.6666, RoundFloatFloor(val, 4))
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, val, valRounded)
+}
+
+func TestRoundFloatFloor2(t *testing.T) {
+	// given
+	val := float64(0.00056)
+	precision := int(5)
+
+	// when
+	valRounded, err := RoundFloatFloor(val, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, val, valRounded)
+}
+
+func TestRoundFloatFloor3(t *testing.T) {
+	// given
+	val := float64(0.666666666666)
+	valRoundedExpected := float64(0.6666)
+	precision := int(4)
+
+	// when
+	valRounded, err := RoundFloatFloor(val, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, valRoundedExpected, valRounded)
 }
 
 func TestRoundOrderQty(t *testing.T) {
@@ -97,6 +136,7 @@ func TestRoundOrderQty(t *testing.T) {
 	var qtyPrecision int = GetFloatPrecision(qtyStep)
 	assert.Equal(t, 5, qtyPrecision)
 
-	roundedQty := formatFloatFloor(orderQty, qtyPrecision)
+	roundedQty, err := formatFloatFloor(orderQty, qtyPrecision)
+	require.NoError(t, err)
 	assert.Equal(t, fmt.Sprintf("%v", orderQty), roundedQty)
 }
