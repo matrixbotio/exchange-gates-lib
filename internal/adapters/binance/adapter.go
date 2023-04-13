@@ -379,6 +379,10 @@ func (a *adapter) getExchangePairData(symbolData binance.Symbol) (structs.Exchan
 func binanceParseMinNotionalFilter(symbolData binance.Symbol, pairData structs.ExchangePairData) error {
 	var err error
 	minNotionalFilter := symbolData.MinNotionalFilter()
+	if minNotionalFilter == nil {
+		return fmt.Errorf("min notional filter not available for pair %q", symbolData.Symbol)
+	}
+
 	pairData.OriginalMinDeposit, err = strconv.ParseFloat(minNotionalFilter.MinNotional, 64)
 	if err != nil {
 		return fmt.Errorf("parse float: %w", err)
@@ -391,7 +395,7 @@ func binanceParsePriceFilter(symbolData binance.Symbol, pairData structs.Exchang
 	var err error
 	priceFilter := symbolData.PriceFilter()
 	if priceFilter == nil {
-		return errors.New("get price filter for symbol data")
+		return fmt.Errorf("get price filter for %q", symbolData.Symbol)
 	}
 
 	minPriceRaw := priceFilter.MinPrice
