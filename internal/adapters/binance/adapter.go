@@ -361,25 +361,22 @@ func (a *adapter) getExchangePairData(symbolData binance.Symbol) (structs.Exchan
 	}
 
 	var optionalErr error
-	err := binanceParseLotSizeFilter(&symbolData, &pairData)
-	if err != nil {
+	if err := binanceParseLotSizeFilter(symbolData, pairData); err != nil {
 		optionalErr = err
 	}
 
-	err = binanceParsePriceFilter(&symbolData, &pairData)
-	if err != nil {
+	if err := binanceParsePriceFilter(symbolData, pairData); err != nil {
 		optionalErr = err
 	}
 
-	err = binanceParseMinNotionalFilter(&symbolData, &pairData)
-	if err != nil {
+	if err := binanceParseMinNotionalFilter(symbolData, pairData); err != nil {
 		optionalErr = err
 	}
 
 	return pairData, optionalErr
 }
 
-func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *structs.ExchangePairData) error {
+func binanceParseMinNotionalFilter(symbolData binance.Symbol, pairData structs.ExchangePairData) error {
 	var err error
 	minNotionalFilter := symbolData.MinNotionalFilter()
 	pairData.OriginalMinDeposit, err = strconv.ParseFloat(minNotionalFilter.MinNotional, 64)
@@ -390,7 +387,7 @@ func binanceParseMinNotionalFilter(symbolData *binance.Symbol, pairData *structs
 	return nil
 }
 
-func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *structs.ExchangePairData) error {
+func binanceParsePriceFilter(symbolData binance.Symbol, pairData structs.ExchangePairData) error {
 	var err error
 	priceFilter := symbolData.PriceFilter()
 	if priceFilter == nil {
@@ -417,7 +414,7 @@ func binanceParsePriceFilter(symbolData *binance.Symbol, pairData *structs.Excha
 	return nil
 }
 
-func binanceParseLotSizeFilter(symbolData *binance.Symbol, pairData *structs.ExchangePairData) error {
+func binanceParseLotSizeFilter(symbolData binance.Symbol, pairData structs.ExchangePairData) error {
 	lotSizeFilter := symbolData.LotSizeFilter()
 	if lotSizeFilter == nil {
 		return fmt.Errorf("lot size filter for symbol %q not found", symbolData.Symbol)
