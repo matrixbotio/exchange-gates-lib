@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/adshao/go-binance/v2"
+	"github.com/Sagleft/go-binance/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
