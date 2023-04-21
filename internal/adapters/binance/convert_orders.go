@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/adshao/go-binance/v2"
+	"github.com/Sagleft/go-binance/v2"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"

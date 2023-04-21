@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/adshao/go-binance/v2"
+	"github.com/Sagleft/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
@@ -50,9 +50,9 @@ func getExchangePairData(symbolData binance.Symbol, exchangeID int) (
 
 func binanceParseMinNotionalFilter(symbolData binance.Symbol, pairData *structs.ExchangePairData) error {
 	var err error
-	minNotionalFilter := symbolData.MinNotionalFilter()
+	minNotionalFilter := symbolData.NotionalFilter()
 	if minNotionalFilter == nil {
-		return fmt.Errorf("min notional filter not available for pair %q", symbolData.Symbol)
+		return fmt.Errorf("notional filter not available for pair %q", symbolData.Symbol)
 	}
 
 	pairData.OriginalMinDeposit, err = strconv.ParseFloat(minNotionalFilter.MinNotional, 64)
