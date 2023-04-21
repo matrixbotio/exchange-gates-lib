@@ -27,13 +27,8 @@ func TestBinanceOrderConvert(t *testing.T) {
 		},
 	}
 	orders, err := convertOrders(ordersRaw)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(orders) == 0 {
-		t.Fatal("0 orders converted")
-	}
+	require.NoError(t, err)
+	assert.NotEqual(t, 0, len(orders))
 }
 
 func TestBinanceAdapter(t *testing.T) {
@@ -93,7 +88,7 @@ func TestGetExchangePairData(t *testing.T) {
 			{
 			"applyToMarket": true,
 			"avgPriceMins": 5,
-			"filterType": "MIN_NOTIONAL",
+			"filterType": "NOTIONAL",
 			"minNotional": "10.00000000"
 			},
 			{
