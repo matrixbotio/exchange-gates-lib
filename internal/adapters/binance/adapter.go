@@ -530,46 +530,13 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	wsCandleHandler := func(event *binance.WsKlineEvent) {
-		if event != nil {
-			// fix endTime
-			if strings.HasSuffix(strconv.FormatInt(event.Kline.EndTime, 10), "999") {
-				event.Kline.EndTime -= 59999
-			}
-
-			wEvent := workers.CandleEvent{
-				Symbol: event.Symbol,
-				Candle: workers.CandleData{
-					StartTime: event.Kline.StartTime,
-					EndTime:   event.Kline.EndTime,
-					Interval:  event.Kline.Interval,
-				},
-				Time: event.Time,
-			}
-
-			errs := make([]error, 5)
-			wEvent.Candle.Open, errs[0] = strconv.ParseFloat(event.Kline.Open, 64)
-			wEvent.Candle.Close, errs[1] = strconv.ParseFloat(event.Kline.Close, 64)
-			wEvent.Candle.High, errs[2] = strconv.ParseFloat(event.Kline.High, 64)
-			wEvent.Candle.Low, errs[3] = strconv.ParseFloat(event.Kline.Low, 64)
-			wEvent.Candle.Volume, errs[4] = strconv.ParseFloat(event.Kline.Volume, 64)
-			if utils.LogNotNilError(errs) {
-				return
-			}
-
-			eventCallback(wEvent)
-		}
-	}
-	wsErrHandler := func(err error) {
-		errorHandler(err)
-	}
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
-		pairSymbol,             // symbol
-		consts.CandlesInterval, // interval
-		wsCandleHandler,        // event handler
-		wsErrHandler,           // error handler
+		pairSymbol,
+		consts.CandlesInterval,
+		getCandleEventsHandler(eventCallback, errorHandler),
+		errorHandler,
 	)
 	return openWsErr
 }
@@ -580,6 +547,12 @@ func (w *CandleWorkerBinance) SubscribeToCandlesList(
 	errorHandler func(err error),
 ) error {
 	// TODO
+
+	/*binance.WsCombinedKlineServe(
+		intervalsPerPair,
+
+	)*/
+
 	return nil
 }
 
