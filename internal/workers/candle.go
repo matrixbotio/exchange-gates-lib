@@ -2,45 +2,6 @@ package workers
 
 import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 
-// CandleWorker - worker for subscribtion to exchange candle events
-type CandleWorker struct {
-	ExchangeTag string
-	WsChannels  *structs.WorkerChannels
-}
-
-// ICandleWorker - interface for CandleWorker
-type ICandleWorker interface {
-	SubscribeToCandleEvents(
-		pairSymbol string,
-		eventCallback func(event CandleEvent),
-		errorHandler func(err error),
-	) error
-	GetExchangeTag() string
-	Stop()
-}
-
-// SubscribeToCandleEvents - websocket subscription to change trade candles on the exchange (placeholder)
-func (w *CandleWorker) SubscribeToCandleEvents(
-	pairSymbol string,
-	eventCallback func(event CandleEvent),
-	errorHandler func(err error),
-) error {
-	// placeholder
-	return nil
-}
-
-// GetExchangeTag - get worker exchange tag from exchange adapter
-func (w *CandleWorker) GetExchangeTag() string {
-	return w.ExchangeTag
-}
-
-// Stop listening ws events
-func (w *CandleWorker) Stop() {
-	go func() {
-		w.WsChannels.WsStop <- struct{}{}
-	}()
-}
-
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
 	Symbol     string     `json:"symbol"`
@@ -60,4 +21,65 @@ type CandleData struct {
 	High      float64 `json:"high"`
 	Low       float64 `json:"low"`
 	Volume    float64 `json:"volume"`
+}
+
+// ICandleWorker - interface for CandleWorker
+type ICandleWorker interface {
+	/*
+		SubscribeToCandle - websocket subscription to change trade candles
+		on the exchange per one pair
+	*/
+	SubscribeToCandle(
+		pairSymbol string,
+		eventCallback func(event CandleEvent),
+		errorHandler func(err error),
+	) error
+
+	/*
+		SubscribeToCandlesList - websocket subscription to change trade candles
+		on the exchange per specific pairs
+	*/
+	SubscribeToCandlesList(
+		intervalsPerPair map[string]string,
+		eventCallback func(event CandleEvent),
+		errorHandler func(err error),
+	) error
+
+	// GetExchangeTag - get worker exchange tag from exchange adapter
+	GetExchangeTag() string
+
+	// Stop listening ws events
+	Stop()
+}
+
+// CandleWorker - worker for subscribtion to exchange candle events
+type CandleWorker struct {
+	ExchangeTag string
+	WsChannels  *structs.WorkerChannels
+}
+
+func (w *CandleWorker) SubscribeToCandle(
+	pairSymbol string,
+	eventCallback func(event CandleEvent),
+	errorHandler func(err error),
+) error {
+	return nil
+}
+
+func (w *CandleWorker) SubscribeToCandlesList(
+	intervalsPerPair map[string]string,
+	eventCallback func(event CandleEvent),
+	errorHandler func(err error),
+) error {
+	return nil
+}
+
+func (w *CandleWorker) GetExchangeTag() string {
+	return w.ExchangeTag
+}
+
+func (w *CandleWorker) Stop() {
+	go func() {
+		w.WsChannels.WsStop <- struct{}{}
+	}()
 }
