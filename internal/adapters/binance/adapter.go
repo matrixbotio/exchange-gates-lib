@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Sagleft/go-binance/v2"
+	"github.com/adshao/go-binance/v2"
 	"github.com/go-stack/stack"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
