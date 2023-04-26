@@ -1,6 +1,7 @@
 package binance
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -144,22 +145,37 @@ func convertBinanceCandleEvent(event *binance.WsKlineEvent) (workers.CandleEvent
 	}
 
 	var err error
+	if event.Kline.Open == "" {
+		return workers.CandleEvent{}, errors.New("candle `open` value is empty")
+	}
 	if e.Candle.Open, err = strconv.ParseFloat(event.Kline.Open, 64); err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("parse candle `open` value: %w", err)
 	}
 
+	if event.Kline.Close == "" {
+		return workers.CandleEvent{}, errors.New("candle `close` value is empty")
+	}
 	if e.Candle.Close, err = strconv.ParseFloat(event.Kline.Close, 64); err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("parse candle `close` value: %w", err)
 	}
 
+	if event.Kline.High == "" {
+		return workers.CandleEvent{}, errors.New("candle `high` value is empty")
+	}
 	if e.Candle.High, err = strconv.ParseFloat(event.Kline.High, 64); err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("parse candle `high` value: %w", err)
 	}
 
+	if event.Kline.Low == "" {
+		return workers.CandleEvent{}, errors.New("candle `low` value is empty")
+	}
 	if e.Candle.Low, err = strconv.ParseFloat(event.Kline.Low, 64); err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("parse candle `low` value: %w", err)
 	}
 
+	if event.Kline.Volume == "" {
+		return workers.CandleEvent{}, errors.New("candle `volume` value is empty")
+	}
 	if e.Candle.Volume, err = strconv.ParseFloat(event.Kline.Volume, 64); err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("parse candle `volume` value: %w", err)
 	}
