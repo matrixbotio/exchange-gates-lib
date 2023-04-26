@@ -525,8 +525,7 @@ func (a *adapter) GetCandleWorker() workers.ICandleWorker {
 	return &w
 }
 
-// SubscribeToCandleEvents - websocket subscription to candles on the exchange
-func (w *CandleWorkerBinance) SubscribeToCandleEvents(
+func (w *CandleWorkerBinance) SubscribeToCandle(
 	pairSymbol string,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
@@ -573,6 +572,15 @@ func (w *CandleWorkerBinance) SubscribeToCandleEvents(
 		wsErrHandler,           // error handler
 	)
 	return openWsErr
+}
+
+func (w *CandleWorkerBinance) SubscribeToCandlesList(
+	intervalsPerPair map[string]string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) error {
+	// TODO
+	return nil
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
