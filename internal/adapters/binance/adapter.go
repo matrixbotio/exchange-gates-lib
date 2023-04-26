@@ -546,14 +546,14 @@ func (w *CandleWorkerBinance) SubscribeToCandlesList(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	// TODO
-
-	/*binance.WsCombinedKlineServe(
+	var openWsErr error
+	w.WsChannels = new(pkgStructs.WorkerChannels)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(
 		intervalsPerPair,
-
-	)*/
-
-	return nil
+		getCandleEventsHandler(eventCallback, errorHandler),
+		errorHandler,
+	)
+	return openWsErr
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
