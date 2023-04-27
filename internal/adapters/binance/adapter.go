@@ -93,10 +93,14 @@ func (a *adapter) getOrderFromService(
 
 	tradeData := structs.OrderData{}
 	s := a.binanceAPI.NewGetOrderService().Symbol(pairSymbol)
+
+	var logOrderID string
 	if orderID > 0 {
+		logOrderID = strconv.FormatInt(orderID, 10)
 		tradeData.OrderID = orderID
 		s.OrderID(orderID)
 	} else {
+		logOrderID = clientOrderID
 		tradeData.ClientOrderID = clientOrderID
 		s.OrigClientOrderID(clientOrderID)
 	}
@@ -105,7 +109,11 @@ func (a *adapter) getOrderFromService(
 	if err != nil {
 		if strings.Contains(err.Error(), "Order does not exist") {
 			tradeData.Status = pkgStructs.OrderStatusUnknown
-			return nil, errs.OrderNotFound
+			return nil, fmt.Errorf(
+				"%w %s",
+				errs.OrderNotFound,
+				logOrderID,
+			)
 		}
 		return nil, err
 	}

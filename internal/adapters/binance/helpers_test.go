@@ -3,7 +3,7 @@ package binance
 import (
 	"testing"
 
-	"github.com/Sagleft/go-binance/v2"
+	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
