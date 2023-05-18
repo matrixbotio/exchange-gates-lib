@@ -140,3 +140,33 @@ func TestRoundOrderQty(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, fmt.Sprintf("%v", orderQty), roundedQty)
 }
+
+func TestGetFloatPrecisionPriceStep(t *testing.T) {
+	assert.Equal(t, 5, GetFloatPrecision(0.00001))
+}
+
+func TestFormatPrice(t *testing.T) {
+	// given
+	var precision int = 5
+	var price float64 = 0.067302
+
+	// when
+	valFormatted, err := formatFloatFloor(price, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, "0.0673", valFormatted)
+}
+
+func TestFormatFractionalPart(t *testing.T) {
+	// given
+	var precision int = 4
+	var price float64 = 1.00002
+
+	// when
+	valFormatted, err := formatFloatFloor(price, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, "1", valFormatted)
+}
