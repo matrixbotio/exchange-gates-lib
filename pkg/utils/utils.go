@@ -82,12 +82,15 @@ func formatFloatFloor(val float64, precision int) (string, error) {
 		return "", fmt.Errorf("round value: %w", err)
 	}
 
-	return strconv.FormatFloat(valRounded, 'f', precision, 64), nil
+	return strings.TrimRight(
+		strconv.FormatFloat(valRounded, 'f', precision, 64),
+		".0",
+	), nil
 }
 
 /*
-	RoundPairOrderValues - adjusts the order values in accordance
-	with the trading pair parameters
+RoundPairOrderValues - adjusts the order values in accordance
+with the trading pair parameters
 */
 func RoundPairOrderValues(
 	order pkgStructs.BotOrder,
