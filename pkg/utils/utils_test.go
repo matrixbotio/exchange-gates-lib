@@ -21,6 +21,18 @@ func TestGetFloatPrecision(t *testing.T) {
 	}
 }
 
+func TestGetFloatPrecision2(t *testing.T) {
+	// given
+	var val float64 = 30
+	var precisionExpected int = 0
+
+	// when
+	var precision = GetFloatPrecision(val)
+
+	// then
+	assert.Equal(t, precisionExpected, precision)
+}
+
 func TestOrderResponseToBotOrder(t *testing.T) {
 	fromOrder := structs.CreateOrderResponse{}
 
@@ -90,7 +102,21 @@ func TestFormatFloatFloor(t *testing.T) {
 	assert.Equal(t, qtyFormatedExpected, qtyFormated)
 }
 
-func TestRoundFloatFloor1(t *testing.T) {
+func TestFormatFloatFloor2(t *testing.T) {
+	// given
+	qty := float64(30)
+	precision := 0
+	qtyFormatedExpected := "30"
+
+	// when
+	qtyFormated, err := formatFloatFloor(qty, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, qtyFormatedExpected, qtyFormated)
+}
+
+func TestRoundFloatFloor(t *testing.T) {
 	// given
 	val := float64(0.00053)
 	precision := int(5)
