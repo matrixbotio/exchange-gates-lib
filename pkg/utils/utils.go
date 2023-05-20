@@ -77,6 +77,10 @@ func RoundFloatFloor(val float64, precision int) (float64, error) {
 }
 
 func formatFloatFloor(val float64, precision int) (string, error) {
+	if precision == 0 {
+		return strconv.FormatFloat(val, 'f', 0, 64), nil
+	}
+
 	valRounded, err := RoundFloatFloor(val, precision)
 	if err != nil {
 		return "", fmt.Errorf("round value: %w", err)
