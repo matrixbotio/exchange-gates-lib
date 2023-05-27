@@ -144,11 +144,11 @@ func RoundPairOrderValues(
 
 	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
 	if err != nil {
-		return result, err
+		return result, fmt.Errorf("parse order qty: %w", err)
 	}
 	priceRounded, err := strconv.ParseFloat(result.Price, 64)
 	if err != nil {
-		return result, err
+		return result, fmt.Errorf("parse order price: %w", err)
 	}
 	depositRounded := qtyRounded * priceRounded
 
