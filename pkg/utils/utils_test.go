@@ -116,6 +116,20 @@ func TestFormatFloatFloor2(t *testing.T) {
 	assert.Equal(t, qtyFormatedExpected, qtyFormated)
 }
 
+func TestFormatFloatFloor3(t *testing.T) {
+	// given
+	qty := float64(0.0)
+	precision := 0
+	qtyFormatedExpected := "0"
+
+	// when
+	qtyFormated, err := formatFloatFloor(qty, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, qtyFormatedExpected, qtyFormated)
+}
+
 func TestRoundFloatFloor(t *testing.T) {
 	// given
 	val := float64(0.00053)
