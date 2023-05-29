@@ -114,17 +114,23 @@ func RoundPairOrderValues(
 		MinDepositPassed: true, // by default
 	}
 
-	// check lot size
+	if order.Qty == 0 {
+		return structs.BotOrderAdjusted{}, errors.New("order qty is not set")
+	}
 	if order.Qty < pairLimits.MinQty {
 		result.MinQtyPassed = false
 	}
 	if order.Qty > pairLimits.MaxQty {
-		return result, errors.New("too much amount to open an order in this pair. " +
+		return structs.BotOrderAdjusted{}, errors.New("too much amount to open an order in this pair. " +
 			"order qty: " + strconv.FormatFloat(order.Qty, 'f', 8, 32) +
 			" max: " + strconv.FormatFloat(pairLimits.MaxQty, 'f', 8, 32))
 	}
+
+	if order.Price == 0 {
+		return structs.BotOrderAdjusted{}, errors.New("order price is not set")
+	}
 	if order.Price < pairLimits.MinPrice {
-		return result, errors.New("insufficient price to open an order in this pair. " +
+		return structs.BotOrderAdjusted{}, errors.New("insufficient price to open an order in this pair. " +
 			"order price: " + strconv.FormatFloat(order.Price, 'f', 8, 32) +
 			" min: " + strconv.FormatFloat(pairLimits.MinPrice, 'f', 8, 32))
 	}
@@ -139,11 +145,11 @@ func RoundPairOrderValues(
 	var err error
 	result.Qty, err = formatFloatFloor(order.Qty, GetFloatPrecision(pairLimits.QtyStep))
 	if err != nil {
-		return result, fmt.Errorf("format qty: %w", err)
+		return structs.BotOrderAdjusted{}, fmt.Errorf("format qty: %w", err)
 	}
 	result.Price, err = formatFloatFloor(order.Price, GetFloatPrecision(pairLimits.PriceStep))
 	if err != nil {
-		return result, fmt.Errorf("format price: %w", err)
+		return structs.BotOrderAdjusted{}, fmt.Errorf("format price: %w", err)
 	}
 
 	qtyRounded, err := strconv.ParseFloat(result.Qty, 64)
@@ -152,10 +158,10 @@ func RoundPairOrderValues(
 	}
 	priceRounded, err := strconv.ParseFloat(result.Price, 64)
 	if err != nil {
-		return result, fmt.Errorf("parse order price: %w", err)
+		return structs.BotOrderAdjusted{}, fmt.Errorf("parse order price: %w", err)
 	}
-	depositRounded := qtyRounded * priceRounded
 
+	depositRounded := qtyRounded * priceRounded
 	result.Deposit = strconv.FormatFloat(depositRounded, 'f', GetFloatPrecision(orderDeposit), 64)
 	return result, nil
 }
