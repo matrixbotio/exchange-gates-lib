@@ -86,10 +86,14 @@ func formatFloatFloor(val float64, precision int) (string, error) {
 		return "", fmt.Errorf("round value: %w", err)
 	}
 
-	return strings.TrimRight(
+	v := strings.TrimRight(
 		strconv.FormatFloat(valRounded, 'f', precision, 64),
 		".0",
-	), nil
+	)
+	if v == "" {
+		return "0", nil
+	}
+	return v, nil
 }
 
 /*
