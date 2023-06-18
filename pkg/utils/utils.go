@@ -241,3 +241,61 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 
 	return e
 }
+
+func CalcTPOrder(
+	strategy pkgStructs.BotStrategy,
+	coinsQty float64,
+	profit float64,
+	depositSpent float64,
+	pairSymbol string,
+) pkgStructs.BotOrder {
+	if strategy == pkgStructs.BotStrategyShort {
+		return calcShortTPOrder(coinsQty, profit, depositSpent, pairSymbol)
+	}
+	return calcLongOrder(coinsQty, profit, depositSpent, pairSymbol)
+}
+
+func GetTPOrderType(strategy pkgStructs.BotStrategy) string {
+	if strategy == pkgStructs.BotStrategyLong {
+		return pkgStructs.OrderTypeSell
+	}
+	return pkgStructs.OrderTypeBuy
+}
+
+func calcShortTPOrder(
+	coinsQty float64,
+	profit float64,
+	depositSpent float64,
+	pairSymbol string,
+) pkgStructs.BotOrder {
+	orderType := GetTPOrderType(pkgStructs.BotStrategyShort)
+	tpQty := (1 + profit/100) * coinsQty
+	tpPrice := depositSpent / tpQty
+
+	return pkgStructs.BotOrder{
+		PairSymbol: pairSymbol,
+		Type:       orderType,
+		Qty:        tpQty,
+		Price:      tpPrice,
+		Deposit:    depositSpent,
+	}
+}
+
+func calcLongOrder(
+	coinsQty float64,
+	profit float64,
+	depositSpent float64,
+	pairSymbol string,
+) pkgStructs.BotOrder {
+	orderType := GetTPOrderType(pkgStructs.BotStrategyLong)
+	tpDeposit := (1 + profit/100) * depositSpent
+	tpPrice := tpDeposit / coinsQty
+
+	return pkgStructs.BotOrder{
+		PairSymbol: pairSymbol,
+		Type:       orderType,
+		Qty:        coinsQty,
+		Price:      tpPrice,
+		Deposit:    tpDeposit,
+	}
+}

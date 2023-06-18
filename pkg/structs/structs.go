@@ -34,3 +34,5 @@ type APIKeypair struct {
 	Public string `json:"public"`
 	Secret string `json:"secret"`
 }
+
+type BotStrategy string

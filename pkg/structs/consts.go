@@ -15,3 +15,8 @@ const (
 	OrderTypeBuy  = "buy"
 	OrderTypeSell = "sell"
 )
+
+const (
+	BotStrategyLong  BotStrategy = "long"
+	BotStrategyShort BotStrategy = "short"
+)
