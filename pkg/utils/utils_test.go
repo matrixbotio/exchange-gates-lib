@@ -239,3 +239,55 @@ func TestFormatFractionalPart(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "1", valFormatted)
 }
+
+func TestCalcTPOrderShort(t *testing.T) {
+	// given
+	coinsQty := float64(0.00126)
+	profitPercent := float64(0.3)
+	depositSpent := float64(32.64787)
+	pairData := structs.ExchangePairData{
+		Symbol:    "BTCBUSD",
+		QtyStep:   0.00001,
+		PriceStep: 0.01,
+	}
+
+	// when
+	order := CalcTPOrder(
+		pkgStructs.BotStrategyShort,
+		coinsQty,
+		profitPercent,
+		depositSpent,
+		pairData,
+	)
+
+	// then
+	assert.Equal(t, float64(25833.5), order.Price)
+	assert.Equal(t, float64(0.00126), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+}
+
+func TestCalcTPOrderLong(t *testing.T) {
+	// given
+	coinsQty := float64(0.00126)
+	profitPercent := float64(0.3)
+	depositSpent := float64(32.64787)
+	pairData := structs.ExchangePairData{
+		Symbol:    "BTCBUSD",
+		QtyStep:   0.00001,
+		PriceStep: 0.01,
+	}
+
+	// when
+	order := CalcTPOrder(
+		pkgStructs.BotStrategyLong,
+		coinsQty,
+		profitPercent,
+		depositSpent,
+		pairData,
+	)
+
+	// then
+	assert.Equal(t, float64(25911), order.Price)
+	assert.Equal(t, float64(0.00126), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+}
