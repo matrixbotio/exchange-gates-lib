@@ -64,6 +64,10 @@ func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 	}
 }
 
+func roundFloatToDecimal(val float64, precision int) decimal.Decimal {
+	return decimal.NewFromFloat(val).RoundFloor(int32(precision))
+}
+
 func RoundFloatFloor(val float64, precision int) (float64, error) {
 	if math.IsNaN(val) {
 		return 0, errors.New("value is NaN")
@@ -72,7 +76,7 @@ func RoundFloatFloor(val float64, precision int) (float64, error) {
 		return 0, errors.New("value is Inf")
 	}
 
-	f, _ := decimal.NewFromFloat(val).RoundFloor(int32(precision)).Float64()
+	f, _ := roundFloatToDecimal(val, precision).Float64()
 	return f, nil
 }
 
@@ -247,12 +251,12 @@ func CalcTPOrder(
 	coinsQty float64,
 	profit float64,
 	depositSpent float64,
-	pairSymbol string,
+	pairLimits structs.ExchangePairData,
 ) pkgStructs.BotOrder {
 	if strategy == pkgStructs.BotStrategyShort {
-		return calcShortTPOrder(coinsQty, profit, depositSpent, pairSymbol)
+		return calcShortTPOrder(coinsQty, profit, depositSpent, pairLimits)
 	}
-	return calcLongOrder(coinsQty, profit, depositSpent, pairSymbol)
+	return calcLongOrder(coinsQty, profit, depositSpent, pairLimits)
 }
 
 func GetTPOrderType(strategy pkgStructs.BotStrategy) string {
@@ -266,17 +270,28 @@ func calcShortTPOrder(
 	coinsQty float64,
 	profit float64,
 	depositSpent float64,
-	pairSymbol string,
+	pairLimits structs.ExchangePairData,
 ) pkgStructs.BotOrder {
-	orderType := GetTPOrderType(pkgStructs.BotStrategyShort)
-	tpQty := (1 + profit/100) * coinsQty
-	tpPrice := depositSpent / tpQty
+	coinsQtyDec := decimal.NewFromFloat(coinsQty)
+	profitDec := decimal.NewFromFloat(profit)
+	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
+	// qty = (1 + profit/100) * coinsQty
+	tpQty := coinsQtyDec.Mul(profitDelta)
+
+	// price = depositSpent / tpQty
+	tpPrice := decimal.NewFromFloat(depositSpent).Div(tpQty)
+
+	qtyPrecision := GetFloatPrecision(pairLimits.QtyStep)
+	tpQtyFloat, _ := tpQty.RoundFloor(int32(qtyPrecision)).Float64()
+
+	pricePrecision := GetFloatPrecision(pairLimits.PriceStep)
+	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
 	return pkgStructs.BotOrder{
-		PairSymbol: pairSymbol,
-		Type:       orderType,
-		Qty:        tpQty,
-		Price:      tpPrice,
+		PairSymbol: pairLimits.Symbol,
+		Type:       GetTPOrderType(pkgStructs.BotStrategyShort),
+		Qty:        tpQtyFloat,
+		Price:      tpPriceFloat,
 		Deposit:    depositSpent,
 	}
 }
@@ -285,17 +300,28 @@ func calcLongOrder(
 	coinsQty float64,
 	profit float64,
 	depositSpent float64,
-	pairSymbol string,
+	pairLimits structs.ExchangePairData,
 ) pkgStructs.BotOrder {
-	orderType := GetTPOrderType(pkgStructs.BotStrategyLong)
-	tpDeposit := (1 + profit/100) * depositSpent
-	tpPrice := tpDeposit / coinsQty
+	coinsQtyDec := decimal.NewFromFloat(coinsQty)
+	depositSpentDec := decimal.NewFromFloat(depositSpent)
+	profitDec := decimal.NewFromFloat(profit)
+	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
+
+	// deposit = (1 + profit/100) * depositSpent
+	tpDeposit := profitDelta.Mul(depositSpentDec)
+
+	// price = depositSpent / tpQty
+	tpPrice := depositSpentDec.Div(coinsQtyDec)
+
+	tpDepositFloat, _ := tpDeposit.Float64()
+	pricePrecision := GetFloatPrecision(pairLimits.PriceStep)
+	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
 	return pkgStructs.BotOrder{
-		PairSymbol: pairSymbol,
-		Type:       orderType,
+		PairSymbol: pairLimits.Symbol,
+		Type:       GetTPOrderType(pkgStructs.BotStrategyLong),
 		Qty:        coinsQty,
-		Price:      tpPrice,
-		Deposit:    tpDeposit,
+		Price:      tpPriceFloat,
+		Deposit:    tpDepositFloat,
 	}
 }
