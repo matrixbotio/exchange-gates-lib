@@ -172,3 +172,7 @@ func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]str
 func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
 	return []structs.SymbolPrice{}, nil
 }
+
+func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
+	return nil, nil
+}
