@@ -450,6 +450,23 @@ func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalan
 	return pairBalanceData, nil
 }
 
+func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), consts.ReadTimeout)
+	defer cancel()
+
+	klines, err := a.binanceAPI.NewKlinesService().Symbol(symbol).Interval(interval).Limit(limit).Do(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("binance adapter get candles rq: %w", err)
+	}
+
+	candles, err := ConvertCandles(klines, interval)
+	if err != nil {
+		return nil, fmt.Errorf("binance adapter get candles convert: %w", err)
+	}
+
+	return candles, nil
+}
+
 /*
                     _
                    | |

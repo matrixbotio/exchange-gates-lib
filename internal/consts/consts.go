@@ -17,6 +17,7 @@ const (
 
 	CandlesInterval          = "1m"
 	ExchangeSetupConnTimeout = 3500 // ms
+	ReadTimeout              = time.Second * 5
 
 	ExchangeIDbinanceSpot = 1
 	PingRetryAttempts     = 3

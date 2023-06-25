@@ -222,6 +222,54 @@ func (_c *MockAdapter_GetCandleWorker_Call) Return(_a0 workers.ICandleWorker) *M
 	return _c
 }
 
+// GetCandles provides a mock function with given fields: limit, symbol, interval
+func (_m *MockAdapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
+	ret := _m.Called(limit, symbol, interval)
+
+	var r0 []workers.CandleData
+	if rf, ok := ret.Get(0).(func(int, string, string) []workers.CandleData); ok {
+		r0 = rf(limit, symbol, interval)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]workers.CandleData)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, string, string) error); ok {
+		r1 = rf(limit, symbol, interval)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdapter_GetCandles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCandles'
+type MockAdapter_GetCandles_Call struct {
+	*mock.Call
+}
+
+// GetCandles is a helper method to define mock.On call
+//  - limit int
+//  - symbol string
+//  - interval string
+func (_e *MockAdapter_Expecter) GetCandles(limit interface{}, symbol interface{}, interval interface{}) *MockAdapter_GetCandles_Call {
+	return &MockAdapter_GetCandles_Call{Call: _e.mock.On("GetCandles", limit, symbol, interval)}
+}
+
+func (_c *MockAdapter_GetCandles_Call) Run(run func(limit int, symbol string, interval string)) *MockAdapter_GetCandles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdapter_GetCandles_Call) Return(_a0 []workers.CandleData, _a1 error) *MockAdapter_GetCandles_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // GetID provides a mock function with given fields:
 func (_m *MockAdapter) GetID() int {
 	ret := _m.Called()

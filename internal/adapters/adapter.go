@@ -2,7 +2,6 @@ package adapters
 
 import (
 	"context"
-
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -39,4 +38,7 @@ type Adapter interface {
 	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
 	GetCandleWorker() workers.ICandleWorker
 	GetTradeEventsWorker() workers.ITradeEventWorker
+
+	// Candle
+	GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error)
 }
