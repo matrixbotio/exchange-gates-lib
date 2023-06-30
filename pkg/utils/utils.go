@@ -170,10 +170,14 @@ func RoundPairOrderValues(
 	return result, nil
 }
 
-// RoundDeposit - round deposit for grid by pair limits
-func RoundDeposit(deposit float64, pairLimits structs.ExchangePairData) (float64, error) {
-	depositStep := pairLimits.PriceStep * pairLimits.QtyStep
-	depositRoundedStr := strconv.FormatFloat(deposit, 'f', GetFloatPrecision(depositStep), 64)
+// RoundDeposit - round deposit. tickerValueStep - minimum value step
+func RoundDeposit(deposit float64, tickerValueStep float64) (float64, error) {
+	depositRoundedStr := strconv.FormatFloat(
+		deposit,
+		'f',
+		GetFloatPrecision(tickerValueStep),
+		64,
+	)
 	depositRounded, err := strconv.ParseFloat(depositRoundedStr, 64)
 	if err != nil {
 		return 0, fmt.Errorf("round deposit: %w", err)

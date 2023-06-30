@@ -291,3 +291,42 @@ func TestCalcTPOrderLong(t *testing.T) {
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
 }
+
+func TestRoundDeposit(t *testing.T) {
+	// given
+	deposit := float64(100.1)
+	depositStep := float64(0.00001)
+
+	// when
+	roundedDeposit, err := RoundDeposit(deposit, depositStep)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(100.1), roundedDeposit)
+}
+
+func TestRoundDeposit2(t *testing.T) {
+	// given
+	deposit := float64(100.1)
+	depositStep := float64(0.1)
+
+	// when
+	roundedDeposit, err := RoundDeposit(deposit, depositStep)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(100.1), roundedDeposit)
+}
+
+func TestRoundDeposit3(t *testing.T) {
+	// given
+	deposit := float64(100.1)
+	depositStep := float64(0)
+
+	// when
+	roundedDeposit, err := RoundDeposit(deposit, depositStep)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(100), roundedDeposit)
+}
