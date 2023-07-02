@@ -171,7 +171,7 @@ func RoundPairOrderValues(
 }
 
 // RoundDeposit - round deposit. tickerValueStep - minimum value step
-func RoundDeposit(deposit float64, tickerValueStep float64) (float64, error) {
+func RoundDeposit(deposit, tickerValueStep float64) (float64, error) {
 	depositRoundedStr := strconv.FormatFloat(
 		deposit,
 		'f',
