@@ -250,6 +250,7 @@ func TestCalcTPOrderShort(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
+	zeroProfitPrice := depositSpent / coinsQty
 
 	// when
 	order := CalcTPOrder(
@@ -263,6 +264,7 @@ func TestCalcTPOrderShort(t *testing.T) {
 	// then
 	assert.Equal(t, float64(25833.5), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
+	assert.Less(t, order.Price, zeroProfitPrice)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 }
 
@@ -276,6 +278,7 @@ func TestCalcTPOrderLong(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
+	zeroProfitPrice := depositSpent / coinsQty
 
 	// when
 	order := CalcTPOrder(
@@ -287,8 +290,9 @@ func TestCalcTPOrderLong(t *testing.T) {
 	)
 
 	// then
-	assert.Equal(t, float64(25911), order.Price)
+	assert.Equal(t, float64(25988.74), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
+	assert.Greater(t, order.Price, zeroProfitPrice)
 	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
 }
 
