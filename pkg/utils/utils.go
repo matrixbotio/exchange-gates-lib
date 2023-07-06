@@ -314,7 +314,6 @@ func calcLongOrder(
 	// deposit = (1 + profit/100) * depositSpent
 	tpDeposit := profitDelta.Mul(depositSpentDec)
 
-	// price = tpDeposit / tpQty
 	tpPrice := tpDeposit.Div(coinsQtyDec)
 
 	tpDepositFloat, _ := tpDeposit.Float64()
