@@ -88,6 +88,29 @@ func TestRoundPairOrderValues(t *testing.T) {
 	assert.LessOrEqual(t, parsedOrder.Deposit, originalOrder.Deposit)
 }
 
+func TestRoundPairOrderValues2(t *testing.T) {
+	originalOrder := pkgStructs.BotOrder{
+		Qty:   0.191,
+		Price: 70,
+	}
+
+	pairData := structs.ExchangePairData{
+		MinPrice:  0.01,
+		PriceStep: 0.01,
+		MinQty:    0.001,
+		QtyStep:   0.001,
+		MaxQty:    99999,
+	}
+
+	// when
+	roundedOrder, err := RoundPairOrderValues(originalOrder, pairData)
+
+	// then
+	require.Nil(t, err)
+	assert.Equal(t, "70", roundedOrder.Price)
+	assert.Equal(t, "0.191", roundedOrder.Qty)
+}
+
 func TestFormatFloatFloor(t *testing.T) {
 	// given
 	qty := float64(0.00056)
@@ -128,6 +151,58 @@ func TestFormatFloatFloor3(t *testing.T) {
 	// then
 	require.NoError(t, err)
 	assert.Equal(t, qtyFormatedExpected, qtyFormated)
+}
+
+func TestRoundFloatToDecimal(t *testing.T) {
+	// given
+	val := float64(70)
+	precision := int(2)
+
+	// when
+	result := roundFloatToDecimal(val, precision)
+	f, _ := result.Float64()
+
+	// then
+	assert.Equal(t, val, f)
+}
+
+func TestFormatAndTrimFloat(t *testing.T) {
+	// given
+	values := []struct {
+		valRaw      float64
+		valExpected string
+	}{
+		{valRaw: 70, valExpected: "70"},
+		{valRaw: 60.1, valExpected: "60.1"},
+		{valRaw: 15.32, valExpected: "15.32"},
+		{valRaw: 1250, valExpected: "1250"},
+		{valRaw: 0.918, valExpected: "0.92"},
+		{valRaw: 0.01, valExpected: "0.01"},
+	}
+	precision := int(2)
+
+	for _, v := range values {
+		// when
+		valFormatted := formatAndTrimFloat(v.valRaw, precision)
+
+		// then
+		assert.Equal(t, v.valExpected, valFormatted)
+	}
+}
+
+func TestFormatFloatFloor6(t *testing.T) {
+	// given
+	price := float64(70)
+	priceStep := float64(0.01)
+	pricePrecision := GetFloatPrecision(priceStep)
+	valFormatedExpected := "70"
+
+	// when
+	valFormated, err := formatFloatFloor(price, pricePrecision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, valFormatedExpected, valFormated)
 }
 
 func TestRoundFloatFloor(t *testing.T) {
