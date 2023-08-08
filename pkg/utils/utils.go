@@ -8,12 +8,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 )
+
+func GenerateUUID() string {
+	return uuid.New().String()
+}
 
 // GetFloatPrecision returns the number of decimal places in a float
 func GetFloatPrecision(value float64) int {
@@ -294,11 +299,12 @@ func calcShortTPOrder(
 	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
 	return pkgStructs.BotOrder{
-		PairSymbol: pairLimits.Symbol,
-		Type:       GetTPOrderType(pkgStructs.BotStrategyShort),
-		Qty:        tpQtyFloat,
-		Price:      tpPriceFloat,
-		Deposit:    depositSpent,
+		PairSymbol:    pairLimits.Symbol,
+		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
+		Qty:           tpQtyFloat,
+		Price:         tpPriceFloat,
+		Deposit:       depositSpent,
+		ClientOrderID: GenerateUUID(),
 	}
 }
 
@@ -323,10 +329,11 @@ func calcLongOrder(
 	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
 	return pkgStructs.BotOrder{
-		PairSymbol: pairLimits.Symbol,
-		Type:       GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:        coinsQty,
-		Price:      tpPriceFloat,
-		Deposit:    tpDepositFloat,
+		PairSymbol:    pairLimits.Symbol,
+		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
+		Qty:           coinsQty,
+		Price:         tpPriceFloat,
+		Deposit:       tpDepositFloat,
+		ClientOrderID: GenerateUUID(),
 	}
 }

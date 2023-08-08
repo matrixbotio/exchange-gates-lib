@@ -341,6 +341,7 @@ func TestCalcTPOrderShort(t *testing.T) {
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.Less(t, order.Price, zeroProfitPrice)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
 }
 
 func TestCalcTPOrderLong(t *testing.T) {
@@ -369,6 +370,7 @@ func TestCalcTPOrderLong(t *testing.T) {
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.Greater(t, order.Price, zeroProfitPrice)
 	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
 }
 
 func TestRoundDeposit(t *testing.T) {
