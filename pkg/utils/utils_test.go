@@ -69,9 +69,10 @@ func TestOrderResponseToBotOrder(t *testing.T) {
 
 func TestRoundPairOrderValues(t *testing.T) {
 	originalOrder := pkgStructs.BotOrder{
-		Qty:     0.666666666666,
-		Price:   100.66666666666666,
-		Deposit: 67.111111111044,
+		Qty:           0.666666666666,
+		Price:         100.66666666666666,
+		Deposit:       67.111111111044,
+		ClientOrderID: "12345",
 	}
 
 	pairData := structs.ExchangePairData{
@@ -98,6 +99,7 @@ func TestRoundPairOrderValues(t *testing.T) {
 	assert.Equal(t, 0.6666, parsedOrder.Qty)
 	assert.Equal(t, 100.66, parsedOrder.Price)
 	assert.LessOrEqual(t, parsedOrder.Deposit, originalOrder.Deposit)
+	assert.NotEmpty(t, parsedOrder.ClientOrderID)
 }
 
 func TestRoundPairOrderValues2(t *testing.T) {
