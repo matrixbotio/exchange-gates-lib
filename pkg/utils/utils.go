@@ -195,8 +195,9 @@ func RoundDeposit(deposit, tickerValueStep float64) (float64, error) {
 // ParseAdjustedOrder - parse rounded order to bot order
 func ParseAdjustedOrder(order structs.BotOrderAdjusted) (pkgStructs.BotOrder, error) {
 	resultOrder := pkgStructs.BotOrder{
-		PairSymbol: order.PairSymbol,
-		Type:       order.Type,
+		PairSymbol:    order.PairSymbol,
+		Type:          order.Type,
+		ClientOrderID: order.ClientOrderID,
 	}
 	// parse qty
 	var err error
