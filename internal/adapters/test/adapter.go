@@ -166,3 +166,7 @@ func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
 func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
 	return nil, nil
 }
+
+func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
+	return nil, nil
+}

@@ -207,6 +207,59 @@ func (_c *MockAdapter_Connect_Call) RunAndReturn(run func(structs.APICredentials
 	return _c
 }
 
+// GetAccountBalance provides a mock function with given fields:
+func (_m *MockAdapter) GetAccountBalance() ([]internalstructs.Balance, error) {
+	ret := _m.Called()
+
+	var r0 []internalstructs.Balance
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]internalstructs.Balance, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []internalstructs.Balance); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]internalstructs.Balance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdapter_GetAccountBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountBalance'
+type MockAdapter_GetAccountBalance_Call struct {
+	*mock.Call
+}
+
+// GetAccountBalance is a helper method to define mock.On call
+func (_e *MockAdapter_Expecter) GetAccountBalance() *MockAdapter_GetAccountBalance_Call {
+	return &MockAdapter_GetAccountBalance_Call{Call: _e.mock.On("GetAccountBalance")}
+}
+
+func (_c *MockAdapter_GetAccountBalance_Call) Run(run func()) *MockAdapter_GetAccountBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAdapter_GetAccountBalance_Call) Return(_a0 []internalstructs.Balance, _a1 error) *MockAdapter_GetAccountBalance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdapter_GetAccountBalance_Call) RunAndReturn(run func() ([]internalstructs.Balance, error)) *MockAdapter_GetAccountBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetCandleWorker provides a mock function with given fields:
 func (_m *MockAdapter) GetCandleWorker() workers.ICandleWorker {
 	ret := _m.Called()

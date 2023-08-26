@@ -2,7 +2,6 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -10,10 +9,20 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
+func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
+	accountBalances, err := a.getAccountBalances()
+	if err != nil {
+		return nil, fmt.Errorf("get account balances: %w", err)
+	}
+
+	return accountBalances.Balances, nil
+}
+
 func (a *adapter) getAccountBalances() (structs.AccountData, error) {
-	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().Do(context.Background())
-	if clientErr != nil {
-		return structs.AccountData{}, errors.New("send request to trade, " + clientErr.Error())
+	binanceAccountData, err := a.binanceAPI.NewGetAccountService().
+		Do(context.Background())
+	if err != nil {
+		return structs.AccountData{}, fmt.Errorf("account data: %w", err)
 	}
 
 	accountDataResult := structs.AccountData{

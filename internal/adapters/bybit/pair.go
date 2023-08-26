@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hirokisan/bybit/v2"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
@@ -32,7 +32,7 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	response, err := a.client.V5().Market().GetTickers(bybit.V5GetTickersParam{
 		Category: bybit.CategoryV5Spot,
-		Symbol:   helpers.GetPairSymbolPointerV5(pairSymbol),
+		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
 	})
 	if err != nil {
 		return 0, fmt.Errorf("get %s last price: %w", pairSymbol, err)
@@ -87,7 +87,7 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
 	response, err := a.client.V5().Order().GetOpenOrders(bybit.V5GetOpenOrdersParam{
 		Category: bybit.CategoryV5Spot,
-		Symbol:   helpers.GetPairSymbolPointerV5(pairSymbol),
+		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("get open orders: %w", err)
@@ -127,6 +127,21 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	return pairsData, nil
 }
 
+func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
+	response, err := a.client.V5().Account().GetWalletBalance(
+		bybit.AccountType(bybit.AccountTypeV5SPOT),
+		nil,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("get wallet balance: %w", err)
+	}
+
+	if response == nil {
+		return nil, fmt.Errorf("get wallet balance: response is empty")
+	}
+	return mappers.ConvertAccountBalance(*response)
+}
+
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
 	baseTickerBalance, err := a.getTickerBalance(pair.BaseTicker)
 	if err != nil {
@@ -149,7 +164,7 @@ func (a *adapter) getTradePairs(symbol ...string) (*bybit.V5GetInstrumentsInfoRe
 		Category: bybit.CategoryV5Spot,
 	}
 	if len(symbol) > 0 {
-		args.Symbol = helpers.GetPairSymbolPointerV5(symbol[0])
+		args.Symbol = accessors.GetPairSymbolPointerV5(symbol[0])
 	}
 
 	response, err := a.client.V5().Market().GetInstrumentsInfo(args)
