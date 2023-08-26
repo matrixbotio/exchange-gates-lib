@@ -73,10 +73,12 @@ func TestConvertCoinDataParseError(t *testing.T) {
 	}
 
 	// when
-	_, err := convertCoinData(coinData, tickerTag)
+	assetBalance, err := convertCoinData(coinData, tickerTag)
 
 	// then
-	require.Error(t, err)
+	require.NoError(t, err)
+	assert.Equal(t, float64(0), assetBalance.Free)
+	assert.Equal(t, float64(0), assetBalance.Locked)
 }
 
 func TestConvertCoinDataParseError2(t *testing.T) {
@@ -88,8 +90,10 @@ func TestConvertCoinDataParseError2(t *testing.T) {
 	}
 
 	// when
-	_, err := convertCoinData(coinData, tickerTag)
+	assetBalance, err := convertCoinData(coinData, tickerTag)
 
 	// then
-	require.Error(t, err)
+	require.NoError(t, err)
+	assert.Equal(t, float64(10), assetBalance.Free)
+	assert.Equal(t, float64(0), assetBalance.Locked)
 }
