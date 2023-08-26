@@ -1,4 +1,4 @@
-package helpers
+package accessors
 
 import (
 	"testing"
@@ -82,4 +82,31 @@ func TestGetOrderSymbolFromHistoryOUnknown(t *testing.T) {
 
 	// then
 	assert.Equal(t, unknownPairSymbol, symbol)
+}
+
+func TestGetAccountBalanceSpot(t *testing.T) {
+	// given
+	ticker := bybit.Coin("BTC")
+	data := bybit.V5GetWalletBalanceResponse{
+		Result: bybit.V5WalletBalanceResult{
+			List: []bybit.V5WalletBalanceList{
+				{
+					AccountType: string(bybit.AccountTypeV5SPOT),
+					Coin: []bybit.V5WalletBalanceCoin{
+						{
+							Coin: ticker,
+							Free: "0.01",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// when
+	spotBalance, err := GetAccountBalanceSpot(data)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, ticker, spotBalance.Coin[0].Coin)
 }

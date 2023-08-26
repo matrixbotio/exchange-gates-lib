@@ -10,6 +10,7 @@ type Adapter = adapters.Adapter
 
 type (
 	AccountData          = structs.AccountData
+	Balance              = structs.Balance
 	SymbolPrice          = structs.SymbolPrice
 	OrderData            = structs.OrderData
 	BotOrderAdjusted     = structs.BotOrderAdjusted

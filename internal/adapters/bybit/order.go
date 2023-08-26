@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hirokisan/bybit/v2"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
@@ -16,7 +16,7 @@ func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderD
 
 	return a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
 		Category: bybit.CategoryV5Spot,
-		Symbol:   helpers.GetPairSymbolPointerV5(pairSymbol),
+		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
 		OrderID:  &orderIDFormatted,
 	})
 }
@@ -27,7 +27,7 @@ func (a *adapter) GetOrderByClientOrderID(pairSymbol, clientOrderID string) (
 ) {
 	return a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
 		Category:    bybit.CategoryV5Spot,
-		Symbol:      helpers.GetPairSymbolPointerV5(pairSymbol),
+		Symbol:      accessors.GetPairSymbolPointerV5(pairSymbol),
 		OrderLinkID: &clientOrderID,
 	})
 }
@@ -73,8 +73,8 @@ func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (
 	structs.OrderData,
 	error,
 ) {
-	orderID := helpers.GetOrderIDFromHistoryOrdersParam(param)
-	pairSymbol := helpers.GetOrderSymbolFromHistoryOrdersParam(param)
+	orderID := accessors.GetOrderIDFromHistoryOrdersParam(param)
+	pairSymbol := accessors.GetOrderSymbolFromHistoryOrdersParam(param)
 
 	r, err := a.client.V5().Order().GetHistoryOrders(param)
 	if err != nil {

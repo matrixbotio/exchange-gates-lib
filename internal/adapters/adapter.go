@@ -19,6 +19,7 @@ type Adapter interface {
 	Connect(credentials pkgStructs.APICredentials) error
 	CanTrade() (bool, error)
 	VerifyAPIKeys(keyPublic, keySecret string) error
+	GetAccountBalance() ([]structs.Balance, error)
 
 	// Order
 	GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error)
