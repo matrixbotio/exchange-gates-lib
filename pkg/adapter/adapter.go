@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
@@ -35,3 +36,5 @@ type (
 	TradeEvent  = workers.TradeEvent
 	CandleEvent = workers.CandleEvent
 )
+
+const PairStatusTrading = consts.PairDefaultStatus
