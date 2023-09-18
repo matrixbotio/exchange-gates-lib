@@ -3,6 +3,7 @@ package bybit
 import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
@@ -21,7 +22,9 @@ func (a *adapter) GetCandleWorker() workers.ICandleWorker {
 }
 
 func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	return &TradeEventWorkerBybit{
+	w := &TradeEventWorkerBybit{
 		wsClient: a.wsClient,
 	}
+	w.TradeEventWorker.WsChannels = new(structs.WorkerChannels)
+	return w
 }
