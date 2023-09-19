@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
@@ -89,4 +91,42 @@ func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (
 		return structs.OrderData{}, fmt.Errorf("parse history order: %w", err)
 	}
 	return data, nil
+}
+
+func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
+	orderIDFormatted := strconv.FormatInt(orderID, 10)
+
+	_, err := a.client.V5().Order().CancelOrder(bybit.V5CancelOrderParam{
+		Category: bybit.CategoryV5Spot,
+		Symbol:   bybit.SymbolV5(pairSymbol),
+		OrderID:  &orderIDFormatted,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
+			return errs.ErrOrderFilled
+		}
+
+		return fmt.Errorf("cancel order %v in %q: %w", orderID, pairSymbol, err)
+	}
+	return nil
+}
+
+func (a *adapter) CancelPairOrderByClientOrderID(
+	pairSymbol string,
+	clientOrderID string,
+	ctx context.Context,
+) error {
+	_, err := a.client.V5().Order().CancelOrder(bybit.V5CancelOrderParam{
+		Category:    bybit.CategoryV5Spot,
+		Symbol:      bybit.SymbolV5(pairSymbol),
+		OrderLinkID: &clientOrderID,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
+			return errs.ErrOrderFilled
+		}
+
+		return fmt.Errorf("cancel order %s in %q: %w", clientOrderID, pairSymbol, err)
+	}
+	return nil
 }

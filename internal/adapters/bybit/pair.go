@@ -1,7 +1,6 @@
 package bybit
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -52,36 +51,6 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 		)
 	}
 	return price, nil
-}
-
-func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
-	orderIDFormatted := strconv.FormatInt(orderID, 10)
-
-	_, err := a.client.V5().Order().CancelOrder(bybit.V5CancelOrderParam{
-		Category: bybit.CategoryV5Spot,
-		Symbol:   bybit.SymbolV5(pairSymbol),
-		OrderID:  &orderIDFormatted,
-	})
-	if err != nil {
-		return fmt.Errorf("cancel order %v in %q: %w", orderID, pairSymbol, err)
-	}
-	return nil
-}
-
-func (a *adapter) CancelPairOrderByClientOrderID(
-	pairSymbol string,
-	clientOrderID string,
-	ctx context.Context,
-) error {
-	_, err := a.client.V5().Order().CancelOrder(bybit.V5CancelOrderParam{
-		Category:    bybit.CategoryV5Spot,
-		Symbol:      bybit.SymbolV5(pairSymbol),
-		OrderLinkID: &clientOrderID,
-	})
-	if err != nil {
-		return fmt.Errorf("cancel order %s in %q: %w", clientOrderID, pairSymbol, err)
-	}
-	return nil
 }
 
 func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
