@@ -243,11 +243,11 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 
 // CancelPairOrder - cancel one exchange pair order by ID
 func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
-	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+	_, err := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(ctx)
-	if clientErr != nil {
-		if !a.isErrorAboutUnknownOrder(clientErr) {
-			return clientErr
+	if err != nil {
+		if !a.isErrorAboutUnknownOrder(err) {
+			return err
 		}
 	}
 	return nil
@@ -259,11 +259,11 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 	clientOrderID string,
 	ctx context.Context,
 ) error {
-	_, clientErr := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
+	_, err := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
 		OrigClientOrderID(clientOrderID).Do(ctx)
-	if clientErr != nil {
-		if !a.isErrorAboutUnknownOrder(clientErr) {
-			return clientErr
+	if err != nil {
+		if !a.isErrorAboutUnknownOrder(err) {
+			return err
 		}
 	}
 	return nil
