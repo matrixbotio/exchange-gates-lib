@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
@@ -102,11 +101,7 @@ func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.
 		OrderID:  &orderIDFormatted,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
-			return errs.ErrOrderFilled
-		}
-
-		return fmt.Errorf("cancel order %v in %q: %w", orderID, pairSymbol, err)
+		return errs.HandleCancelOrderError(orderIDFormatted, pairSymbol, err)
 	}
 	return nil
 }
@@ -122,11 +117,7 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 		OrderLinkID: &clientOrderID,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
-			return errs.ErrOrderFilled
-		}
-
-		return fmt.Errorf("cancel order %s in %q: %w", clientOrderID, pairSymbol, err)
+		return errs.HandleCancelOrderError(clientOrderID, pairSymbol, err)
 	}
 	return nil
 }
