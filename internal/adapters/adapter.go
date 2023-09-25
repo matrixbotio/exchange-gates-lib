@@ -24,13 +24,21 @@ type Adapter interface {
 	// Order
 	GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error)
 	GetOrderByClientOrderID(pairSymbol, clientOrderID string) (structs.OrderData, error)
-	PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (structs.CreateOrderResponse, error)
+	PlaceOrder(
+		ctx context.Context,
+		order structs.BotOrderAdjusted,
+	) (structs.CreateOrderResponse, error)
+	GetOrderExecFee(pairSymbol string, orderID int64) (float64, error)
 
 	// Pair
 	GetPairData(pairSymbol string) (structs.ExchangePairData, error)
 	GetPairLastPrice(pairSymbol string) (float64, error)
 	CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error
-	CancelPairOrderByClientOrderID(pairSymbol string, clientOrderID string, ctx context.Context) error
+	CancelPairOrderByClientOrderID(
+		pairSymbol string,
+		clientOrderID string,
+		ctx context.Context,
+	) error
 	GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error)
 	GetPairs() ([]structs.ExchangePairData, error)
 	GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error)

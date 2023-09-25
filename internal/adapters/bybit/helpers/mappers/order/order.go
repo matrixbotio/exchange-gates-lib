@@ -1,4 +1,4 @@
-package mappers
+package order_mappers
 
 import (
 	"errors"
@@ -135,4 +135,21 @@ func ParseHistoryOrder(
 
 func ConvertOrderSideToBybit(side string) bybit.Side {
 	return bybit.Side(cases.Title(language.Und, cases.NoLower).String(side))
+}
+
+func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (float64, error) {
+	if len(orderExecData.List) == 0 {
+		return 0, nil
+	}
+
+	var orderFees float64
+	for _, execEventData := range orderExecData.List {
+		execFee, err := strconv.ParseFloat(execEventData.ExecFee, 64)
+		if err != nil {
+			return 0, fmt.Errorf("parse fee: %w", err)
+		}
+
+		orderFees += execFee
+	}
+	return orderFees, nil
 }
