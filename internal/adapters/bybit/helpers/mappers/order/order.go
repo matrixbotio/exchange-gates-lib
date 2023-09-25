@@ -144,6 +144,10 @@ func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (float64, e
 
 	var orderFees float64
 	for _, execEventData := range orderExecData.List {
+		if execEventData.ExecFee == "" {
+			continue
+		}
+
 		execFee, err := strconv.ParseFloat(execEventData.ExecFee, 64)
 		if err != nil {
 			return 0, fmt.Errorf("parse fee: %w", err)
