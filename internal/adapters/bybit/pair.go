@@ -7,6 +7,7 @@ import (
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
+	order_mappers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers/order"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
@@ -64,7 +65,7 @@ func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, err
 
 	var result []structs.OrderData
 	for _, rawOrderData := range response.Result.List {
-		orderData, err := mappers.ConvertOrderData(rawOrderData)
+		orderData, err := order_mappers.ConvertOrderData(rawOrderData)
 		if err != nil {
 			return nil, fmt.Errorf("convert order: %w", err)
 		}

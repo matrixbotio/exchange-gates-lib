@@ -8,7 +8,7 @@ import (
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/errs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
+	order_mappers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers/order"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
@@ -40,7 +40,7 @@ func (a *adapter) PlaceOrder(
 	response, err := a.client.V5().Order().CreateOrder(bybit.V5CreateOrderParam{
 		Category:    bybit.CategoryV5Spot,
 		Symbol:      bybit.SymbolV5(order.PairSymbol),
-		Side:        mappers.ConvertOrderSideToBybit(order.Type),
+		Side:        order_mappers.ConvertOrderSideToBybit(order.Type),
 		OrderType:   bybit.OrderTypeLimit,
 		Qty:         order.Qty,
 		Price:       &order.Price,
@@ -85,7 +85,7 @@ func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (
 		)
 	}
 
-	data, err := mappers.ParseHistoryOrder(r, orderID, pairSymbol)
+	data, err := order_mappers.ParseHistoryOrder(r, orderID, pairSymbol)
 	if err != nil {
 		return structs.OrderData{}, fmt.Errorf("parse history order: %w", err)
 	}
@@ -120,4 +120,23 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 		return errs.HandleCancelOrderError(clientOrderID, pairSymbol, err)
 	}
 	return nil
+}
+
+func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (float64, error) {
+	orderIDFormatted := strconv.FormatInt(orderID, 10)
+
+	orderExecData, err := a.client.V5().Execution().GetExecutionList(bybit.V5GetExecutionParam{
+		Category: bybit.CategoryV5Spot,
+		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
+		OrderId:  &orderIDFormatted,
+	})
+	if err != nil {
+		return 0, fmt.Errorf("get order execution history: %w", err)
+	}
+
+	fees, err := order_mappers.ParseOrderExecFee(orderExecData.Result)
+	if err != nil {
+		return 0, fmt.Errorf("parse order fees: %w", err)
+	}
+	return fees, nil
 }

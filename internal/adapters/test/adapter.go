@@ -170,3 +170,7 @@ func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]worke
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	return nil, nil
 }
+
+func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (float64, error) {
+	return 0, nil
+}
