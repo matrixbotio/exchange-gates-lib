@@ -547,6 +547,59 @@ func (_c *MockAdapter_GetOrderData_Call) RunAndReturn(run func(string, int64) (i
 	return _c
 }
 
+// GetOrderExecFee provides a mock function with given fields: pairSymbol, orderID
+func (_m *MockAdapter) GetOrderExecFee(pairSymbol string, orderID int64) (float64, error) {
+	ret := _m.Called(pairSymbol, orderID)
+
+	var r0 float64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, int64) (float64, error)); ok {
+		return rf(pairSymbol, orderID)
+	}
+	if rf, ok := ret.Get(0).(func(string, int64) float64); ok {
+		r0 = rf(pairSymbol, orderID)
+	} else {
+		r0 = ret.Get(0).(float64)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, int64) error); ok {
+		r1 = rf(pairSymbol, orderID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdapter_GetOrderExecFee_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrderExecFee'
+type MockAdapter_GetOrderExecFee_Call struct {
+	*mock.Call
+}
+
+// GetOrderExecFee is a helper method to define mock.On call
+//   - pairSymbol string
+//   - orderID int64
+func (_e *MockAdapter_Expecter) GetOrderExecFee(pairSymbol interface{}, orderID interface{}) *MockAdapter_GetOrderExecFee_Call {
+	return &MockAdapter_GetOrderExecFee_Call{Call: _e.mock.On("GetOrderExecFee", pairSymbol, orderID)}
+}
+
+func (_c *MockAdapter_GetOrderExecFee_Call) Run(run func(pairSymbol string, orderID int64)) *MockAdapter_GetOrderExecFee_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(int64))
+	})
+	return _c
+}
+
+func (_c *MockAdapter_GetOrderExecFee_Call) Return(_a0 float64, _a1 error) *MockAdapter_GetOrderExecFee_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdapter_GetOrderExecFee_Call) RunAndReturn(run func(string, int64) (float64, error)) *MockAdapter_GetOrderExecFee_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPairBalance provides a mock function with given fields: pair
 func (_m *MockAdapter) GetPairBalance(pair internalstructs.PairSymbolData) (internalstructs.PairBalance, error) {
 	ret := _m.Called(pair)
