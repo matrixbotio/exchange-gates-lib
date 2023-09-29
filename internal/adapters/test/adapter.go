@@ -10,6 +10,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	structs2 "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
+	"github.com/shopspring/decimal"
 )
 
 type adapter struct {
@@ -171,6 +172,6 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	return nil, nil
 }
 
-func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (float64, error) {
-	return 0, nil
+func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error) {
+	return decimal.NewFromInt(0), nil
 }
