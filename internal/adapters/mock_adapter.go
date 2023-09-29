@@ -6,6 +6,8 @@ import (
 	context "context"
 
 	internalstructs "github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	decimal "github.com/shopspring/decimal"
+
 	mock "github.com/stretchr/testify/mock"
 
 	structs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -548,18 +550,18 @@ func (_c *MockAdapter_GetOrderData_Call) RunAndReturn(run func(string, int64) (i
 }
 
 // GetOrderExecFee provides a mock function with given fields: pairSymbol, orderID
-func (_m *MockAdapter) GetOrderExecFee(pairSymbol string, orderID int64) (float64, error) {
+func (_m *MockAdapter) GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error) {
 	ret := _m.Called(pairSymbol, orderID)
 
-	var r0 float64
+	var r0 decimal.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int64) (float64, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, int64) (decimal.Decimal, error)); ok {
 		return rf(pairSymbol, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(string, int64) float64); ok {
+	if rf, ok := ret.Get(0).(func(string, int64) decimal.Decimal); ok {
 		r0 = rf(pairSymbol, orderID)
 	} else {
-		r0 = ret.Get(0).(float64)
+		r0 = ret.Get(0).(decimal.Decimal)
 	}
 
 	if rf, ok := ret.Get(1).(func(string, int64) error); ok {
@@ -590,12 +592,12 @@ func (_c *MockAdapter_GetOrderExecFee_Call) Run(run func(pairSymbol string, orde
 	return _c
 }
 
-func (_c *MockAdapter_GetOrderExecFee_Call) Return(_a0 float64, _a1 error) *MockAdapter_GetOrderExecFee_Call {
+func (_c *MockAdapter_GetOrderExecFee_Call) Return(_a0 decimal.Decimal, _a1 error) *MockAdapter_GetOrderExecFee_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAdapter_GetOrderExecFee_Call) RunAndReturn(run func(string, int64) (float64, error)) *MockAdapter_GetOrderExecFee_Call {
+func (_c *MockAdapter_GetOrderExecFee_Call) RunAndReturn(run func(string, int64) (decimal.Decimal, error)) *MockAdapter_GetOrderExecFee_Call {
 	_c.Call.Return(run)
 	return _c
 }
