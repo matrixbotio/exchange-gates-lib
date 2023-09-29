@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hirokisan/bybit/v2"
+	"github.com/shopspring/decimal"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -137,23 +138,23 @@ func ConvertOrderSideToBybit(side string) bybit.Side {
 	return bybit.Side(cases.Title(language.Und, cases.NoLower).String(side))
 }
 
-func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (float64, error) {
+func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (decimal.Decimal, error) {
+	orderFees := decimal.NewFromInt(0)
 	if len(orderExecData.List) == 0 {
-		return 0, nil
+		return orderFees, nil
 	}
 
-	var orderFees float64
 	for _, execEventData := range orderExecData.List {
 		if execEventData.ExecFee == "" {
 			continue
 		}
 
-		execFee, err := strconv.ParseFloat(execEventData.ExecFee, 64)
+		execFee, err := decimal.NewFromString(execEventData.ExecFee)
 		if err != nil {
-			return 0, fmt.Errorf("parse fee: %w", err)
+			return orderFees, fmt.Errorf("parse fee: %w", err)
 		}
 
-		orderFees += execFee
+		orderFees = orderFees.Add(execFee)
 	}
 	return orderFees, nil
 }

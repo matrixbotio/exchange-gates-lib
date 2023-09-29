@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hirokisan/bybit/v2"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +28,7 @@ func TestParseOrderExecFee(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(0.000144), fees)
+	assert.Equal(t, decimal.NewFromFloat(float64(0.000144)), fees)
 }
 
 func TestParseOrderExecFeeZero(t *testing.T) {
@@ -47,5 +48,5 @@ func TestParseOrderExecFeeZero(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(0), fees)
+	assert.Equal(t, decimal.NewFromFloat(float64(0)), fees)
 }
