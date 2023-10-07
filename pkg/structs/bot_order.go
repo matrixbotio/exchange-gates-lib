@@ -1,5 +1,7 @@
 package structs
 
+import "fmt"
+
 // BotOrder - structure containing information about the order calculated by the bot
 type BotOrder struct {
 	// required
@@ -15,4 +17,11 @@ type BotOrder struct {
 
 func (o BotOrder) IsEmpty() bool {
 	return o.PairSymbol == "" && o.Qty == 0
+}
+
+func (o BotOrder) String() string {
+	return fmt.Sprintf(
+		"order: %q price %v, qty %v, pair %q",
+		o.Type, o.Price, o.Qty, o.PairSymbol,
+	)
 }
