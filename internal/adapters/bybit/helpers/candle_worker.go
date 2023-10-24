@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hirokisan/bybit/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
@@ -28,8 +29,13 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 		callback:   eventCallback,
 	}
 
+	bybitInterval, isExists := mappers.CandleIntervalsToBybit[string(defaultCandleInterval)]
+	if !isExists {
+		return fmt.Errorf("interval %q not available", defaultCandleInterval)
+	}
+
 	if _, err := wsSrv.SubscribeKline(bybit.V5WebsocketPublicKlineParamKey{
-		Interval: defaultCandleInterval,
+		Interval: bybit.Interval(bybitInterval.Code),
 		Symbol:   bybit.SymbolV5(pairSymbol),
 	}, eventHandler.handle); err != nil {
 		return fmt.Errorf("open candle events subscription: %w", err)
