@@ -14,7 +14,7 @@ func (a *adapter) GetCandles(
 	symbol string,
 	interval string,
 ) ([]workers.CandleData, error) {
-	bybitInterval, isExists := candleIntervalsToBybit[interval]
+	bybitInterval, isExists := mappers.CandleIntervalsToBybit[interval]
 	if !isExists {
 		return nil, fmt.Errorf("interval %q not available", interval)
 	}
