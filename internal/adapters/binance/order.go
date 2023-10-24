@@ -1,8 +1,19 @@
 package binance
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/shopspring/decimal"
+)
 
-func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error) {
+func (a *adapter) GetOrderExecFee(
+	pairSymbol string,
+	orderSide string,
+	orderID int64,
+) (structs.OrderFees, error) {
 	// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/167
-	return decimal.NewFromInt(0), nil
+
+	return structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: decimal.NewFromInt(0),
+	}, nil
 }

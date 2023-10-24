@@ -138,10 +138,13 @@ func ConvertOrderSideToBybit(side string) bybit.Side {
 	return bybit.Side(cases.Title(language.Und, cases.NoLower).String(side))
 }
 
-func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (decimal.Decimal, error) {
+func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult, orderSide string) (
+	structs.OrderFees,
+	error,
+) {
 	orderFees := decimal.NewFromInt(0)
 	if len(orderExecData.List) == 0 {
-		return orderFees, nil
+		return structs.OrderFees{}, nil
 	}
 
 	for _, execEventData := range orderExecData.List {
@@ -151,10 +154,21 @@ func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult) (decimal.De
 
 		execFee, err := decimal.NewFromString(execEventData.ExecFee)
 		if err != nil {
-			return orderFees, fmt.Errorf("parse fee: %w", err)
+			return structs.OrderFees{}, fmt.Errorf("parse fee: %w", err)
 		}
 
 		orderFees = orderFees.Add(execFee)
 	}
-	return orderFees, nil
+
+	if orderSide == pkgStructs.OrderTypeBuy {
+		return structs.OrderFees{
+			BaseAsset:  orderFees,
+			QuoteAsset: decimal.NewFromInt(0),
+		}, nil
+	}
+
+	return structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: orderFees,
+	}, nil
 }

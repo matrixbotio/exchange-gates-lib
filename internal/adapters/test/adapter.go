@@ -172,6 +172,13 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	return nil, nil
 }
 
-func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error) {
-	return decimal.NewFromInt(0), nil
+func (a *adapter) GetOrderExecFee(
+	pairSymbol string,
+	orderSide string,
+	orderID int64,
+) (structs.OrderFees, error) {
+	return structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: decimal.NewFromInt(0),
+	}, nil
 }
