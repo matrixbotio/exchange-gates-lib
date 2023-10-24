@@ -10,7 +10,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/errs"
 	order_mappers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers/order"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/shopspring/decimal"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
@@ -123,22 +122,27 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 	return nil
 }
 
-func (a *adapter) GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error) {
+func (a *adapter) GetOrderExecFee(
+	pairSymbol string,
+	orderSide string,
+	orderID int64,
+) (structs.OrderFees, error) {
 	orderIDFormatted := strconv.FormatInt(orderID, 10)
-	zeroFees := decimal.NewFromInt(0)
 
-	orderExecData, err := a.client.V5().Execution().GetExecutionList(bybit.V5GetExecutionParam{
+	payload := bybit.V5GetExecutionParam{
 		Category: bybit.CategoryV5Spot,
 		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
 		OrderId:  &orderIDFormatted,
-	})
-	if err != nil {
-		return zeroFees, fmt.Errorf("get order execution history: %w", err)
 	}
 
-	fees, err := order_mappers.ParseOrderExecFee(orderExecData.Result)
+	orderExecData, err := a.client.V5().Execution().GetExecutionList(payload)
 	if err != nil {
-		return zeroFees, fmt.Errorf("parse order fees: %w", err)
+		return structs.OrderFees{}, fmt.Errorf("get order execution history: %w", err)
+	}
+
+	fees, err := order_mappers.ParseOrderExecFee(orderExecData.Result, orderSide)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("parse order fees: %w", err)
 	}
 	return fees, nil
 }

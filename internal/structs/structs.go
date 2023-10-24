@@ -1,6 +1,10 @@
 package structs
 
-import "context"
+import (
+	"context"
+
+	"github.com/shopspring/decimal"
+)
 
 // BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
 type BotOrderAdjusted struct {
@@ -121,4 +125,9 @@ type GetOrdersHistoryTask struct {
 type SymbolPrice struct {
 	Symbol string  `json:"symbol"`
 	Price  float64 `json:"price"`
+}
+
+type OrderFees struct {
+	BaseAsset  decimal.Decimal `json:"base"`
+	QuoteAsset decimal.Decimal `json:"quote"`
 }

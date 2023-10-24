@@ -21,6 +21,7 @@ type (
 	PairBalance          = structs.PairBalance
 	PairSymbolData       = structs.PairSymbolData
 	AssetBalance         = structs.AssetBalance
+	OrderFees            = structs.OrderFees
 )
 
 type (

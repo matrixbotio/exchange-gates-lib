@@ -6,7 +6,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-	"github.com/shopspring/decimal"
 )
 
 type Adapter interface {
@@ -29,7 +28,11 @@ type Adapter interface {
 		ctx context.Context,
 		order structs.BotOrderAdjusted,
 	) (structs.CreateOrderResponse, error)
-	GetOrderExecFee(pairSymbol string, orderID int64) (decimal.Decimal, error)
+	GetOrderExecFee(
+		pairSymbol string,
+		orderSide string,
+		orderID int64,
+	) (structs.OrderFees, error)
 
 	// Pair
 	GetPairData(pairSymbol string) (structs.ExchangePairData, error)
