@@ -40,8 +40,13 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 		errorHandler(err)
 	}
 
-	if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
-		return fmt.Errorf("start candle events subscription: %w", err)
-	}
+	go func() {
+		if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
+			errorHandler(fmt.Errorf(
+				"start candle %q events subscription: %w",
+				pairSymbol, err,
+			))
+		}
+	}()
 	return nil
 }
