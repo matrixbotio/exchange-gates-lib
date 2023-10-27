@@ -17,17 +17,18 @@ import (
 
 // old -> new
 var orderStatusConvertor = map[bybit.OrderStatus]string{
-	bybit.OrderStatusCreated:         pkgStructs.OrderStatusNew,
-	bybit.OrderStatusRejected:        pkgStructs.OrderStatusRejected,
-	bybit.OrderStatusNew:             pkgStructs.OrderStatusNew,
-	bybit.OrderStatusPartiallyFilled: pkgStructs.OrderStatusPartiallyFilled,
-	bybit.OrderStatusFilled:          pkgStructs.OrderStatusFilled,
-	bybit.OrderStatusCancelled:       pkgStructs.OrderStatusCancelled,
-	bybit.OrderStatusPendingCancel:   pkgStructs.OrderStatusPendingCancel,
-	bybit.OrderStatusUntriggered:     pkgStructs.OrderStatusUntriggered,
-	bybit.OrderStatusDeactivated:     pkgStructs.OrderStatusDeactivated,
-	bybit.OrderStatusTriggered:       pkgStructs.OrderStatusTriggered,
-	bybit.OrderStatusActive:          pkgStructs.OrderStatusNew,
+	bybit.OrderStatusCreated:                     pkgStructs.OrderStatusNew,
+	bybit.OrderStatusRejected:                    pkgStructs.OrderStatusRejected,
+	bybit.OrderStatusNew:                         pkgStructs.OrderStatusNew,
+	bybit.OrderStatusPartiallyFilled:             pkgStructs.OrderStatusPartiallyFilled,
+	bybit.OrderStatus("PartiallyFilledCanceled"): pkgStructs.OrderStatusPartiallyFilledCancelled,
+	bybit.OrderStatusFilled:                      pkgStructs.OrderStatusFilled,
+	bybit.OrderStatusCancelled:                   pkgStructs.OrderStatusCancelled,
+	bybit.OrderStatusPendingCancel:               pkgStructs.OrderStatusPendingCancel,
+	bybit.OrderStatusUntriggered:                 pkgStructs.OrderStatusUntriggered,
+	bybit.OrderStatusDeactivated:                 pkgStructs.OrderStatusDeactivated,
+	bybit.OrderStatusTriggered:                   pkgStructs.OrderStatusTriggered,
+	bybit.OrderStatusActive:                      pkgStructs.OrderStatusNew,
 }
 
 func ConvertOrderData(data bybit.V5GetOrder) (structs.OrderData, error) {
