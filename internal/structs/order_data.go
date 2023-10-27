@@ -19,3 +19,11 @@ type OrderData struct {
 func (data OrderData) IsPendingCancel() bool {
 	return data.Status == consts.OrderStatusPendingCancel
 }
+
+func (data OrderData) IsCancelled() bool {
+	return data.Status == consts.OrderStatusCancelled
+}
+
+func (data OrderData) IsExpired() bool {
+	return data.Status == consts.OrderStatusExpired
+}
