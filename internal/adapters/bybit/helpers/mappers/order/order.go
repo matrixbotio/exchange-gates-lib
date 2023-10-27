@@ -114,7 +114,8 @@ func convertOrderType(side bybit.Side) (string, error) {
 func convertOrderStatus(status bybit.OrderStatus) (string, error) {
 	formattedStatus, isExists := orderStatusConvertor[status]
 	if !isExists {
-		return pkgStructs.OrderStatusUnknown, fmt.Errorf("uknown status: %q", string(status))
+		return pkgStructs.OrderStatusUnknown,
+			fmt.Errorf("uknown status: %q", string(status))
 	}
 	return formattedStatus, nil
 }

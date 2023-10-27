@@ -1,17 +1,19 @@
 package structs
 
+import "github.com/matrixbotio/exchange-gates-lib/internal/consts"
+
 const (
-	OrderStatusNew             = "NEW"
-	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
-	OrderStatusFilled          = "FILLED"
-	OrderStatusCancelled       = "CANCELED"
-	OrderStatusPendingCancel   = "PENDING_CANCEL"
-	OrderStatusRejected        = "REJECTED"
-	OrderStatusExpired         = "EXPIRED"
-	OrderStatusUnknown         = "UNKNOWN"
-	OrderStatusUntriggered     = "UNTRIGGERED"
-	OrderStatusTriggered       = "TRIGGERED"
-	OrderStatusDeactivated     = "DEACTIVATED"
+	OrderStatusNew             = consts.OrderStatusNew
+	OrderStatusPartiallyFilled = consts.OrderStatusPartiallyFilled
+	OrderStatusFilled          = consts.OrderStatusFilled
+	OrderStatusCancelled       = consts.OrderStatusCancelled
+	OrderStatusPendingCancel   = consts.OrderStatusPendingCancel
+	OrderStatusRejected        = consts.OrderStatusRejected
+	OrderStatusExpired         = consts.OrderStatusExpired
+	OrderStatusUnknown         = consts.OrderStatusUnknown
+	OrderStatusUntriggered     = consts.OrderStatusUntriggered
+	OrderStatusTriggered       = consts.OrderStatusTriggered
+	OrderStatusDeactivated     = consts.OrderStatusDeactivated
 )
 
 const (
