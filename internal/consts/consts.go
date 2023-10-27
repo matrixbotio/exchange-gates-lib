@@ -18,17 +18,18 @@ const (
 )
 
 const (
-	OrderStatusNew             = "NEW"
-	OrderStatusPartiallyFilled = "PARTIALLY_FILLED"
-	OrderStatusFilled          = "FILLED"
-	OrderStatusCancelled       = "CANCELED"
-	OrderStatusPendingCancel   = "PENDING_CANCEL"
-	OrderStatusRejected        = "REJECTED"
-	OrderStatusExpired         = "EXPIRED"
-	OrderStatusUnknown         = "UNKNOWN"
-	OrderStatusUntriggered     = "UNTRIGGERED"
-	OrderStatusTriggered       = "TRIGGERED"
-	OrderStatusDeactivated     = "DEACTIVATED"
+	OrderStatusNew                      = "NEW"
+	OrderStatusPartiallyFilled          = "PARTIALLY_FILLED"
+	OrderStatusPartiallyFilledCancelled = "PARTIALLY_FILLED_CANCELLED"
+	OrderStatusFilled                   = "FILLED"
+	OrderStatusCancelled                = "CANCELED"
+	OrderStatusPendingCancel            = "PENDING_CANCEL"
+	OrderStatusRejected                 = "REJECTED"
+	OrderStatusExpired                  = "EXPIRED"
+	OrderStatusUnknown                  = "UNKNOWN"
+	OrderStatusUntriggered              = "UNTRIGGERED"
+	OrderStatusTriggered                = "TRIGGERED"
+	OrderStatusDeactivated              = "DEACTIVATED"
 )
 
 const (
