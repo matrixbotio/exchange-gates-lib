@@ -27,3 +27,16 @@ func (data OrderData) IsCancelled() bool {
 func (data OrderData) IsExpired() bool {
 	return data.Status == consts.OrderStatusExpired
 }
+
+func (data OrderData) IsPartiallyFilled() bool {
+	return data.Status == consts.OrderStatusPartiallyFilled ||
+		data.Status == consts.OrderStatusPartiallyFilledCancelled
+}
+
+func (data OrderData) IsFullFilled() bool {
+	return data.Status == consts.OrderStatusFilled
+}
+
+func (data OrderData) IsPartiallyOrFullFilled() bool {
+	return data.IsPartiallyFilled() || data.IsFullFilled()
+}
