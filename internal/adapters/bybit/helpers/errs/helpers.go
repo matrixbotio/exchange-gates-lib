@@ -22,6 +22,9 @@ func HandleCancelOrderError(
 	if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
 		return errs.ErrOrderFilled
 	}
+	if strings.Contains(err.Error(), "Order does not exist") {
+		return nil
+	}
 
 	return fmt.Errorf(
 		"cancel order %s in %q: %w",
