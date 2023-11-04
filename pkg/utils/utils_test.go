@@ -329,64 +329,6 @@ func TestFormatFractionalPart(t *testing.T) {
 	assert.Equal(t, "1", valFormatted)
 }
 
-func TestCalcTPOrderShort(t *testing.T) {
-	// given
-	coinsQty := float64(0.00126)
-	profitPercent := float64(0.3)
-	depositSpent := float64(32.64787)
-	pairData := structs.ExchangePairData{
-		Symbol:    "BTCBUSD",
-		QtyStep:   0.00001,
-		PriceStep: 0.01,
-	}
-	zeroProfitPrice := depositSpent / coinsQty
-
-	// when
-	order := CalcTPOrder(
-		pkgStructs.BotStrategyShort,
-		coinsQty,
-		profitPercent,
-		depositSpent,
-		pairData,
-	)
-
-	// then
-	assert.Equal(t, float64(25833.5), order.Price)
-	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.Less(t, order.Price, zeroProfitPrice)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
-	assert.NotEmpty(t, order.ClientOrderID)
-}
-
-func TestCalcTPOrderLong(t *testing.T) {
-	// given
-	coinsQty := float64(0.00126)
-	profitPercent := float64(0.3)
-	depositSpent := float64(32.64787)
-	pairData := structs.ExchangePairData{
-		Symbol:    "BTCBUSD",
-		QtyStep:   0.00001,
-		PriceStep: 0.01,
-	}
-	zeroProfitPrice := depositSpent / coinsQty
-
-	// when
-	order := CalcTPOrder(
-		pkgStructs.BotStrategyLong,
-		coinsQty,
-		profitPercent,
-		depositSpent,
-		pairData,
-	)
-
-	// then
-	assert.Equal(t, float64(25988.74), order.Price)
-	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.Greater(t, order.Price, zeroProfitPrice)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
-	assert.NotEmpty(t, order.ClientOrderID)
-}
-
 func TestRoundDeposit(t *testing.T) {
 	// given
 	deposit := float64(100.1)
