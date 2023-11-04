@@ -80,13 +80,11 @@ func (s *CalcTPService) checkParams() error {
 }
 
 func (s *CalcTPService) checkFees() {
-	if !s.fees.BaseAsset.IsZero() && !s.fees.QuoteAsset.IsZero() {
-		return
-	}
-
-	s.fees = structs.OrderFees{
-		BaseAsset:  decimal.NewFromInt(0),
-		QuoteAsset: decimal.NewFromInt(0),
+	if s.fees.BaseAsset.IsZero() && s.fees.QuoteAsset.IsZero() {
+		s.fees = structs.OrderFees{
+			BaseAsset:  decimal.NewFromInt(0),
+			QuoteAsset: decimal.NewFromInt(0),
+		}
 	}
 }
 
@@ -106,7 +104,7 @@ func (s *CalcTPService) Do() (pkgStructs.BotOrder, error) {
 func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
 	// subtract fees from depo spent in quote asset (from default SELL orders)
 	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
-	depositSpentDec := decimal.NewFromFloat(s.depositSpent).Sub(s.fees.QuoteAsset)
+	depositSpentWithFee := decimal.NewFromFloat(s.depositSpent).Sub(s.fees.QuoteAsset)
 
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
 	profitDec := decimal.NewFromFloat(s.profit)
@@ -115,20 +113,22 @@ func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
 	tpQty := coinsQtyDec.Mul(profitDelta)
 
 	// price = depositSpent / tpQty
-	tpPrice := depositSpentDec.Div(tpQty)
+	tpPriceWithoutFee := depositSpentWithFee.Div(tpQty)
 
 	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
 	tpQtyFloat, _ := tpQty.RoundFloor(int32(qtyPrecision)).Float64()
 
 	pricePrecision := GetFloatPrecision(s.pairData.PriceStep)
-	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
+	tpPriceFloat, _ := tpPriceWithoutFee.RoundFloor(int32(pricePrecision)).Float64()
+
+	depoSpentFloat, _ := depositSpentWithFee.Float64()
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
 		Qty:           tpQtyFloat,
 		Price:         tpPriceFloat,
-		Deposit:       s.depositSpent,
+		Deposit:       depoSpentFloat,
 		ClientOrderID: GenerateUUID(),
 	}
 }
