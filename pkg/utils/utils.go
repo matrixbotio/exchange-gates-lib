@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 )
@@ -43,30 +42,6 @@ func LogNotNilError(errs []error) bool {
 		}
 	}
 	return false
-}
-
-// OrderResponseToBotOrder - convert raw order response to bot order
-func OrderResponseToBotOrder(response structs.CreateOrderResponse) pkgStructs.BotOrder {
-	return pkgStructs.BotOrder{
-		PairSymbol:    response.Symbol,
-		Type:          response.Type,
-		Qty:           response.OrigQuantity,
-		Price:         response.Price,
-		Deposit:       response.OrigQuantity * response.Price,
-		ClientOrderID: response.ClientOrderID,
-	}
-}
-
-// OrderDataToBotOrder - convert order data to bot order
-func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
-	return pkgStructs.BotOrder{
-		PairSymbol:    order.Symbol,
-		Type:          order.Type,
-		Qty:           order.AwaitQty,
-		Price:         order.Price,
-		Deposit:       order.AwaitQty * order.Price,
-		ClientOrderID: order.ClientOrderID,
-	}
 }
 
 func roundFloatToDecimal(val float64, precision int) decimal.Decimal {
@@ -229,113 +204,6 @@ func GetDefaultPairData() structs.ExchangePairData {
 		MinDeposit: consts.PairMinDeposit,
 		MinPrice:   consts.PairDefaultMinPrice,
 		QtyStep:    consts.PairDefaultQtyStep,
-	}
-}
-
-// OrderDataToTradeEvent data
-type TradeOrderConvertTask struct {
-	Order       structs.OrderData
-	ExchangeTag string
-}
-
-// OrderDataToTradeEvent - convert order data into a trade event.
-func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
-	e := workers.TradeEvent{
-		ID:          0,
-		Time:        task.Order.UpdatedTime,
-		Symbol:      task.Order.Symbol,
-		Price:       task.Order.Price,
-		Quantity:    task.Order.FilledQty,
-		ExchangeTag: task.ExchangeTag,
-	}
-
-	if task.Order.Type == pkgStructs.OrderTypeBuy {
-		e.BuyerOrderID = task.Order.OrderID
-	} else {
-		e.SellerOrderID = task.Order.OrderID
-	}
-
-	return e
-}
-
-func CalcTPOrder(
-	strategy pkgStructs.BotStrategy,
-	coinsQty float64,
-	profit float64,
-	depositSpent float64,
-	pairLimits structs.ExchangePairData,
-) pkgStructs.BotOrder {
-	if strategy == pkgStructs.BotStrategyShort {
-		return calcShortTPOrder(coinsQty, profit, depositSpent, pairLimits)
-	}
-	return calcLongOrder(coinsQty, profit, depositSpent, pairLimits)
-}
-
-func GetTPOrderType(strategy pkgStructs.BotStrategy) string {
-	if strategy == pkgStructs.BotStrategyLong {
-		return pkgStructs.OrderTypeSell
-	}
-	return pkgStructs.OrderTypeBuy
-}
-
-func calcShortTPOrder(
-	coinsQty float64,
-	profit float64,
-	depositSpent float64,
-	pairLimits structs.ExchangePairData,
-) pkgStructs.BotOrder {
-	coinsQtyDec := decimal.NewFromFloat(coinsQty)
-	profitDec := decimal.NewFromFloat(profit)
-	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
-	// qty = (1 + profit/100) * coinsQty
-	tpQty := coinsQtyDec.Mul(profitDelta)
-
-	// price = depositSpent / tpQty
-	tpPrice := decimal.NewFromFloat(depositSpent).Div(tpQty)
-
-	qtyPrecision := GetFloatPrecision(pairLimits.QtyStep)
-	tpQtyFloat, _ := tpQty.RoundFloor(int32(qtyPrecision)).Float64()
-
-	pricePrecision := GetFloatPrecision(pairLimits.PriceStep)
-	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
-
-	return pkgStructs.BotOrder{
-		PairSymbol:    pairLimits.Symbol,
-		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
-		Qty:           tpQtyFloat,
-		Price:         tpPriceFloat,
-		Deposit:       depositSpent,
-		ClientOrderID: GenerateUUID(),
-	}
-}
-
-func calcLongOrder(
-	coinsQty float64,
-	profit float64,
-	depositSpent float64,
-	pairLimits structs.ExchangePairData,
-) pkgStructs.BotOrder {
-	coinsQtyDec := decimal.NewFromFloat(coinsQty)
-	depositSpentDec := decimal.NewFromFloat(depositSpent)
-	profitDec := decimal.NewFromFloat(profit)
-	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
-
-	// deposit = (1 + profit/100) * depositSpent
-	tpDeposit := profitDelta.Mul(depositSpentDec)
-
-	tpPrice := tpDeposit.Div(coinsQtyDec)
-
-	tpDepositFloat, _ := tpDeposit.Float64()
-	pricePrecision := GetFloatPrecision(pairLimits.PriceStep)
-	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
-
-	return pkgStructs.BotOrder{
-		PairSymbol:    pairLimits.Symbol,
-		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           coinsQty,
-		Price:         tpPriceFloat,
-		Deposit:       tpDepositFloat,
-		ClientOrderID: GenerateUUID(),
 	}
 }
 
