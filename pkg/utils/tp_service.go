@@ -104,6 +104,10 @@ func (s *CalcTPService) Do() (pkgStructs.BotOrder, error) {
 }
 
 func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
+	// subtract fees from depo spent in quote asset (from default SELL orders)
+	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
+	depositSpentDec := decimal.NewFromFloat(s.depositSpent).Sub(s.fees.QuoteAsset)
+
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
@@ -111,7 +115,7 @@ func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
 	tpQty := coinsQtyDec.Mul(profitDelta)
 
 	// price = depositSpent / tpQty
-	tpPrice := decimal.NewFromFloat(s.depositSpent).Div(tpQty)
+	tpPrice := depositSpentDec.Div(tpQty)
 
 	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
 	tpQtyFloat, _ := tpQty.RoundFloor(int32(qtyPrecision)).Float64()
@@ -130,7 +134,10 @@ func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
 }
 
 func (s *CalcTPService) calcLongOrder() pkgStructs.BotOrder {
-	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
+	// subtract fees from coins qty in base asset (from default BUY orders)
+	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
+	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).Sub(s.fees.BaseAsset)
+
 	depositSpentDec := decimal.NewFromFloat(s.depositSpent)
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
