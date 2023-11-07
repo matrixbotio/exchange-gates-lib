@@ -8,7 +8,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type CalcTPService struct {
+type CalcTPProcessor struct {
 	strategy     pkgStructs.BotStrategy
 	coinsQty     float64
 	profit       float64
@@ -17,41 +17,41 @@ type CalcTPService struct {
 	pairData     structs.ExchangePairData
 }
 
-func NewCalcTPOrderService() *CalcTPService {
-	return &CalcTPService{}
+func NewCalcTPOrderService() *CalcTPProcessor {
+	return &CalcTPProcessor{}
 }
 
-func (s *CalcTPService) Strategy(strategy pkgStructs.BotStrategy) *CalcTPService {
+func (s *CalcTPProcessor) Strategy(strategy pkgStructs.BotStrategy) *CalcTPProcessor {
 	s.strategy = strategy
 	return s
 }
 
-func (s *CalcTPService) CoinsQty(coinsQty float64) *CalcTPService {
+func (s *CalcTPProcessor) CoinsQty(coinsQty float64) *CalcTPProcessor {
 	s.coinsQty = coinsQty
 	return s
 }
 
-func (s *CalcTPService) Profit(profit float64) *CalcTPService {
+func (s *CalcTPProcessor) Profit(profit float64) *CalcTPProcessor {
 	s.profit = profit
 	return s
 }
 
-func (s *CalcTPService) DepositSpent(depositSpent float64) *CalcTPService {
+func (s *CalcTPProcessor) DepositSpent(depositSpent float64) *CalcTPProcessor {
 	s.depositSpent = depositSpent
 	return s
 }
 
-func (s *CalcTPService) PairData(pairData structs.ExchangePairData) *CalcTPService {
+func (s *CalcTPProcessor) PairData(pairData structs.ExchangePairData) *CalcTPProcessor {
 	s.pairData = pairData
 	return s
 }
 
-func (s *CalcTPService) Fees(fees structs.OrderFees) *CalcTPService {
+func (s *CalcTPProcessor) Fees(fees structs.OrderFees) *CalcTPProcessor {
 	s.fees = fees
 	return s
 }
 
-func (s *CalcTPService) checkParams() error {
+func (s *CalcTPProcessor) checkParams() error {
 	if s.strategy == "" {
 		return errors.New("strategy is not set")
 	}
@@ -79,7 +79,7 @@ func (s *CalcTPService) checkParams() error {
 	return nil
 }
 
-func (s *CalcTPService) checkFees() {
+func (s *CalcTPProcessor) checkFees() {
 	if s.fees.BaseAsset.IsZero() && s.fees.QuoteAsset.IsZero() {
 		s.fees = structs.OrderFees{
 			BaseAsset:  decimal.NewFromInt(0),
@@ -88,7 +88,7 @@ func (s *CalcTPService) checkFees() {
 	}
 }
 
-func (s *CalcTPService) Do() (pkgStructs.BotOrder, error) {
+func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	if err := s.checkParams(); err != nil {
 		return pkgStructs.BotOrder{}, nil
 	}
@@ -101,7 +101,7 @@ func (s *CalcTPService) Do() (pkgStructs.BotOrder, error) {
 	return s.calcLongOrder(), nil
 }
 
-func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
+func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 	// subtract fees from depo spent in quote asset (from default SELL orders)
 	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
 	depositSpentWithFee := decimal.NewFromFloat(s.depositSpent).Sub(s.fees.QuoteAsset)
@@ -133,7 +133,7 @@ func (s *CalcTPService) calcShortTPOrder() pkgStructs.BotOrder {
 	}
 }
 
-func (s *CalcTPService) calcLongOrder() pkgStructs.BotOrder {
+func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).Sub(s.fees.BaseAsset)
