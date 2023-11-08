@@ -9,7 +9,7 @@ const (
 	PairDefaultMaxQty     = 99999.99
 	PairDefaultMinPrice   = 0.000001
 	PairDefaultQtyStep    = 0.001
-	PairDefaultPriceStep  = 0.000001
+	PairDefaultPriceStep  = 0.01
 	PairMinDeposit        = 10
 	PairDefaultBaseAsset  = "BTC"
 	PairDefaultQuoteAsset = "BUSD"

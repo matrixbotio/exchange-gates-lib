@@ -196,14 +196,17 @@ func ParseAdjustedOrder(order structs.BotOrderAdjusted) (pkgStructs.BotOrder, er
 // GetDefaultPairData !
 func GetDefaultPairData() structs.ExchangePairData {
 	return structs.ExchangePairData{
-		ExchangeID: consts.PairDefaultExchangeID,
-		BaseAsset:  consts.PairDefaultBaseAsset,
-		QuoteAsset: consts.PairDefaultQuoteAsset,
-		MinQty:     consts.PairDefaultMinQty,
-		MaxQty:     consts.PairDefaultMaxQty,
-		MinDeposit: consts.PairMinDeposit,
-		MinPrice:   consts.PairDefaultMinPrice,
-		QtyStep:    consts.PairDefaultQtyStep,
+		ExchangeID:    consts.PairDefaultExchangeID,
+		BaseAsset:     consts.PairDefaultBaseAsset,
+		QuoteAsset:    consts.PairDefaultQuoteAsset,
+		MinQty:        consts.PairDefaultMinQty,
+		MaxQty:        consts.PairDefaultMaxQty,
+		MinDeposit:    consts.PairMinDeposit,
+		MinPrice:      consts.PairDefaultMinPrice,
+		QtyStep:       consts.PairDefaultQtyStep,
+		PriceStep:     consts.PairDefaultPriceStep,
+		AllowedMargin: true,
+		AllowedSpot:   true,
 	}
 }
 
