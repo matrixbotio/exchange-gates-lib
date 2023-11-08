@@ -18,7 +18,7 @@ var (
 
 func TestCalcTPOrderErrorEmptyStrategy(t *testing.T) {
 	// given
-	proc := NewCalcTPOrderService().CoinsQty(0)
+	proc := NewCalcTPOrderProcessor().CoinsQty(0)
 
 	// when
 	_, err := proc.Do()
@@ -36,14 +36,14 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 	}
 	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
 
-	srv := NewCalcTPOrderService().CoinsQty(testTPCoinsQty).
+	proc := NewCalcTPOrderProcessor().CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
 		DepositSpent(testTPDepositSpent).
 		Strategy(pkgStructs.BotStrategyShort).
 		PairData(pairData)
 
 	// when
-	order, err := srv.Do()
+	order, err := proc.Do()
 
 	// then
 	require.NoError(t, err)
@@ -65,7 +65,7 @@ func TestCalcTPOrderShortNoFeesBigQty(t *testing.T) {
 		PriceStep:  0.0001,
 	}
 
-	srv := NewCalcTPOrderService().
+	srv := NewCalcTPOrderProcessor().
 		CoinsQty(348).
 		Profit(0.1).
 		DepositSpent(262.33212).
@@ -97,7 +97,7 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 		QuoteAsset: decimal.NewFromFloat(0.03264),
 	}
 
-	srv := NewCalcTPOrderService().CoinsQty(testTPCoinsQty).
+	proc := NewCalcTPOrderProcessor().CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
 		DepositSpent(testTPDepositSpent).
 		Strategy(pkgStructs.BotStrategyShort).
@@ -105,7 +105,7 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 		Fees(fees)
 
 	// when
-	order, err := srv.Do()
+	order, err := proc.Do()
 
 	// then
 	require.NoError(t, err)
@@ -125,7 +125,7 @@ func TestCalcTPOrderLongNoFees(t *testing.T) {
 	}
 	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
 
-	srv := NewCalcTPOrderService().
+	proc := NewCalcTPOrderProcessor().
 		CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
 		DepositSpent(testTPDepositSpent).
@@ -133,7 +133,7 @@ func TestCalcTPOrderLongNoFees(t *testing.T) {
 		PairData(pairData)
 
 	// when
-	order, err := srv.Do()
+	order, err := proc.Do()
 
 	// then
 	require.NoError(t, err)
@@ -158,7 +158,7 @@ func TestCalcTPOrderLongFees(t *testing.T) {
 		QuoteAsset: decimal.NewFromFloat(0),
 	}
 
-	srv := NewCalcTPOrderService().
+	proc := NewCalcTPOrderProcessor().
 		CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
 		DepositSpent(testTPDepositSpent).
@@ -167,7 +167,7 @@ func TestCalcTPOrderLongFees(t *testing.T) {
 		Fees(fees)
 
 	// when
-	order, err := srv.Do()
+	order, err := proc.Do()
 
 	// then
 	require.NoError(t, err)

@@ -18,7 +18,7 @@ type CalcTPProcessor struct {
 	pairData     structs.ExchangePairData
 }
 
-func NewCalcTPOrderService() *CalcTPProcessor {
+func NewCalcTPOrderProcessor() *CalcTPProcessor {
 	return &CalcTPProcessor{}
 }
 
