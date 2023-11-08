@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -90,7 +91,7 @@ func (s *CalcTPProcessor) checkFees() {
 
 func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	if err := s.checkParams(); err != nil {
-		return pkgStructs.BotOrder{}, nil
+		return pkgStructs.BotOrder{}, fmt.Errorf("check params: %w", err)
 	}
 
 	s.checkFees()
