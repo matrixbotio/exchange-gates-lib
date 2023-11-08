@@ -16,6 +16,17 @@ var (
 	testTPDepositSpent  float64 = 32.64787
 )
 
+func TestCalcTPOrderErrorEmptyStrategy(t *testing.T) {
+	// given
+	proc := NewCalcTPOrderService().CoinsQty(0)
+
+	// when
+	_, err := proc.Do()
+
+	// then
+	require.Contains(t, err.Error(), "strategy is not set")
+}
+
 func TestCalcTPOrderShortNoFees(t *testing.T) {
 	// given
 	pairData := structs.ExchangePairData{
@@ -39,6 +50,35 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 	assert.Equal(t, float64(25833.5), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.Less(t, order.Price, zeroProfitPrice)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+}
+
+func TestCalcTPOrderShortNoFeesBigQty(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:     "TWTBUSD",
+		MinQty:     1,
+		MinDeposit: 10,
+		QtyStep:    1,
+		MinPrice:   0.0001,
+		PriceStep:  0.0001,
+	}
+
+	srv := NewCalcTPOrderService().
+		CoinsQty(348).
+		Profit(0.1).
+		DepositSpent(262.33212).
+		Strategy(pkgStructs.BotStrategyShort).
+		PairData(pairData)
+
+	// when
+	order, err := srv.Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(0.753), order.Price)
+	assert.Equal(t, float64(348), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
