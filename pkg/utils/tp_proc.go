@@ -152,10 +152,13 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	pricePrecision := GetFloatPrecision(s.pairData.PriceStep)
 	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
+	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
+	tpCoinsQty, _ := coinsQtyDec.RoundFloor(int32(qtyPrecision)).Float64()
+
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           s.coinsQty,
+		Qty:           tpCoinsQty,
 		Price:         tpPriceFloat,
 		Deposit:       tpDepositFloat,
 		ClientOrderID: GenerateUUID(),
