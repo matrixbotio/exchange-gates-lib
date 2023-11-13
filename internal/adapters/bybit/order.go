@@ -2,6 +2,7 @@ package bybit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -127,6 +128,13 @@ func (a *adapter) GetOrderExecFee(
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {
+	if pairSymbol == "" {
+		return structs.OrderFees{}, errors.New("pair symbol is not set")
+	}
+	if orderID == 0 {
+		return structs.OrderFees{}, errors.New("order ID is not set")
+	}
+
 	orderIDFormatted := strconv.FormatInt(orderID, 10)
 
 	payload := bybit.V5GetExecutionParam{
