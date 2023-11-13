@@ -99,7 +99,10 @@ func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderD
 }
 
 // GetOrderByClientOrderID ..
-func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (structs.OrderData, error) {
+func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (
+	structs.OrderData,
+	error,
+) {
 	return a.GetOrderData(pairSymbol, 0)
 }
 
@@ -156,15 +159,10 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 	return utils.GetDefaultPairData(), nil
 }
 
-func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error) {
-	return []structs.OrderData{}, nil
-}
-
-func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
-	return []structs.SymbolPrice{}, nil
-}
-
-func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
+func (a *adapter) GetCandles(limit int, symbol string, interval string) (
+	[]workers.CandleData,
+	error,
+) {
 	return nil, nil
 }
 

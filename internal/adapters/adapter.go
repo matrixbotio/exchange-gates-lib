@@ -54,8 +54,4 @@ type Adapter interface {
 
 	// Candle
 	GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error)
-
-	// TBD: remove: https://github.com/matrixbotio/exchange-gates-lib/issues/149
-	GetPrices() ([]structs.SymbolPrice, error)
-	GetPairOrdersHistory(task structs.GetOrdersHistoryTask) ([]structs.OrderData, error)
 }
