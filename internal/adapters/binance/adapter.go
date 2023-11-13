@@ -68,23 +68,6 @@ func (a *adapter) sync() {
 	a.binanceAPI.NewSetServerTimeService().Do(context.Background())
 }
 
-func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
-	prices, err := a.binanceAPI.NewListPricesService().Do(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("get prices: %w", err)
-	}
-
-	r := []structs.SymbolPrice{}
-	for _, priceData := range prices {
-		pairPrice, err := strconv.ParseFloat(priceData.Price, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse price for symbol %q: %w", priceData.Symbol, err)
-		}
-		r = append(r, structs.SymbolPrice{Price: pairPrice, Symbol: priceData.Symbol})
-	}
-	return r, nil
-}
-
 func (a *adapter) getOrderFromService(
 	pairSymbol string, orderID int64, clientOrderID string,
 ) (*binance.Order, error) {
@@ -350,40 +333,4 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 		}
 	}
 	return pairs, lastError
-}
-
-func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) (
-	[]structs.OrderData,
-	error,
-) {
-	if task.PairSymbol == "" {
-		return nil, errors.New("pair symbol is not set")
-	}
-	if task.StartTime == 0 {
-		return nil, errors.New("start time is not set")
-	}
-
-	// create request service
-	service := a.binanceAPI.NewListOrdersService().StartTime(task.StartTime).
-		Symbol(task.PairSymbol)
-	if task.EndTime > 0 {
-		service.EndTime(task.EndTime)
-	}
-
-	// set context
-	if task.Ctx == nil {
-		task.Ctx = context.Background()
-	}
-
-	// send request
-	ordersRaw, err := service.Do(task.Ctx)
-	if err != nil {
-		return nil, fmt.Errorf("get orders history: %w", err)
-	}
-	if ordersRaw == nil {
-		return nil, errors.New("request orders history: orders not set")
-	}
-
-	// convert orders
-	return convertOrders(ordersRaw)
 }

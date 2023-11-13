@@ -75,14 +75,6 @@ func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, err
 	return result, nil
 }
 
-// TBD: remove: https://github.com/matrixbotio/exchange-gates-lib/issues/149
-func (a *adapter) GetPairOrdersHistory(task structs.GetOrdersHistoryTask) (
-	[]structs.OrderData,
-	error,
-) {
-	return nil, nil
-}
-
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	response, err := a.getTradePairs()
 	if err != nil {

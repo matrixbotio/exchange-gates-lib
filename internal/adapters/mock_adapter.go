@@ -811,60 +811,6 @@ func (_c *MockAdapter_GetPairOpenOrders_Call) RunAndReturn(run func(string) ([]i
 	return _c
 }
 
-// GetPairOrdersHistory provides a mock function with given fields: task
-func (_m *MockAdapter) GetPairOrdersHistory(task internalstructs.GetOrdersHistoryTask) ([]internalstructs.OrderData, error) {
-	ret := _m.Called(task)
-
-	var r0 []internalstructs.OrderData
-	var r1 error
-	if rf, ok := ret.Get(0).(func(internalstructs.GetOrdersHistoryTask) ([]internalstructs.OrderData, error)); ok {
-		return rf(task)
-	}
-	if rf, ok := ret.Get(0).(func(internalstructs.GetOrdersHistoryTask) []internalstructs.OrderData); ok {
-		r0 = rf(task)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]internalstructs.OrderData)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(internalstructs.GetOrdersHistoryTask) error); ok {
-		r1 = rf(task)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockAdapter_GetPairOrdersHistory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairOrdersHistory'
-type MockAdapter_GetPairOrdersHistory_Call struct {
-	*mock.Call
-}
-
-// GetPairOrdersHistory is a helper method to define mock.On call
-//   - task internalstructs.GetOrdersHistoryTask
-func (_e *MockAdapter_Expecter) GetPairOrdersHistory(task interface{}) *MockAdapter_GetPairOrdersHistory_Call {
-	return &MockAdapter_GetPairOrdersHistory_Call{Call: _e.mock.On("GetPairOrdersHistory", task)}
-}
-
-func (_c *MockAdapter_GetPairOrdersHistory_Call) Run(run func(task internalstructs.GetOrdersHistoryTask)) *MockAdapter_GetPairOrdersHistory_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(internalstructs.GetOrdersHistoryTask))
-	})
-	return _c
-}
-
-func (_c *MockAdapter_GetPairOrdersHistory_Call) Return(_a0 []internalstructs.OrderData, _a1 error) *MockAdapter_GetPairOrdersHistory_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockAdapter_GetPairOrdersHistory_Call) RunAndReturn(run func(internalstructs.GetOrdersHistoryTask) ([]internalstructs.OrderData, error)) *MockAdapter_GetPairOrdersHistory_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetPairs provides a mock function with given fields:
 func (_m *MockAdapter) GetPairs() ([]internalstructs.ExchangePairData, error) {
 	ret := _m.Called()
@@ -958,59 +904,6 @@ func (_c *MockAdapter_GetPriceWorker_Call) Return(_a0 workers.IPriceWorker) *Moc
 }
 
 func (_c *MockAdapter_GetPriceWorker_Call) RunAndReturn(run func(workers.PriceEventCallback) workers.IPriceWorker) *MockAdapter_GetPriceWorker_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetPrices provides a mock function with given fields:
-func (_m *MockAdapter) GetPrices() ([]internalstructs.SymbolPrice, error) {
-	ret := _m.Called()
-
-	var r0 []internalstructs.SymbolPrice
-	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]internalstructs.SymbolPrice, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() []internalstructs.SymbolPrice); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]internalstructs.SymbolPrice)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockAdapter_GetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPrices'
-type MockAdapter_GetPrices_Call struct {
-	*mock.Call
-}
-
-// GetPrices is a helper method to define mock.On call
-func (_e *MockAdapter_Expecter) GetPrices() *MockAdapter_GetPrices_Call {
-	return &MockAdapter_GetPrices_Call{Call: _e.mock.On("GetPrices")}
-}
-
-func (_c *MockAdapter_GetPrices_Call) Run(run func()) *MockAdapter_GetPrices_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockAdapter_GetPrices_Call) Return(_a0 []internalstructs.SymbolPrice, _a1 error) *MockAdapter_GetPrices_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockAdapter_GetPrices_Call) RunAndReturn(run func() ([]internalstructs.SymbolPrice, error)) *MockAdapter_GetPrices_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -7,7 +7,6 @@ import (
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
@@ -78,9 +77,4 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 
 	_, err := a.CanTrade()
 	return err
-}
-
-// TBD: remove: https://github.com/matrixbotio/exchange-gates-lib/issues/149
-func (a *adapter) GetPrices() ([]structs.SymbolPrice, error) {
-	return nil, nil
 }
