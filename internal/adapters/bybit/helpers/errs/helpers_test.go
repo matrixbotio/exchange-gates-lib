@@ -2,9 +2,8 @@ package errs
 
 import (
 	"errors"
+	"github.com/stretchr/testify/assert"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
@@ -19,33 +18,34 @@ func TestHandleCancelOrderErrorEmpty(t *testing.T) {
 	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
-	require.NoError(t, err)
+	assert.NoError(t, err)
 }
 
 func TestHandleCancelOrderErrorAlreadyCancelled(t *testing.T) {
 	// given
 	var orderIDFormatted = "123"
 	var pairSymbol = "LTCBUSD"
-	var testErr error = errors.New("error: Order has been canceled")
+	var testErr = errors.New("error: Order has been canceled")
 
 	// when
 	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
-	require.NoError(t, err)
+	assert.Error(t, err)
+	assert.Equal(t, pkgErrs.OrderNotFound, err)
 }
 
 func TestHandleCancelOrderErrorFilled(t *testing.T) {
 	// given
 	var orderIDFormatted = "123"
 	var pairSymbol = "LTCBUSD"
-	var testErr error = pkgErrs.ErrOrderFilled
+	var testErr = pkgErrs.ErrOrderFilled
 
 	// when
 	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
-	require.Error(t, err)
+	assert.Error(t, err)
 }
 
 func TestHandleCancelOrderError(t *testing.T) {
@@ -58,5 +58,5 @@ func TestHandleCancelOrderError(t *testing.T) {
 	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
-	require.Error(t, err)
+	assert.Error(t, err)
 }
