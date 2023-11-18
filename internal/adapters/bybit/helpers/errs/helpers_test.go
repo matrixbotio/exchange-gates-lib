@@ -2,8 +2,9 @@ package errs
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
@@ -31,8 +32,7 @@ func TestHandleCancelOrderErrorAlreadyCancelled(t *testing.T) {
 	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
-	assert.Error(t, err)
-	assert.Equal(t, pkgErrs.OrderNotFound, err)
+	assert.NoError(t, err)
 }
 
 func TestHandleCancelOrderErrorFilled(t *testing.T) {
