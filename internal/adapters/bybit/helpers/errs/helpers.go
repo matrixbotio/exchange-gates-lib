@@ -17,13 +17,13 @@ func HandleCancelOrderError(
 	}
 
 	if strings.Contains(err.Error(), "Order has been canceled") {
-		return nil
+		return errs.OrderNotFound
 	}
 	if strings.Contains(err.Error(), errs.ErrOrderFilled.Error()) {
 		return errs.ErrOrderFilled
 	}
 	if strings.Contains(err.Error(), "Order does not exist") {
-		return nil
+		return errs.OrderNotFound
 	}
 
 	return fmt.Errorf(
