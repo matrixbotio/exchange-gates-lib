@@ -3,7 +3,6 @@ package binance
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
@@ -14,22 +13,10 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	tickerService := a.binanceAPI.NewListPricesService()
 	prices, err := tickerService.Symbol(pairSymbol).Do(context.Background())
 	if err != nil {
-		return 0, fmt.Errorf("last price: %w", err)
+		return 0, fmt.Errorf("get pair last price: %w", err)
 	}
 
-	// until just brute force. need to be done faster
-	var price float64 = 0
-	var parseErr error
-	for _, p := range prices {
-		if p.Symbol == pairSymbol {
-			price, parseErr = strconv.ParseFloat(p.Price, 64)
-			if parseErr != nil {
-				return 0, fmt.Errorf("parse price %q: %w", p.Price, err)
-			}
-			break
-		}
-	}
-	return price, nil
+	return mappers.GetPairPrice(prices, pairSymbol)
 }
 
 // GetPairData - get pair data & limits
