@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
@@ -34,21 +35,16 @@ func (w *PriceWorkerBinance) handlePriceEvent(event *binance.WsBookTickerEvent) 
 		return
 	}
 
-	eventAsk, convErr := strconv.ParseFloat(event.BestAskPrice, 64)
-	if convErr != nil {
-		return // ignore event
-	}
-
-	eventBid, convErr := strconv.ParseFloat(event.BestBidPrice, 64)
-	if convErr != nil {
-		return // ignore event
+	ask, bid, err := mappers.ConvertPriceEvent(*event)
+	if err != nil {
+		return // ignore broken price event
 	}
 
 	w.HandleEventCallback(workers.PriceEvent{
 		ExchangeTag: w.ExchangeTag,
 		Symbol:      event.Symbol,
-		Ask:         eventAsk,
-		Bid:         eventBid,
+		Ask:         ask,
+		Bid:         bid,
 	})
 }
 
@@ -64,7 +60,11 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	var openWsErr error
 	for _, pairSymbol := range pairSymbols {
 		newChannels := pkgStructs.WorkerChannels{}
-		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(pairSymbol, w.handlePriceEvent, errorHandler)
+		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(
+			pairSymbol,
+			w.handlePriceEvent,
+			errorHandler,
+		)
 		if openWsErr != nil {
 			return result, fmt.Errorf("subscribe to %q price: %w", pairSymbol, openWsErr)
 		}
@@ -119,7 +119,11 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 
 	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(symbol, wsTradeHandler, wsErrHandler)
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(
+		symbol,
+		wsTradeHandler,
+		wsErrHandler,
+	)
 	if err != nil {
 		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
