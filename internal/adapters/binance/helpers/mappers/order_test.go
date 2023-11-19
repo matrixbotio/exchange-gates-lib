@@ -41,9 +41,8 @@ func TestBinanceConvertOrderSide(t *testing.T) {
 	orderSide, err := ConvertOrderSide(exchangeOrderSide)
 
 	// then
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, orderSide, structs.OrderTypeBuy)
-
 }
 
 func TestConvertOrderSideSell(t *testing.T) {
@@ -54,7 +53,7 @@ func TestConvertOrderSideSell(t *testing.T) {
 	orderSide, err := ConvertOrderSide(exchangeOrderSide)
 
 	// then
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, orderSide, structs.OrderTypeSell)
 }
 
@@ -66,7 +65,7 @@ func TestConvertOrderSideUnknown(t *testing.T) {
 	_, err := ConvertOrderSide(exchangeOrderSide)
 
 	// then
-	assert.NotNil(t, err)
+	assert.ErrorContains(t, err, "unknown order side")
 }
 
 func TestGetBinanceOrderSideBuy(t *testing.T) {
@@ -101,7 +100,7 @@ func TestGetBinanceOrderSideUnknown(t *testing.T) {
 	_, err := GetBinanceOrderSide(botOrderSide)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "unknown order side")
 }
 
 func TestConvertBinanceToBotOrderSuccess(t *testing.T) {
@@ -142,7 +141,7 @@ func TestConvertBinanceToBotOrderInvalidQty(t *testing.T) {
 	_, err := ConvertPlacedOrder(orderResponse)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "parse order origQty")
 }
 
 func TestConvertBinanceToBotOrderInvalidPrice(t *testing.T) {
@@ -156,7 +155,7 @@ func TestConvertBinanceToBotOrderInvalidPrice(t *testing.T) {
 	_, err := ConvertPlacedOrder(orderResponse)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "parse order price")
 }
 
 func TestConvertBinanceToBotOrderInvalidSide(t *testing.T) {
@@ -171,5 +170,5 @@ func TestConvertBinanceToBotOrderInvalidSide(t *testing.T) {
 	_, err := ConvertPlacedOrder(orderResponse)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "unknown order side")
 }

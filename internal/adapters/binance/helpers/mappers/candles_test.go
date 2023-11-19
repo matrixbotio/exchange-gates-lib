@@ -38,7 +38,7 @@ func TestConvertCandles(t *testing.T) {
 	candles, err := ConvertCandles(klines, interval)
 
 	// then
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, candles, 2)
 
 	// validate the contents of the first candle
@@ -71,8 +71,7 @@ func TestConvertCandlesWithError(t *testing.T) {
 	_, err := ConvertCandles(klines, interval)
 
 	// then
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "convert candles `open` value is empty")
+	require.ErrorContains(t, err, "`open` value is empty")
 }
 
 func TestConvertBinanceCandleEvent(t *testing.T) {

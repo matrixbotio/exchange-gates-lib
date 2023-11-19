@@ -39,5 +39,5 @@ func TestConvertPriceEventError(t *testing.T) {
 	_, _, err := ConvertPriceEvent(event)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "invalid syntax")
 }

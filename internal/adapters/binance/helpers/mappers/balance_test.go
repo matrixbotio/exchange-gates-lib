@@ -39,7 +39,7 @@ func TestParseAssetBalanceFreeEmpty(t *testing.T) {
 	_, err := ConvertAssetBalance(rawData)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "invalid syntax")
 }
 
 func TestParseAssetBalanceLockedEmpty(t *testing.T) {
@@ -54,7 +54,7 @@ func TestParseAssetBalanceLockedEmpty(t *testing.T) {
 	_, err := ConvertAssetBalance(rawData)
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "invalid syntax")
 }
 
 func TestFindAssetBalancesSuccess(t *testing.T) {
