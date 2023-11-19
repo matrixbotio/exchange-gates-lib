@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
@@ -56,7 +57,7 @@ func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, err
 		return nil, err
 	}
 
-	return convertOrders(ordersRaw)
+	return mappers.ConvertOrders(ordersRaw)
 }
 
 // GetPairs get all Binance pairs

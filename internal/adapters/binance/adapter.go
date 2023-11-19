@@ -116,7 +116,7 @@ func (a *adapter) getOrderData(
 		return structs.OrderData{}, err
 	}
 
-	return convertOrder(orderResponse)
+	return mappers.ConvertOrderData(orderResponse)
 }
 
 // GetOrderData - get order data
