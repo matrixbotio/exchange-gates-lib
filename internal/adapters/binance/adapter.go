@@ -148,8 +148,6 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		orderSide = binance.SideTypeSell
 	}
 
-	a.sync() // sync client
-
 	// setup order
 	orderService := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
