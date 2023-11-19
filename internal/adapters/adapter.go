@@ -9,49 +9,68 @@ import (
 )
 
 type Adapter interface {
-	// Adapter
+	// ADAPTER
 	GetName() string
 	GetTag() string
 	GetID() int
 
-	// Methods
-	// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/156
+	// BASIC
+	// TBD: call Connect on adapter init:
+	//	https://github.com/matrixbotio/exchange-gates-lib/issues/156
+	// Connect to exchange
 	Connect(credentials pkgStructs.APICredentials) error
+	// CanTrade - check the permission of the API key for trading
 	CanTrade() (bool, error)
+	// VerifyAPIKeys - Check if the API key has expired
 	VerifyAPIKeys(keyPublic, keySecret string) error
+	// GetAccountBalance - get account balances for individual tickers
 	GetAccountBalance() ([]structs.Balance, error)
 
-	// Order
+	// ORDER
+	// GetOrderData - get order data
 	GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error)
+	// GetClientOrderData - get order data by client order ID
 	GetOrderByClientOrderID(pairSymbol, clientOrderID string) (structs.OrderData, error)
+	// PlaceOrder - place order on exchange
 	PlaceOrder(
 		ctx context.Context,
 		order structs.BotOrderAdjusted,
 	) (structs.CreateOrderResponse, error)
+	// Get the amount of fees for order execution
 	GetOrderExecFee(
 		pairSymbol string,
 		orderSide string,
 		orderID int64,
 	) (structs.OrderFees, error)
 
-	// Pair
+	// PAIR
+	// GetPairData - get pair data & limits
 	GetPairData(pairSymbol string) (structs.ExchangePairData, error)
+	// GetPairLastPrice - get pair last price ^ↀᴥↀ^
 	GetPairLastPrice(pairSymbol string) (float64, error)
+	// CancelPairOrder - cancel one exchange pair order by ID
 	CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error
+	// CancelPairOrder - cancel one exchange pair order by client order ID
 	CancelPairOrderByClientOrderID(
 		pairSymbol string,
 		clientOrderID string,
 		ctx context.Context,
 	) error
+	// GetPairOpenOrders - get open orders array
 	GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error)
+	// GetPairs get all Binance pairs
 	GetPairs() ([]structs.ExchangePairData, error)
+	// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
 	GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error)
 
-	// Workers
+	// WORKERS
+	// GetPriceWorker - create new market data worker
 	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
+	// GetCandleWorker - create new market candle worker
 	GetCandleWorker() workers.ICandleWorker
+	// GetTradeEventsWorker - create new market candle worker
 	GetTradeEventsWorker() workers.ITradeEventWorker
 
-	// Candle
+	// CANDLE
 	GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error)
 }

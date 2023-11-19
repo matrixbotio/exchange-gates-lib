@@ -91,11 +91,11 @@ func (_c *MockITradeEventWorker_Stop_Call) RunAndReturn(run func()) *MockITradeE
 }
 
 // SubscribeToTradeEvents provides a mock function with given fields: symbol, eventCallback, errorHandler
-func (_m *MockITradeEventWorker) SubscribeToTradeEvents(symbol string, eventCallback func(TradeEvent), errorHandler func(error)) error {
+func (_m *MockITradeEventWorker) SubscribeToTradeEvents(symbol string, eventCallback TradeEventCallback, errorHandler func(error)) error {
 	ret := _m.Called(symbol, eventCallback, errorHandler)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, func(TradeEvent), func(error)) error); ok {
+	if rf, ok := ret.Get(0).(func(string, TradeEventCallback, func(error)) error); ok {
 		r0 = rf(symbol, eventCallback, errorHandler)
 	} else {
 		r0 = ret.Error(0)
@@ -111,15 +111,15 @@ type MockITradeEventWorker_SubscribeToTradeEvents_Call struct {
 
 // SubscribeToTradeEvents is a helper method to define mock.On call
 //   - symbol string
-//   - eventCallback func(TradeEvent)
+//   - eventCallback TradeEventCallback
 //   - errorHandler func(error)
 func (_e *MockITradeEventWorker_Expecter) SubscribeToTradeEvents(symbol interface{}, eventCallback interface{}, errorHandler interface{}) *MockITradeEventWorker_SubscribeToTradeEvents_Call {
 	return &MockITradeEventWorker_SubscribeToTradeEvents_Call{Call: _e.mock.On("SubscribeToTradeEvents", symbol, eventCallback, errorHandler)}
 }
 
-func (_c *MockITradeEventWorker_SubscribeToTradeEvents_Call) Run(run func(symbol string, eventCallback func(TradeEvent), errorHandler func(error))) *MockITradeEventWorker_SubscribeToTradeEvents_Call {
+func (_c *MockITradeEventWorker_SubscribeToTradeEvents_Call) Run(run func(symbol string, eventCallback TradeEventCallback, errorHandler func(error))) *MockITradeEventWorker_SubscribeToTradeEvents_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(func(TradeEvent)), args[2].(func(error)))
+		run(args[0].(string), args[1].(TradeEventCallback), args[2].(func(error)))
 	})
 	return _c
 }
@@ -129,7 +129,7 @@ func (_c *MockITradeEventWorker_SubscribeToTradeEvents_Call) Return(_a0 error) *
 	return _c
 }
 
-func (_c *MockITradeEventWorker_SubscribeToTradeEvents_Call) RunAndReturn(run func(string, func(TradeEvent), func(error)) error) *MockITradeEventWorker_SubscribeToTradeEvents_Call {
+func (_c *MockITradeEventWorker_SubscribeToTradeEvents_Call) RunAndReturn(run func(string, TradeEventCallback, func(error)) error) *MockITradeEventWorker_SubscribeToTradeEvents_Call {
 	_c.Call.Return(run)
 	return _c
 }

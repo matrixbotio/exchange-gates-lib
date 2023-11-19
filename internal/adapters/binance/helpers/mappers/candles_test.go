@@ -1,43 +1,25 @@
-package binance
+package mappers
 
 import (
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/adshao/go-binance/v2"
 )
 
 func TestConvertCandles(t *testing.T) {
 	// given
-	klines := []*binance.Kline{
-		{
-			OpenTime:  time.Date(2023, 6, 25, 0, 0, 0, 0, time.UTC).UnixMilli(),
-			CloseTime: time.Date(2023, 6, 25, 0, 59, 59, 0, time.UTC).UnixMilli(),
-			Open:      "1000",
-			Close:     "2000",
-			High:      "3000",
-			Low:       "500",
-			Volume:    "10000",
-		},
-		{
-			OpenTime:  time.Date(2023, 6, 25, 1, 0, 0, 0, time.UTC).UnixMilli(),
-			CloseTime: time.Date(2023, 6, 25, 1, 59, 59, 0, time.UTC).UnixMilli(),
-			Open:      "2000",
-			Close:     "3000",
-			High:      "4000",
-			Low:       "1000",
-			Volume:    "20000",
-		},
-	}
+	klines := GetTestKlines()
 	interval := "1h"
 
 	// when
 	candles, err := ConvertCandles(klines, interval)
 
 	// then
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, candles, 2)
 
 	// validate the contents of the first candle
@@ -70,6 +52,33 @@ func TestConvertCandlesWithError(t *testing.T) {
 	_, err := ConvertCandles(klines, interval)
 
 	// then
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "convert candles `open` value is empty")
+	require.ErrorContains(t, err, "`open` value is empty")
+}
+
+func TestConvertBinanceCandleEvent(t *testing.T) {
+	// given
+	var rawEvent = binance.WsKlineEvent{
+		Symbol: "BTCBUSD",
+		Kline: binance.WsKline{
+			EndTime: 1682506327999,
+			Open:    "100",
+			Close:   "105",
+			High:    "120",
+			Low:     "98",
+			Volume:  "500",
+		},
+	}
+
+	// when
+	event, err := ConvertBinanceCandleEvent(&rawEvent)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, rawEvent.Symbol, event.Symbol)
+	assert.Equal(t, float64(100), event.Candle.Open)
+	assert.Equal(t, float64(105), event.Candle.Close)
+	assert.Equal(t, float64(120), event.Candle.High)
+	assert.Equal(t, float64(98), event.Candle.Low)
+	assert.Equal(t, float64(500), event.Candle.Volume)
+	assert.Equal(t, int64(1682506268000), event.Candle.EndTime)
 }

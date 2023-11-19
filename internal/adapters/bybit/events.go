@@ -24,7 +24,7 @@ type TradeEventWorkerBybit struct {
 
 func (w *TradeEventWorkerBybit) SubscribeToTradeEvents(
 	symbol string,
-	eventCallback func(event workers.TradeEvent),
+	eventCallback workers.TradeEventCallback,
 	errorHandler func(err error),
 ) error {
 	// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/153
