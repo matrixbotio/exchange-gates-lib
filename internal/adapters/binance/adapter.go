@@ -111,7 +111,6 @@ func (a *adapter) getOrderData(
 		return structs.OrderData{}, errors.New("orderID & client order ID is not set")
 	}
 
-	// get service & set order ID
 	orderResponse, err := a.getOrderFromService(pairSymbol, orderID, clientOrderID)
 	if err != nil {
 		return structs.OrderData{}, err
@@ -158,24 +157,7 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		return r, fmt.Errorf("create order: %w", err)
 	}
 
-	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
-	if convErr != nil {
-		return r, fmt.Errorf("parse order origQty: %w", err)
-	}
-
-	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
-	if convErr != nil {
-		return r, fmt.Errorf("parse order price: %w", err)
-	}
-
-	return structs.CreateOrderResponse{
-		OrderID:       orderRes.OrderID,
-		ClientOrderID: orderRes.ClientOrderID,
-		OrigQuantity:  orderResOrigQty,
-		Price:         orderResPrice,
-		Symbol:        orderRes.Symbol,
-		Type:          mappers.ConvertOrderSide(orderRes.Side),
-	}, nil
+	return mappers.ConvertBinanceToBotOrder(orderRes)
 }
 
 func (a *adapter) ping() error {
