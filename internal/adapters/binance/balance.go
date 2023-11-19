@@ -2,6 +2,7 @@ package binance
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
@@ -24,7 +25,11 @@ func (a *adapter) getAccountBalances() (structs.AccountData, error) {
 		return structs.AccountData{}, fmt.Errorf("get account data: %w", err)
 	}
 
-	return mappers.ConvertAccountBalances(data)
+	if data == nil {
+		return structs.AccountData{}, errors.New("account data response is empty")
+	}
+
+	return mappers.ConvertAccountBalances(*data)
 }
 
 // GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol

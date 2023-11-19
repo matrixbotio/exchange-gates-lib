@@ -68,3 +68,108 @@ func TestConvertOrderSideUnknown(t *testing.T) {
 	// then
 	assert.NotNil(t, err)
 }
+
+func TestGetBinanceOrderSideBuy(t *testing.T) {
+	// given
+	var botOrderSide = structs.OrderTypeBuy
+
+	// when
+	orderType, err := GetBinanceOrderSide(botOrderSide)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, binance.SideTypeBuy, orderType)
+}
+
+func TestGetBinanceOrderSideSell(t *testing.T) {
+	// given
+	var botOrderSide = structs.OrderTypeSell
+
+	// when
+	orderType, err := GetBinanceOrderSide(botOrderSide)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, binance.SideTypeSell, orderType)
+}
+
+func TestGetBinanceOrderSideUnknown(t *testing.T) {
+	// given
+	var botOrderSide = "wtf"
+
+	// when
+	_, err := GetBinanceOrderSide(botOrderSide)
+
+	// then
+	require.Error(t, err)
+}
+
+func TestConvertBinanceToBotOrderSuccess(t *testing.T) {
+	// given
+	orderResponse := binance.CreateOrderResponse{
+		Symbol:           "LTCUSDC",
+		OrderID:          100,
+		ClientOrderID:    "test",
+		Price:            "65.108",
+		OrigQuantity:     "1.219",
+		ExecutedQuantity: "0.025",
+		Status:           binance.OrderStatusTypeFilled,
+		Type:             binance.OrderTypeLimit,
+		Side:             binance.SideTypeBuy,
+	}
+
+	// when
+	order, err := ConvertPlacedOrder(orderResponse)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, orderResponse.Symbol, order.Symbol)
+	assert.Equal(t, orderResponse.OrderID, order.OrderID)
+	assert.Equal(t, orderResponse.ClientOrderID, order.ClientOrderID)
+	assert.Equal(t, float64(65.108), order.Price)
+	assert.Equal(t, float64(1.219), order.OrigQuantity)
+	assert.Equal(t, structs.OrderTypeBuy, order.Type)
+}
+
+func TestConvertBinanceToBotOrderInvalidQty(t *testing.T) {
+	// given
+	orderResponse := binance.CreateOrderResponse{
+		Price:        "65.108",
+		OrigQuantity: "wtf",
+	}
+
+	// when
+	_, err := ConvertPlacedOrder(orderResponse)
+
+	// then
+	require.Error(t, err)
+}
+
+func TestConvertBinanceToBotOrderInvalidPrice(t *testing.T) {
+	// given
+	orderResponse := binance.CreateOrderResponse{
+		Price:        "wtf",
+		OrigQuantity: "1.108",
+	}
+
+	// when
+	_, err := ConvertPlacedOrder(orderResponse)
+
+	// then
+	require.Error(t, err)
+}
+
+func TestConvertBinanceToBotOrderInvalidSide(t *testing.T) {
+	// given
+	orderResponse := binance.CreateOrderResponse{
+		Price:        "65.118",
+		OrigQuantity: "1.108",
+		Side:         binance.SideType("wtf"),
+	}
+
+	// when
+	_, err := ConvertPlacedOrder(orderResponse)
+
+	// then
+	require.Error(t, err)
+}

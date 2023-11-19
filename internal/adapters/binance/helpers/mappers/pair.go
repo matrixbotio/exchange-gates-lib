@@ -23,7 +23,7 @@ func GetPairPrice(prices []*binance.SymbolPrice, pairSymbol string) (float64, er
 }
 
 func ConvertExchangePairsData(
-	pairsResponse *binance.ExchangeInfo,
+	pairsResponse binance.ExchangeInfo,
 	exchangeID int,
 ) (
 	[]structs.ExchangePairData,

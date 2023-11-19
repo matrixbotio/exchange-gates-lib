@@ -57,7 +57,7 @@ func TestParseAssetBalanceLockedEmpty(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestFindAssetBalances(t *testing.T) {
+func TestFindAssetBalancesSuccess(t *testing.T) {
 	// given
 	baseAsset := "BTC"
 	quoteAsset := "BUSD"
@@ -96,4 +96,72 @@ func TestFindAssetBalances(t *testing.T) {
 	assert.Equal(t, float64(0), pairBalance.BaseAsset.Locked)
 	assert.Equal(t, quoteAssetFree, pairBalance.QuoteAsset.Free)
 	assert.Equal(t, float64(0), pairBalance.QuoteAsset.Locked)
+}
+
+func TestFindAssetBalancesNotFound(t *testing.T) {
+	// given
+	baseAsset := "MTXB"
+	quoteAsset := "USDC"
+
+	accountData := structs.AccountData{
+		Balances: []structs.Balance{
+			{
+				Asset: "LTC",
+				Free:  10,
+			},
+			{
+				Asset: "USDT",
+				Free:  0.5,
+			},
+		},
+	}
+	pairSymbolData := structs.PairSymbolData{
+		BaseTicker:  baseAsset,
+		QuoteTicker: quoteAsset,
+		Symbol:      baseAsset + quoteAsset,
+	}
+
+	// when
+	pairBalance := FindAssetBalances(accountData, pairSymbolData)
+
+	// then
+	assert.Equal(t, baseAsset, pairBalance.BaseAsset.Ticker)
+	assert.Equal(t, quoteAsset, pairBalance.QuoteAsset.Ticker)
+	assert.Equal(t, float64(0), pairBalance.BaseAsset.Free)
+	assert.Equal(t, float64(0), pairBalance.BaseAsset.Locked)
+	assert.Equal(t, float64(0), pairBalance.QuoteAsset.Free)
+	assert.Equal(t, float64(0), pairBalance.QuoteAsset.Locked)
+}
+
+func TestConvertAccountBalances(t *testing.T) {
+	// given
+	binanceAccountData := binance.Account{
+		CanTrade: true,
+		Balances: []binance.Balance{
+			{
+				Asset:  "MTXB",
+				Free:   "100500.000",
+				Locked: "0.000000000",
+			},
+			{
+				Asset:  "USDT",
+				Free:   "10.000000001",
+				Locked: "5.0200000000",
+			},
+		},
+	}
+
+	// when
+	accountData, err := ConvertAccountBalances(binanceAccountData)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, true, accountData.CanTrade)
+	require.Len(t, accountData.Balances, 2)
+	assert.Equal(t, "MTXB", accountData.Balances[0].Asset)
+	assert.Equal(t, float64(100500), accountData.Balances[0].Free)
+	assert.Equal(t, float64(0), accountData.Balances[0].Locked)
+	assert.Equal(t, "USDT", accountData.Balances[1].Asset)
+	assert.Equal(t, float64(10.000000001), accountData.Balances[1].Free)
+	assert.Equal(t, float64(5.02), accountData.Balances[1].Locked)
 }

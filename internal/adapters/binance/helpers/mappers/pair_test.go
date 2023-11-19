@@ -9,6 +9,44 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func getTestBinancePairData() binance.Symbol {
+	return binance.Symbol{
+		Symbol:               "LTCUSDC",
+		Status:               string(binance.SymbolStatusTypeTrading),
+		BaseAsset:            "LTC",
+		QuoteAsset:           "USDC",
+		BaseAssetPrecision:   8,
+		QuotePrecision:       4,
+		IsSpotTradingAllowed: true,
+		Filters: []map[string]interface{}{
+			{
+				"filterType": string(binance.SymbolFilterTypeLotSize),
+				"maxQty":     "999999",
+				"minQty":     "0.0001",
+				"stepSize":   "0.0001",
+			},
+			{
+				"filterType": string(binance.SymbolFilterTypePriceFilter),
+				"maxPrice":   "1000000",
+				"minPrice":   "0.01",
+				"tickSize":   "0.01",
+			},
+			{
+				"filterType":    string(binance.SymbolFilterTypeNotional),
+				"minNotional":   "1",
+				"avgPriceMins":  0.01,
+				"applyToMarket": true,
+			},
+			{
+				"filterType": string(binance.SymbolFilterTypeMarketLotSize),
+				"maxQty":     "999999",
+				"minQty":     "0.0001",
+				"stepSize":   "0.0001",
+			},
+		},
+	}
+}
+
 func TestGetPairPriceSuccess(t *testing.T) {
 	// given
 	pairSymbol := "LTCUSDT"
@@ -161,4 +199,57 @@ func TestGetExchangePairData(t *testing.T) {
 	assert.Greater(t, pairData.MinPrice, float64(0))
 	assert.Greater(t, pairData.MinQty, float64(0))
 	assert.NotEmpty(t, pairData.Symbol)
+}
+
+func TestConvertExchangePairsDataEmpty(t *testing.T) {
+	// given
+	var pairsResponse = binance.ExchangeInfo{}
+	var exchangeID = 1
+
+	// when
+	data, err := ConvertExchangePairsData(pairsResponse, exchangeID)
+
+	// then
+	require.NoError(t, err)
+	assert.Len(t, data, 0)
+}
+
+func TestConvertExchangePairsDataSuccess(t *testing.T) {
+	// given
+	var pairsResponse = binance.ExchangeInfo{
+		Symbols: []binance.Symbol{
+			getTestBinancePairData(),
+		},
+	}
+	var exchangeID = 1
+
+	// when
+	data, err := ConvertExchangePairsData(pairsResponse, exchangeID)
+
+	// then
+	require.NoError(t, err)
+	require.Len(t, data, 1)
+	assert.Equal(t, "LTCUSDC", data[0].Symbol)
+	assert.Equal(t, exchangeID, data[0].ExchangeID)
+	assert.Equal(t, float64(0.0001), data[0].MinQty)
+	assert.Equal(t, float64(0.01), data[0].MinPrice)
+	assert.Equal(t, float64(1), data[0].MinDeposit)
+}
+
+func TestConvertExchangePairsDataFiltersEmpty(t *testing.T) {
+	// given
+	var pairsResponse = binance.ExchangeInfo{
+		Symbols: []binance.Symbol{
+			getTestBinancePairData(),
+		},
+	}
+	var exchangeID = 1
+
+	pairsResponse.Symbols[0].Filters = make([]map[string]interface{}, 0)
+
+	// when
+	_, err := ConvertExchangePairsData(pairsResponse, exchangeID)
+
+	// then
+	require.ErrorContains(t, err, "filter not available")
 }

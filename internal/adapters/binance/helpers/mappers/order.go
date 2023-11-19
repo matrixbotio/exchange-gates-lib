@@ -33,34 +33,34 @@ func GetBinanceOrderSide(botOrderSide string) (binance.SideType, error) {
 	}
 }
 
-func ConvertBinanceToBotOrder(orderRes *binance.CreateOrderResponse) (
+func ConvertPlacedOrder(orderResponse binance.CreateOrderResponse) (
 	structs.CreateOrderResponse,
 	error,
 ) {
-	orderResOrigQty, err := strconv.ParseFloat(orderRes.OrigQuantity, 64)
+	orderResOrigQty, err := strconv.ParseFloat(orderResponse.OrigQuantity, 64)
 	if err != nil {
 		return structs.CreateOrderResponse{},
 			fmt.Errorf("parse order origQty: %w", err)
 	}
 
-	orderResPrice, err := strconv.ParseFloat(orderRes.Price, 64)
+	orderResPrice, err := strconv.ParseFloat(orderResponse.Price, 64)
 	if err != nil {
 		return structs.CreateOrderResponse{},
 			fmt.Errorf("parse order price: %w", err)
 	}
 
-	orderSide, err := ConvertOrderSide(orderRes.Side)
+	orderSide, err := ConvertOrderSide(orderResponse.Side)
 	if err != nil {
 		return structs.CreateOrderResponse{},
 			fmt.Errorf("convert order side: %w", err)
 	}
 
 	return structs.CreateOrderResponse{
-		OrderID:       orderRes.OrderID,
-		ClientOrderID: orderRes.ClientOrderID,
+		OrderID:       orderResponse.OrderID,
+		ClientOrderID: orderResponse.ClientOrderID,
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
-		Symbol:        orderRes.Symbol,
+		Symbol:        orderResponse.Symbol,
 		Type:          orderSide,
 	}, nil
 }

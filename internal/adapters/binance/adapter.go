@@ -137,7 +137,6 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	structs.CreateOrderResponse,
 	error,
 ) {
-	r := structs.CreateOrderResponse{}
 	orderSide, err := mappers.GetBinanceOrderSide(order.Type)
 	if err != nil {
 		return structs.CreateOrderResponse{}, fmt.Errorf("get order side: %w", err)
@@ -152,12 +151,16 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		orderService.NewClientOrderID(order.ClientOrderID)
 	}
 
-	orderRes, err := orderService.Do(ctx)
+	orderResponse, err := orderService.Do(ctx)
 	if err != nil {
-		return r, fmt.Errorf("create order: %w", err)
+		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
 	}
 
-	return mappers.ConvertBinanceToBotOrder(orderRes)
+	if orderResponse == nil {
+		return structs.CreateOrderResponse{}, errors.New("order response is empty")
+	}
+
+	return mappers.ConvertPlacedOrder(*orderResponse)
 }
 
 func (a *adapter) ping() error {

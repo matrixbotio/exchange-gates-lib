@@ -72,7 +72,7 @@ func FindAssetBalances(
 	return pairBalanceData
 }
 
-func ConvertAccountBalances(binanceAccountData *binance.Account) (structs.AccountData, error) {
+func ConvertAccountBalances(binanceAccountData binance.Account) (structs.AccountData, error) {
 	accountDataResult := structs.AccountData{
 		CanTrade: binanceAccountData.CanTrade,
 	}
