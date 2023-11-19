@@ -490,6 +490,62 @@ func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) RunAndReturn(run fun
 	return _c
 }
 
+// GetOrderTradeHistory provides a mock function with given fields: ctx, orderID, pairSymbol
+func (_m *MockBinanceAPIWrapper) GetOrderTradeHistory(ctx context.Context, orderID int64, pairSymbol string) ([]*binance.TradeV3, error) {
+	ret := _m.Called(ctx, orderID, pairSymbol)
+
+	var r0 []*binance.TradeV3
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string) ([]*binance.TradeV3, error)); ok {
+		return rf(ctx, orderID, pairSymbol)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string) []*binance.TradeV3); ok {
+		r0 = rf(ctx, orderID, pairSymbol)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*binance.TradeV3)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int64, string) error); ok {
+		r1 = rf(ctx, orderID, pairSymbol)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockBinanceAPIWrapper_GetOrderTradeHistory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrderTradeHistory'
+type MockBinanceAPIWrapper_GetOrderTradeHistory_Call struct {
+	*mock.Call
+}
+
+// GetOrderTradeHistory is a helper method to define mock.On call
+//   - ctx context.Context
+//   - orderID int64
+//   - pairSymbol string
+func (_e *MockBinanceAPIWrapper_Expecter) GetOrderTradeHistory(ctx interface{}, orderID interface{}, pairSymbol interface{}) *MockBinanceAPIWrapper_GetOrderTradeHistory_Call {
+	return &MockBinanceAPIWrapper_GetOrderTradeHistory_Call{Call: _e.mock.On("GetOrderTradeHistory", ctx, orderID, pairSymbol)}
+}
+
+func (_c *MockBinanceAPIWrapper_GetOrderTradeHistory_Call) Run(run func(ctx context.Context, orderID int64, pairSymbol string)) *MockBinanceAPIWrapper_GetOrderTradeHistory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_GetOrderTradeHistory_Call) Return(_a0 []*binance.TradeV3, _a1 error) *MockBinanceAPIWrapper_GetOrderTradeHistory_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_GetOrderTradeHistory_Call) RunAndReturn(run func(context.Context, int64, string) ([]*binance.TradeV3, error)) *MockBinanceAPIWrapper_GetOrderTradeHistory_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPrices provides a mock function with given fields: ctx, pairSymbol
 func (_m *MockBinanceAPIWrapper) GetPrices(ctx context.Context, pairSymbol string) ([]*binance.SymbolPrice, error) {
 	ret := _m.Called(ctx, pairSymbol)

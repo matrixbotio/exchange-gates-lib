@@ -125,13 +125,19 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 }
 
 func (a *adapter) GetOrderExecFee(
-	pairSymbol string,
+	baseAssetTicker string,
+	quoteAssetTicker string,
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {
-	if pairSymbol == "" {
-		return structs.OrderFees{}, errors.New("pair symbol is not set")
+	if baseAssetTicker == "" {
+		return structs.OrderFees{}, errors.New("base asset ticker is not set")
 	}
+	if quoteAssetTicker == "" {
+		return structs.OrderFees{}, errors.New("quote asset ticker is not set")
+	}
+
+	pairSymbol := baseAssetTicker + quoteAssetTicker
 	if orderID == 0 {
 		return structs.OrderFees{}, errors.New("order ID is not set")
 	}

@@ -547,23 +547,23 @@ func (_c *MockAdapter_GetOrderData_Call) RunAndReturn(run func(string, int64) (i
 	return _c
 }
 
-// GetOrderExecFee provides a mock function with given fields: pairSymbol, orderSide, orderID
-func (_m *MockAdapter) GetOrderExecFee(pairSymbol string, orderSide string, orderID int64) (internalstructs.OrderFees, error) {
-	ret := _m.Called(pairSymbol, orderSide, orderID)
+// GetOrderExecFee provides a mock function with given fields: baseAssetTicker, quoteAssetTicker, orderSide, orderID
+func (_m *MockAdapter) GetOrderExecFee(baseAssetTicker string, quoteAssetTicker string, orderSide string, orderID int64) (internalstructs.OrderFees, error) {
+	ret := _m.Called(baseAssetTicker, quoteAssetTicker, orderSide, orderID)
 
 	var r0 internalstructs.OrderFees
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, int64) (internalstructs.OrderFees, error)); ok {
-		return rf(pairSymbol, orderSide, orderID)
+	if rf, ok := ret.Get(0).(func(string, string, string, int64) (internalstructs.OrderFees, error)); ok {
+		return rf(baseAssetTicker, quoteAssetTicker, orderSide, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, int64) internalstructs.OrderFees); ok {
-		r0 = rf(pairSymbol, orderSide, orderID)
+	if rf, ok := ret.Get(0).(func(string, string, string, int64) internalstructs.OrderFees); ok {
+		r0 = rf(baseAssetTicker, quoteAssetTicker, orderSide, orderID)
 	} else {
 		r0 = ret.Get(0).(internalstructs.OrderFees)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, int64) error); ok {
-		r1 = rf(pairSymbol, orderSide, orderID)
+	if rf, ok := ret.Get(1).(func(string, string, string, int64) error); ok {
+		r1 = rf(baseAssetTicker, quoteAssetTicker, orderSide, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -577,16 +577,17 @@ type MockAdapter_GetOrderExecFee_Call struct {
 }
 
 // GetOrderExecFee is a helper method to define mock.On call
-//   - pairSymbol string
+//   - baseAssetTicker string
+//   - quoteAssetTicker string
 //   - orderSide string
 //   - orderID int64
-func (_e *MockAdapter_Expecter) GetOrderExecFee(pairSymbol interface{}, orderSide interface{}, orderID interface{}) *MockAdapter_GetOrderExecFee_Call {
-	return &MockAdapter_GetOrderExecFee_Call{Call: _e.mock.On("GetOrderExecFee", pairSymbol, orderSide, orderID)}
+func (_e *MockAdapter_Expecter) GetOrderExecFee(baseAssetTicker interface{}, quoteAssetTicker interface{}, orderSide interface{}, orderID interface{}) *MockAdapter_GetOrderExecFee_Call {
+	return &MockAdapter_GetOrderExecFee_Call{Call: _e.mock.On("GetOrderExecFee", baseAssetTicker, quoteAssetTicker, orderSide, orderID)}
 }
 
-func (_c *MockAdapter_GetOrderExecFee_Call) Run(run func(pairSymbol string, orderSide string, orderID int64)) *MockAdapter_GetOrderExecFee_Call {
+func (_c *MockAdapter_GetOrderExecFee_Call) Run(run func(baseAssetTicker string, quoteAssetTicker string, orderSide string, orderID int64)) *MockAdapter_GetOrderExecFee_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(int64))
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(int64))
 	})
 	return _c
 }
@@ -596,7 +597,7 @@ func (_c *MockAdapter_GetOrderExecFee_Call) Return(_a0 internalstructs.OrderFees
 	return _c
 }
 
-func (_c *MockAdapter_GetOrderExecFee_Call) RunAndReturn(run func(string, string, int64) (internalstructs.OrderFees, error)) *MockAdapter_GetOrderExecFee_Call {
+func (_c *MockAdapter_GetOrderExecFee_Call) RunAndReturn(run func(string, string, string, int64) (internalstructs.OrderFees, error)) *MockAdapter_GetOrderExecFee_Call {
 	_c.Call.Return(run)
 	return _c
 }

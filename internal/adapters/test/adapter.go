@@ -171,7 +171,8 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 }
 
 func (a *adapter) GetOrderExecFee(
-	pairSymbol string,
+	baseAssetTicker string,
+	quoteAssetTicker string,
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {

@@ -355,20 +355,106 @@ func TestPlaceOrderConvertError(t *testing.T) {
 	require.ErrorContains(t, err, "invalid syntax")
 }
 
-func TestGetOrderExecFee(t *testing.T) {
+func TestGetOrderExecFeeSuccess(t *testing.T) {
 	// given
 	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := New(w)
 
+	baseAsset := "LTC"
+	quoteAsset := "USDT"
+	pairSymbol := baseAsset + quoteAsset
+
+	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+		Return([]*binance.TradeV3{
+			{
+				Symbol:          pairSymbol,
+				OrderID:         testOrderID,
+				Commission:      "0.001",
+				CommissionAsset: baseAsset,
+			},
+			{
+				Symbol:          pairSymbol,
+				OrderID:         testOrderID,
+				Commission:      "0.1257",
+				CommissionAsset: quoteAsset,
+			},
+			{
+				Symbol:          "BNBUSDT",
+				OrderID:         testOrderID,
+				Commission:      "12.5236",
+				CommissionAsset: "BNB",
+			},
+			{
+				Symbol:          pairSymbol,
+				OrderID:         testOrderID,
+				Commission:      "0.01023",
+				CommissionAsset: "BNB",
+			},
+		}, nil)
+
 	// when
 	fees, err := a.GetOrderExecFee(
-		testPairSymbol,
+		baseAsset,
+		quoteAsset,
 		pkgStructs.OrderTypeBuy,
 		testOrderID,
 	)
 
 	// then
 	require.NoError(t, err)
-	assert.True(t, fees.BaseAsset.Equal(decimal.Zero))
-	assert.True(t, fees.QuoteAsset.Equal(decimal.Zero))
+	assert.True(t, fees.BaseAsset.Equal(decimal.NewFromFloat(0.001)))
+	assert.True(t, fees.QuoteAsset.Equal(decimal.NewFromFloat(0.1257)))
+}
+
+func TestGetOrderExecFeeGetHistoryError(t *testing.T) {
+	// given
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+
+	baseAsset := "LTC"
+	quoteAsset := "USDT"
+
+	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil, errTestException)
+
+	// when
+	_, err := a.GetOrderExecFee(
+		baseAsset,
+		quoteAsset,
+		pkgStructs.OrderTypeBuy,
+		testOrderID,
+	)
+
+	// then
+	require.ErrorIs(t, err, errTestException)
+}
+
+func TestGetOrderExecFeeParseError(t *testing.T) {
+	// given
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+
+	baseAsset := "LTC"
+	quoteAsset := "USDT"
+
+	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+		Return([]*binance.TradeV3{
+			{
+				Symbol:          baseAsset + quoteAsset,
+				OrderID:         testOrderID,
+				Commission:      "broken data",
+				CommissionAsset: baseAsset,
+			},
+		}, nil)
+
+	// when
+	_, err := a.GetOrderExecFee(
+		baseAsset,
+		quoteAsset,
+		pkgStructs.OrderTypeBuy,
+		testOrderID,
+	)
+
+	// then
+	require.ErrorContains(t, err, "parse exec order fee")
 }

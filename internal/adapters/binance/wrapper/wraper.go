@@ -97,6 +97,12 @@ type BinanceAPIWrapper interface {
 		eventCallback func(event workers.TradeEvent),
 		errorHandler func(err error),
 	) (doneC chan struct{}, stopC chan struct{}, err error)
+
+	GetOrderTradeHistory(
+		ctx context.Context,
+		orderID int64,
+		pairSymbol string,
+	) ([]*binance.TradeV3, error)
 }
 
 type BinanceClientWrapper struct {
@@ -290,4 +296,13 @@ func (b *BinanceClientWrapper) SubscribeToTradeEvents(
 		),
 		errorHandler,
 	)
+}
+
+func (b *BinanceClientWrapper) GetOrderTradeHistory(
+	ctx context.Context,
+	orderID int64,
+	pairSymbol string,
+) ([]*binance.TradeV3, error) {
+	return b.NewListTradesService().OrderId(orderID).
+		Symbol(pairSymbol).Do(ctx)
 }

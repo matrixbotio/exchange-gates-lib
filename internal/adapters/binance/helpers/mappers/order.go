@@ -7,6 +7,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/shopspring/decimal"
 )
 
 // ConvertOrderSide - convert order side from binance format to bot order side
@@ -142,4 +143,33 @@ func GetTestPairDataFilters() []map[string]interface{} {
 			"stepSize":   "0.0001",
 		},
 	}
+}
+
+func GetFeesFromTradeList(
+	trades []*binance.TradeV3,
+	baseAssetTicker string,
+	quoteAssetTicker string,
+	orderID int64,
+) (structs.OrderFees, error) {
+	baseAssetFees := decimal.NewFromInt(0)
+	quoteAssetFees := decimal.NewFromInt(0)
+
+	for _, tradeData := range trades {
+		execFee, err := decimal.NewFromString(tradeData.Commission)
+		if err != nil {
+			return structs.OrderFees{}, fmt.Errorf("parse exec order fee: %w", err)
+		}
+
+		if tradeData.CommissionAsset == baseAssetTicker {
+			baseAssetFees = baseAssetFees.Add(execFee)
+		}
+		if tradeData.CommissionAsset == quoteAssetTicker {
+			quoteAssetFees = quoteAssetFees.Add(execFee)
+		}
+	}
+
+	return structs.OrderFees{
+		BaseAsset:  baseAssetFees,
+		QuoteAsset: quoteAssetFees,
+	}, nil
 }
