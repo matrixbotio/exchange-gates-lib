@@ -29,7 +29,7 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 
 	// find pairSymbol
 	for _, symbolData := range exchangeInfo.Symbols {
-		return getExchangePairData(symbolData, a.ExchangeID)
+		return mappers.ConvertExchangePairData(symbolData, a.ExchangeID)
 	}
 
 	return structs.ExchangePairData{},
@@ -50,20 +50,10 @@ func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, err
 // GetPairs get all Binance pairs
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	service := a.binanceAPI.NewExchangeInfoService()
-	res, err := service.Do(context.Background())
+	pairsResponse, err := service.Do(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("connect: %w", err)
+		return nil, fmt.Errorf("get pairs: %w", err)
 	}
 
-	var lastError error
-	pairs := []structs.ExchangePairData{}
-	for _, symbolData := range res.Symbols {
-		pairData, err := getExchangePairData(symbolData, a.ExchangeID)
-		if err != nil {
-			lastError = err
-		} else {
-			pairs = append(pairs, pairData)
-		}
-	}
-	return pairs, lastError
+	return mappers.ConvertExchangePairsData(pairsResponse, a.ExchangeID)
 }
