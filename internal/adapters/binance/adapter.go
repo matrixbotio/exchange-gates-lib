@@ -12,6 +12,7 @@ import (
 	"github.com/go-stack/stack"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
@@ -138,38 +139,30 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	error,
 ) {
 	r := structs.CreateOrderResponse{}
-	orderSide := binance.SideType(pkgStructs.OrderTypeBuy)
-	switch order.Type {
-	default:
-		return r, errors.New("data invalid error: unknown strategy given for order")
-	case pkgStructs.OrderTypeBuy:
-		orderSide = binance.SideTypeBuy
-	case pkgStructs.OrderTypeSell:
-		orderSide = binance.SideTypeSell
+	orderSide, err := mappers.GetBinanceOrderSide(order.Type)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("get order side: %w", err)
 	}
 
-	// setup order
 	orderService := a.binanceAPI.NewCreateOrderService().Symbol(order.PairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(order.Qty).
 		Price(order.Price)
 
-	// set order ID
 	if order.ClientOrderID != "" {
 		orderService.NewClientOrderID(order.ClientOrderID)
 	}
 
-	// place order
 	orderRes, err := orderService.Do(ctx)
 	if err != nil {
 		return r, fmt.Errorf("create order: %w", err)
 	}
 
-	// parse qty & price from order response
 	orderResOrigQty, convErr := strconv.ParseFloat(orderRes.OrigQuantity, 64)
 	if convErr != nil {
 		return r, fmt.Errorf("parse order origQty: %w", err)
 	}
+
 	orderResPrice, convErr := strconv.ParseFloat(orderRes.Price, 64)
 	if convErr != nil {
 		return r, fmt.Errorf("parse order price: %w", err)
@@ -181,79 +174,14 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		OrigQuantity:  orderResOrigQty,
 		Price:         orderResPrice,
 		Symbol:        orderRes.Symbol,
-		Type:          a.getOrderType(orderRes.Side),
+		Type:          mappers.ConvertOrderSide(orderRes.Side),
 	}, nil
-}
-
-// convert order side to bot order type
-func (a *adapter) getOrderType(orderSide binance.SideType) string {
-	return strings.ToLower(string(orderSide))
-}
-
-func (a *adapter) CanTrade() (bool, error) {
-	binanceAccountData, clientErr := a.binanceAPI.NewGetAccountService().
-		Do(context.Background())
-	if clientErr != nil {
-		return false, errors.New("send request to trade, " + clientErr.Error())
-	}
-	return binanceAccountData.CanTrade, nil
-}
-
-// GetPairLastPrice - get pair last price ^ↀᴥↀ^
-func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
-	tickerService := a.binanceAPI.NewListPricesService()
-	prices, err := tickerService.Symbol(pairSymbol).Do(context.Background())
-	if err != nil {
-		return 0, fmt.Errorf("last price: %w", err)
-	}
-
-	// until just brute force. need to be done faster
-	var price float64 = 0
-	var parseErr error
-	for _, p := range prices {
-		if p.Symbol == pairSymbol {
-			price, parseErr = strconv.ParseFloat(p.Price, 64)
-			if parseErr != nil {
-				return 0, fmt.Errorf("parse price %q: %w", p.Price, err)
-			}
-			break
-		}
-	}
-	return price, nil
-}
-
-// GetPairData - get pair data & limits
-func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
-	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().
-		Symbol(pairSymbol).Do(context.Background())
-	if err != nil {
-		return structs.ExchangePairData{}, err
-	}
-
-	// find pairSymbol
-	for _, symbolData := range exchangeInfo.Symbols {
-		return getExchangePairData(symbolData, a.ExchangeID)
-	}
-
-	return structs.ExchangePairData{}, errors.New("data for " + pairSymbol + " pair not found")
-}
-
-// GetPairOpenOrders - get open orders array
-func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
-	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().
-		Symbol(pairSymbol).Do(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	return convertOrders(ordersRaw)
 }
 
 func (a *adapter) ping() error {
 	var err error
 	for attemptNumber := 1; attemptNumber <= consts.PingRetryAttempts; attemptNumber++ {
-		err := a.binanceAPI.NewPingService().Do(context.Background())
-		if err == nil {
+		if err := a.binanceAPI.NewPingService().Do(context.Background()); err == nil {
 			return nil
 		}
 
@@ -261,39 +189,4 @@ func (a *adapter) ping() error {
 	}
 
 	return fmt.Errorf("ping exchange: %w", err)
-}
-
-// VerifyAPIKeys - create new exchange client & attempt to get account data
-func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
-	newClient := binance.NewClient(keyPublic, keySecret)
-	accountService, err := newClient.NewGetAccountService().Do(context.Background())
-	if err != nil {
-		return fmt.Errorf("invalid api key: %w", err)
-	}
-	if !accountService.CanTrade {
-		return errors.New("your API key does not have permission to trade," +
-			" change its restrictions")
-	}
-	return nil
-}
-
-// GetPairs get all Binance pairs
-func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
-	service := a.binanceAPI.NewExchangeInfoService()
-	res, err := service.Do(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("connect: %w", err)
-	}
-
-	var lastError error
-	pairs := []structs.ExchangePairData{}
-	for _, symbolData := range res.Symbols {
-		pairData, err := getExchangePairData(symbolData, a.ExchangeID)
-		if err != nil {
-			lastError = err
-		} else {
-			pairs = append(pairs, pairData)
-		}
-	}
-	return pairs, lastError
 }
