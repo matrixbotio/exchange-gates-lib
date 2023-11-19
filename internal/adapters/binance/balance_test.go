@@ -4,96 +4,143 @@ import (
 	"testing"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/bmizerany/assert"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseAssetBalance(t *testing.T) {
+func getTestBalances() []binance.Balance {
+	return []binance.Balance{
+		{
+			Asset:  "LTC",
+			Free:   "10.1114",
+			Locked: "0.0000",
+		},
+		{
+			Asset:  "MTXB",
+			Free:   "100500",
+			Locked: "24.0201",
+		},
+	}
+}
+
+func TestGetAccountBalanceSuccess(t *testing.T) {
 	// given
-	rawData := binance.Balance{
-		Asset:  "BTC",
-		Free:   "0.01",
-		Locked: "0",
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+
+	testBalances := &binance.Account{
+		Balances: getTestBalances(),
 	}
 
+	w.EXPECT().GetAccountData(mock.Anything).Return(testBalances, nil)
+
 	// when
-	assetBalance, err := parseAssetBalance(rawData)
+	balances, err := a.GetAccountBalance()
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, rawData.Asset, assetBalance.Asset)
-	assert.Equal(t, float64(0.01), assetBalance.Free)
-	assert.Equal(t, float64(0), assetBalance.Locked)
+	require.Len(t, balances, 2)
+	assert.Equal(t, "LTC", balances[0].Asset)
+	assert.Equal(t, "MTXB", balances[1].Asset)
+	assert.Equal(t, float64(10.1114), balances[0].Free)
+	assert.Equal(t, float64(0), balances[0].Locked)
+	assert.Equal(t, float64(100500), balances[1].Free)
+	assert.Equal(t, float64(24.0201), balances[1].Locked)
 }
 
-func TestParseAssetBalanceFreeEmpty(t *testing.T) {
+func TestGetAccountBalanceError(t *testing.T) {
 	// given
-	rawData := binance.Balance{
-		Asset:  "BTC",
-		Free:   "",
-		Locked: "0",
-	}
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+
+	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
 
 	// when
-	_, err := parseAssetBalance(rawData)
+	_, err := a.GetAccountBalance()
 
 	// then
-	require.Error(t, err)
+	require.ErrorIs(t, err, errTestException)
 }
 
-func TestParseAssetBalanceLockedEmpty(t *testing.T) {
+func TestGetAccountBalanceConvertError(t *testing.T) {
 	// given
-	rawData := binance.Balance{
-		Asset:  "BTC",
-		Free:   "0.01",
-		Locked: "",
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+
+	testBalances := &binance.Account{
+		Balances: getTestBalances(),
 	}
+	testBalances.Balances[0].Free = "broken data"
+
+	w.EXPECT().GetAccountData(mock.Anything).Return(testBalances, nil)
 
 	// when
-	_, err := parseAssetBalance(rawData)
+	_, err := a.GetAccountBalance()
 
 	// then
-	require.Error(t, err)
+	require.ErrorContains(t, err, "invalid syntax")
 }
 
-func TestFindAssetBalances(t *testing.T) {
+func TestGetAccountBalanceErrorEmptyResponse(t *testing.T) {
 	// given
-	baseAsset := "BTC"
-	quoteAsset := "BUSD"
-	baseAssetFree := float64(0.1)
-	quoteAssetFree := float64(95.12)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
 
-	accountData := structs.AccountData{
-		Balances: []structs.Balance{
-			{
-				Asset: "LTC",
-				Free:  10,
-			},
-			{
-				Asset: baseAsset,
-				Free:  baseAssetFree,
-			},
-			{
-				Asset: quoteAsset,
-				Free:  quoteAssetFree,
-			},
-		},
-	}
+	w.EXPECT().GetAccountData(mock.Anything).Return(nil, nil)
+
+	// when
+	_, err := a.GetAccountBalance()
+
+	// then
+	require.ErrorIs(t, err, errs.ErrAccountDataEmpty)
+}
+
+func TestGetPairBalanceSuccess(t *testing.T) {
+	// given
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
 	pairSymbolData := structs.PairSymbolData{
-		BaseTicker:  baseAsset,
-		QuoteTicker: quoteAsset,
-		Symbol:      baseAsset + quoteAsset,
+		BaseTicker:  "LTC",
+		QuoteTicker: "MTXB",
+		Symbol:      "LTCMTXB",
 	}
 
+	w.EXPECT().GetAccountData(mock.Anything).Return(&binance.Account{
+		Balances: getTestBalances(),
+	}, nil)
+
 	// when
-	pairBalance := findAssetBalances(accountData, pairSymbolData)
+	pairBalance, err := a.GetPairBalance(pairSymbolData)
 
 	// then
-	assert.Equal(t, baseAsset, pairBalance.BaseAsset.Ticker)
-	assert.Equal(t, quoteAsset, pairBalance.QuoteAsset.Ticker)
-	assert.Equal(t, baseAssetFree, pairBalance.BaseAsset.Free)
+	require.NoError(t, err)
+	assert.Equal(t, pairSymbolData.BaseTicker, pairBalance.BaseAsset.Ticker)
+	assert.Equal(t, pairSymbolData.QuoteTicker, pairBalance.QuoteAsset.Ticker)
+	assert.Equal(t, float64(10.1114), pairBalance.BaseAsset.Free)
 	assert.Equal(t, float64(0), pairBalance.BaseAsset.Locked)
-	assert.Equal(t, quoteAssetFree, pairBalance.QuoteAsset.Free)
-	assert.Equal(t, float64(0), pairBalance.QuoteAsset.Locked)
+	assert.Equal(t, float64(100500), pairBalance.QuoteAsset.Free)
+	assert.Equal(t, float64(24.0201), pairBalance.QuoteAsset.Locked)
+}
+
+func TestGetPairBalanceError(t *testing.T) {
+	// given
+	w := wrapper.NewMockBinanceAPIWrapper(t)
+	a := New(w)
+	pairSymbolData := structs.PairSymbolData{
+		BaseTicker:  "LTC",
+		QuoteTicker: "MTXB",
+		Symbol:      "LTCMTXB",
+	}
+
+	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
+
+	// when
+	_, err := a.GetPairBalance(pairSymbolData)
+
+	// then
+	require.ErrorIs(t, err, errTestException)
 }

@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -13,28 +14,34 @@ import (
 // CandleWorkerBinance - MarketDataWorker for binance
 type CandleWorkerBinance struct {
 	workers.CandleWorker
+
+	binanceAPI wrapper.BinanceAPIWrapper
 }
 
-func (a *adapter) GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error) {
+func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
+	[]workers.CandleData,
+	error,
+) {
 	ctx, cancel := context.WithTimeout(context.Background(), consts.ReadTimeout)
 	defer cancel()
 
-	klines, err := a.binanceAPI.NewKlinesService().Symbol(symbol).Interval(interval).Limit(limit).Do(ctx)
+	klines, err := a.binanceAPI.GetKlines(ctx, pairSymbol, interval, limit)
 	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles rq: %w", err)
+		return nil, fmt.Errorf("get klines: %w", err)
 	}
 
-	candles, err := ConvertCandles(klines, interval)
+	candles, err := mappers.ConvertCandles(klines, interval)
 	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles convert: %w", err)
+		return nil, fmt.Errorf("convert candles: %w", err)
 	}
 
 	return candles, nil
 }
 
-// GetCandleWorker - create new market candle worker
 func (a *adapter) GetCandleWorker() workers.ICandleWorker {
-	w := CandleWorkerBinance{}
+	w := CandleWorkerBinance{
+		binanceAPI: a.binanceAPI,
+	}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
@@ -44,15 +51,15 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	var openWsErr error
+	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandle(
 		pairSymbol,
 		consts.CandlesInterval,
-		getCandleEventsHandler(eventCallback, errorHandler),
+		eventCallback,
 		errorHandler,
 	)
-	return openWsErr
+	return err
 }
 
 func (w *CandleWorkerBinance) SubscribeToCandlesList(
@@ -62,9 +69,9 @@ func (w *CandleWorkerBinance) SubscribeToCandlesList(
 ) error {
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = w.binanceAPI.SubscribeToCandlesList(
 		intervalsPerPair,
-		getCandleEventsHandler(eventCallback, errorHandler),
+		eventCallback,
 		errorHandler,
 	)
 	return openWsErr

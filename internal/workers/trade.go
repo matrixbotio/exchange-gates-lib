@@ -8,11 +8,13 @@ type TradeEventWorker struct {
 	WsChannels  *structs.WorkerChannels
 }
 
+type TradeEventCallback func(event TradeEvent)
+
 // ITradeEventWorker - interface for PriceWorker
 type ITradeEventWorker interface {
 	SubscribeToTradeEvents(
 		symbol string,
-		eventCallback func(event TradeEvent),
+		eventCallback TradeEventCallback,
 		errorHandler func(err error),
 	) error
 	GetExchangeTag() string
@@ -22,7 +24,7 @@ type ITradeEventWorker interface {
 // SubscribeToTradeEvents - websocket subscription to pair trade events
 func (w *TradeEventWorker) SubscribeToTradeEvents(
 	symbol string,
-	eventCallback func(event TradeEvent),
+	eventCallback TradeEventCallback,
 	errorHandler func(err error),
 ) error {
 	// placeholder
