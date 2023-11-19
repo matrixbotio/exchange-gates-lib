@@ -38,7 +38,8 @@ type Adapter interface {
 	) (structs.CreateOrderResponse, error)
 	// Get the amount of fees for order execution
 	GetOrderExecFee(
-		pairSymbol string,
+		baseAssetTicker string,
+		quoteAssetTicker string,
 		orderSide string,
 		orderID int64,
 	) (structs.OrderFees, error)

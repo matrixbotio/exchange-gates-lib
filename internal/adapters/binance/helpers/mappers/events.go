@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/adshao/go-binance/v2"
+
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 

@@ -8,7 +8,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
-	"github.com/shopspring/decimal"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
@@ -97,14 +96,30 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 }
 
 func (a *adapter) GetOrderExecFee(
-	pairSymbol string,
+	baseAssetTicker string,
+	quoteAssetTicker string,
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {
-	// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/167
+	pairSymbol := baseAssetTicker + quoteAssetTicker
 
-	return structs.OrderFees{
-		BaseAsset:  decimal.NewFromInt(0),
-		QuoteAsset: decimal.NewFromInt(0),
-	}, nil
+	trades, err := a.binanceAPI.GetOrderTradeHistory(
+		context.Background(),
+		orderID,
+		pairSymbol,
+	)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("get order trade history: %w", err)
+	}
+
+	fees, err := mappers.GetFeesFromTradeList(
+		trades,
+		baseAssetTicker,
+		quoteAssetTicker,
+		orderID,
+	)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("convert fees: %w", err)
+	}
+	return fees, nil
 }
