@@ -1,4 +1,4 @@
-package binance
+package mappers
 
 import (
 	"testing"
@@ -18,7 +18,7 @@ func TestParseAssetBalance(t *testing.T) {
 	}
 
 	// when
-	assetBalance, err := parseAssetBalance(rawData)
+	assetBalance, err := ConvertAssetBalance(rawData)
 
 	// then
 	require.NoError(t, err)
@@ -36,7 +36,7 @@ func TestParseAssetBalanceFreeEmpty(t *testing.T) {
 	}
 
 	// when
-	_, err := parseAssetBalance(rawData)
+	_, err := ConvertAssetBalance(rawData)
 
 	// then
 	require.Error(t, err)
@@ -51,7 +51,7 @@ func TestParseAssetBalanceLockedEmpty(t *testing.T) {
 	}
 
 	// when
-	_, err := parseAssetBalance(rawData)
+	_, err := ConvertAssetBalance(rawData)
 
 	// then
 	require.Error(t, err)
@@ -87,7 +87,7 @@ func TestFindAssetBalances(t *testing.T) {
 	}
 
 	// when
-	pairBalance := findAssetBalances(accountData, pairSymbolData)
+	pairBalance := FindAssetBalances(accountData, pairSymbolData)
 
 	// then
 	assert.Equal(t, baseAsset, pairBalance.BaseAsset.Ticker)
