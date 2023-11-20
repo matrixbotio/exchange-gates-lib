@@ -10,6 +10,11 @@ import (
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
+const (
+	adapterName = "Binance Spot"
+	adapterTag  = "binance-spot"
+)
+
 type adapter struct {
 	ExchangeID int
 	Name       string
@@ -23,13 +28,12 @@ func New() adp.Adapter {
 }
 
 func createAdapter(wrapper BinanceAPIWrapper) *adapter {
-	a := adapter{
+	return &adapter{
+		ExchangeID: consts.ExchangeIDbinanceSpot,
+		Name:       adapterName,
+		Tag:        adapterTag,
 		binanceAPI: wrapper,
 	}
-	a.Name = "Binance Spot"
-	a.Tag = "binance-spot"
-	a.ExchangeID = consts.ExchangeIDbinanceSpot
-	return &a
 }
 
 func (a *adapter) GetTag() string {
@@ -46,7 +50,7 @@ func (a *adapter) GetName() string {
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	if credentials.Type != pkgStructs.APICredentialsTypeKeypair {
-		return errors.New("invalid credentials to connect to Binance")
+		return errs.ErrInvalidCredentials
 	}
 
 	if err := a.binanceAPI.Connect(

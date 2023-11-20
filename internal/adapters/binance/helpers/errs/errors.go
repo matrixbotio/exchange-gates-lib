@@ -1,9 +1,14 @@
 package errs
 
 import (
+	"errors"
 	"strings"
 
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
+)
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials to connect to Binance")
 )
 
 func IsErrorAboutUnknownOrder(err error) bool {
