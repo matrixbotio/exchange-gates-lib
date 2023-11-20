@@ -2,10 +2,10 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )

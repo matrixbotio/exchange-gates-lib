@@ -2,10 +2,96 @@ package binance
 
 import (
 	"context"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/mappers"
+	"errors"
+	"fmt"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	"github.com/shopspring/decimal"
 )
+
+func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+	if orderID == 0 {
+		return structs.OrderData{}, errors.New("orderID is not set")
+	}
+
+	order, err := a.binanceAPI.GetOrderDataByOrderID(
+		context.Background(),
+		pairSymbol,
+		orderID,
+	)
+	if err != nil {
+		if errs.IsErrorAboutUnknownOrder(err) {
+			return structs.OrderData{}, pkgErrs.OrderNotFound
+		}
+
+		return structs.OrderData{}, err
+	}
+
+	result, err := mappers.ConvertOrderData(order)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("convert order: %w", err)
+	}
+	return result, nil
+}
+
+func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID string) (
+	structs.OrderData,
+	error,
+) {
+	if clientOrderID == "" {
+		return structs.OrderData{}, errors.New("client order ID is not set")
+	}
+
+	order, err := a.binanceAPI.GetOrderDataByClientOrderID(
+		context.Background(),
+		pairSymbol,
+		clientOrderID,
+	)
+	if err != nil {
+		if errs.IsErrorAboutUnknownOrder(err) {
+			return structs.OrderData{}, pkgErrs.OrderNotFound
+		}
+
+		return structs.OrderData{}, err
+	}
+
+	result, err := mappers.ConvertOrderData(order)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("convert order: %w", err)
+	}
+	return result, nil
+}
+
+func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted) (
+	structs.CreateOrderResponse,
+	error,
+) {
+	orderSide, err := mappers.GetBinanceOrderSide(order.Type)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("get order side: %w", err)
+	}
+
+	orderResponse, err := a.binanceAPI.PlaceLimitOrder(
+		ctx,
+		order.PairSymbol,
+		orderSide,
+		order.Qty,
+		order.Price,
+		order.ClientOrderID,
+	)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
+	}
+
+	if orderResponse == nil {
+		return structs.CreateOrderResponse{}, errors.New("order response is empty")
+	}
+
+	return mappers.ConvertPlacedOrder(*orderResponse)
+}
 
 func (a *adapter) GetOrderExecFee(
 	pairSymbol string,
