@@ -32,7 +32,7 @@ func TestConnect(t *testing.T) {
 
 	w.EXPECT().Sync(context.Background())
 
-	w.EXPECT().Connect(mock.Anything, mock.Anything, context.Background()).
+	w.EXPECT().Connect(context.Background(), mock.Anything, mock.Anything).
 		Return(nil)
 
 	// when

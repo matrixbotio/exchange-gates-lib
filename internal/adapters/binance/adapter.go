@@ -50,9 +50,9 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	}
 
 	if err := a.binanceAPI.Connect(
+		context.Background(),
 		credentials.Keypair.Public,
 		credentials.Keypair.Secret,
-		context.Background(),
 	); err != nil {
 		return fmt.Errorf("connect: %w", err)
 	}

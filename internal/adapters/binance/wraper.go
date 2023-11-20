@@ -11,7 +11,7 @@ import (
 
 type BinanceAPIWrapper interface {
 	Sync(context.Context)
-	Connect(keyPublic, keySecret string, ctx context.Context) error
+	Connect(ctx context.Context, keyPublic, keySecret string) error
 	Ping(context.Context) error
 	GetAccountData(context.Context) (*binance.Account, error)
 
@@ -43,15 +43,15 @@ type BinanceAPIWrapper interface {
 	) error
 
 	GetOrderDataByOrderID(
+		ctx context.Context,
 		pairSymbol string,
 		orderID int64,
-		ctx context.Context,
 	) (*binance.Order, error)
 
 	GetOrderDataByClientOrderID(
+		ctx context.Context,
 		pairSymbol string,
 		clientOrderID string,
-		ctx context.Context,
 	) (*binance.Order, error)
 
 	PlaceLimitOrder(
@@ -84,9 +84,9 @@ func (b *BinanceClientWrapper) Sync(ctx context.Context) {
 }
 
 func (b *BinanceClientWrapper) Connect(
+	ctx context.Context,
 	keyPublic,
 	keySecret string,
-	ctx context.Context,
 ) error {
 	b.Client = binance.NewClient(keyPublic, keySecret)
 	if err := b.Ping(ctx); err != nil {
@@ -109,18 +109,18 @@ func (b *BinanceClientWrapper) Ping(ctx context.Context) error {
 }
 
 func (b *BinanceClientWrapper) GetOrderDataByOrderID(
+	ctx context.Context,
 	pairSymbol string,
 	orderID int64,
-	ctx context.Context,
 ) (*binance.Order, error) {
 	return b.NewGetOrderService().Symbol(pairSymbol).
 		OrderID(orderID).Do(ctx)
 }
 
 func (b *BinanceClientWrapper) GetOrderDataByClientOrderID(
+	ctx context.Context,
 	pairSymbol string,
 	clientOrderID string,
-	ctx context.Context,
 ) (*binance.Order, error) {
 	return b.NewGetOrderService().Symbol(pairSymbol).
 		OrigClientOrderID(clientOrderID).Do(ctx)

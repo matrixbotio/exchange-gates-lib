@@ -110,13 +110,13 @@ func (_c *MockBinanceAPIWrapper_CancelOrderByID_Call) RunAndReturn(run func(cont
 	return _c
 }
 
-// Connect provides a mock function with given fields: keyPublic, keySecret, ctx
-func (_m *MockBinanceAPIWrapper) Connect(keyPublic string, keySecret string, ctx context.Context) error {
-	ret := _m.Called(keyPublic, keySecret, ctx)
+// Connect provides a mock function with given fields: ctx, keyPublic, keySecret
+func (_m *MockBinanceAPIWrapper) Connect(ctx context.Context, keyPublic string, keySecret string) error {
+	ret := _m.Called(ctx, keyPublic, keySecret)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, context.Context) error); ok {
-		r0 = rf(keyPublic, keySecret, ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, keyPublic, keySecret)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -130,16 +130,16 @@ type MockBinanceAPIWrapper_Connect_Call struct {
 }
 
 // Connect is a helper method to define mock.On call
+//   - ctx context.Context
 //   - keyPublic string
 //   - keySecret string
-//   - ctx context.Context
-func (_e *MockBinanceAPIWrapper_Expecter) Connect(keyPublic interface{}, keySecret interface{}, ctx interface{}) *MockBinanceAPIWrapper_Connect_Call {
-	return &MockBinanceAPIWrapper_Connect_Call{Call: _e.mock.On("Connect", keyPublic, keySecret, ctx)}
+func (_e *MockBinanceAPIWrapper_Expecter) Connect(ctx interface{}, keyPublic interface{}, keySecret interface{}) *MockBinanceAPIWrapper_Connect_Call {
+	return &MockBinanceAPIWrapper_Connect_Call{Call: _e.mock.On("Connect", ctx, keyPublic, keySecret)}
 }
 
-func (_c *MockBinanceAPIWrapper_Connect_Call) Run(run func(keyPublic string, keySecret string, ctx context.Context)) *MockBinanceAPIWrapper_Connect_Call {
+func (_c *MockBinanceAPIWrapper_Connect_Call) Run(run func(ctx context.Context, keyPublic string, keySecret string)) *MockBinanceAPIWrapper_Connect_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(context.Context))
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -149,7 +149,7 @@ func (_c *MockBinanceAPIWrapper_Connect_Call) Return(_a0 error) *MockBinanceAPIW
 	return _c
 }
 
-func (_c *MockBinanceAPIWrapper_Connect_Call) RunAndReturn(run func(string, string, context.Context) error) *MockBinanceAPIWrapper_Connect_Call {
+func (_c *MockBinanceAPIWrapper_Connect_Call) RunAndReturn(run func(context.Context, string, string) error) *MockBinanceAPIWrapper_Connect_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -375,25 +375,25 @@ func (_c *MockBinanceAPIWrapper_GetOpenOrders_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// GetOrderDataByClientOrderID provides a mock function with given fields: pairSymbol, clientOrderID, ctx
-func (_m *MockBinanceAPIWrapper) GetOrderDataByClientOrderID(pairSymbol string, clientOrderID string, ctx context.Context) (*v2.Order, error) {
-	ret := _m.Called(pairSymbol, clientOrderID, ctx)
+// GetOrderDataByClientOrderID provides a mock function with given fields: ctx, pairSymbol, clientOrderID
+func (_m *MockBinanceAPIWrapper) GetOrderDataByClientOrderID(ctx context.Context, pairSymbol string, clientOrderID string) (*v2.Order, error) {
+	ret := _m.Called(ctx, pairSymbol, clientOrderID)
 
 	var r0 *v2.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, context.Context) (*v2.Order, error)); ok {
-		return rf(pairSymbol, clientOrderID, ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*v2.Order, error)); ok {
+		return rf(ctx, pairSymbol, clientOrderID)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, context.Context) *v2.Order); ok {
-		r0 = rf(pairSymbol, clientOrderID, ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *v2.Order); ok {
+		r0 = rf(ctx, pairSymbol, clientOrderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v2.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, context.Context) error); ok {
-		r1 = rf(pairSymbol, clientOrderID, ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, pairSymbol, clientOrderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -407,16 +407,16 @@ type MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call struct {
 }
 
 // GetOrderDataByClientOrderID is a helper method to define mock.On call
+//   - ctx context.Context
 //   - pairSymbol string
 //   - clientOrderID string
-//   - ctx context.Context
-func (_e *MockBinanceAPIWrapper_Expecter) GetOrderDataByClientOrderID(pairSymbol interface{}, clientOrderID interface{}, ctx interface{}) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
-	return &MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call{Call: _e.mock.On("GetOrderDataByClientOrderID", pairSymbol, clientOrderID, ctx)}
+func (_e *MockBinanceAPIWrapper_Expecter) GetOrderDataByClientOrderID(ctx interface{}, pairSymbol interface{}, clientOrderID interface{}) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
+	return &MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call{Call: _e.mock.On("GetOrderDataByClientOrderID", ctx, pairSymbol, clientOrderID)}
 }
 
-func (_c *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call) Run(run func(pairSymbol string, clientOrderID string, ctx context.Context)) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
+func (_c *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call) Run(run func(ctx context.Context, pairSymbol string, clientOrderID string)) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(context.Context))
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -426,30 +426,30 @@ func (_c *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call) Return(_a0 *v2
 	return _c
 }
 
-func (_c *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call) RunAndReturn(run func(string, string, context.Context) (*v2.Order, error)) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
+func (_c *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call) RunAndReturn(run func(context.Context, string, string) (*v2.Order, error)) *MockBinanceAPIWrapper_GetOrderDataByClientOrderID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetOrderDataByOrderID provides a mock function with given fields: pairSymbol, orderID, ctx
-func (_m *MockBinanceAPIWrapper) GetOrderDataByOrderID(pairSymbol string, orderID int64, ctx context.Context) (*v2.Order, error) {
-	ret := _m.Called(pairSymbol, orderID, ctx)
+// GetOrderDataByOrderID provides a mock function with given fields: ctx, pairSymbol, orderID
+func (_m *MockBinanceAPIWrapper) GetOrderDataByOrderID(ctx context.Context, pairSymbol string, orderID int64) (*v2.Order, error) {
+	ret := _m.Called(ctx, pairSymbol, orderID)
 
 	var r0 *v2.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int64, context.Context) (*v2.Order, error)); ok {
-		return rf(pairSymbol, orderID, ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64) (*v2.Order, error)); ok {
+		return rf(ctx, pairSymbol, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(string, int64, context.Context) *v2.Order); ok {
-		r0 = rf(pairSymbol, orderID, ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64) *v2.Order); ok {
+		r0 = rf(ctx, pairSymbol, orderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v2.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int64, context.Context) error); ok {
-		r1 = rf(pairSymbol, orderID, ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string, int64) error); ok {
+		r1 = rf(ctx, pairSymbol, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -463,16 +463,16 @@ type MockBinanceAPIWrapper_GetOrderDataByOrderID_Call struct {
 }
 
 // GetOrderDataByOrderID is a helper method to define mock.On call
+//   - ctx context.Context
 //   - pairSymbol string
 //   - orderID int64
-//   - ctx context.Context
-func (_e *MockBinanceAPIWrapper_Expecter) GetOrderDataByOrderID(pairSymbol interface{}, orderID interface{}, ctx interface{}) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
-	return &MockBinanceAPIWrapper_GetOrderDataByOrderID_Call{Call: _e.mock.On("GetOrderDataByOrderID", pairSymbol, orderID, ctx)}
+func (_e *MockBinanceAPIWrapper_Expecter) GetOrderDataByOrderID(ctx interface{}, pairSymbol interface{}, orderID interface{}) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
+	return &MockBinanceAPIWrapper_GetOrderDataByOrderID_Call{Call: _e.mock.On("GetOrderDataByOrderID", ctx, pairSymbol, orderID)}
 }
 
-func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) Run(run func(pairSymbol string, orderID int64, ctx context.Context)) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
+func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) Run(run func(ctx context.Context, pairSymbol string, orderID int64)) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int64), args[2].(context.Context))
+		run(args[0].(context.Context), args[1].(string), args[2].(int64))
 	})
 	return _c
 }
@@ -482,7 +482,7 @@ func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) Return(_a0 *v2.Order
 	return _c
 }
 
-func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) RunAndReturn(run func(string, int64, context.Context) (*v2.Order, error)) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
+func (_c *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call) RunAndReturn(run func(context.Context, string, int64) (*v2.Order, error)) *MockBinanceAPIWrapper_GetOrderDataByOrderID_Call {
 	_c.Call.Return(run)
 	return _c
 }
