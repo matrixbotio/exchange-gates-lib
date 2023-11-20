@@ -31,7 +31,6 @@ func (a *adapter) getAccountBalances() (structs.AccountData, error) {
 	return mappers.ConvertAccountBalances(*data)
 }
 
-// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
 	accountData, err := a.getAccountBalances()
 	if err != nil {

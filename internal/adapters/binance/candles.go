@@ -37,7 +37,6 @@ func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
 	return candles, nil
 }
 
-// GetCandleWorker - create new market candle worker
 func (a *adapter) GetCandleWorker() workers.ICandleWorker {
 	w := CandleWorkerBinance{}
 	w.ExchangeTag = a.GetTag()

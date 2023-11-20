@@ -22,7 +22,6 @@ type TradeEventWorkerBinance struct {
 	workers.TradeEventWorker
 }
 
-// GetPriceWorker - create new market data worker
 func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
 	w := PriceWorkerBinance{}
 	w.PriceWorker.ExchangeTag = a.Tag
@@ -75,7 +74,6 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	return result, nil
 }
 
-// GetTradeEventsWorker - create new market candle worker
 func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
 	w := TradeEventWorkerBinance{}
 	w.ExchangeTag = a.GetTag()

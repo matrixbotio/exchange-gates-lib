@@ -8,7 +8,6 @@ import (
 	"github.com/adshao/go-binance/v2"
 )
 
-// VerifyAPIKeys - create new exchange client & attempt to get account data
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	newClient := binance.NewClient(keyPublic, keySecret)
 	accountService, err := newClient.NewGetAccountService().Do(context.Background())

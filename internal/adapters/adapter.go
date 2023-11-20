@@ -17,8 +17,11 @@ type Adapter interface {
 	// BASIC. TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/156
 	// Connect to exchange
 	Connect(credentials pkgStructs.APICredentials) error
+	// CanTrade - check the permission of the API key for trading
 	CanTrade() (bool, error)
+	// VerifyAPIKeys - Check if the API key has expired
 	VerifyAPIKeys(keyPublic, keySecret string) error
+	// GetAccountBalance - get account balances for individual tickers
 	GetAccountBalance() ([]structs.Balance, error)
 
 	// ORDER
@@ -31,6 +34,7 @@ type Adapter interface {
 		ctx context.Context,
 		order structs.BotOrderAdjusted,
 	) (structs.CreateOrderResponse, error)
+	// Get the amount of fees for order execution
 	GetOrderExecFee(
 		pairSymbol string,
 		orderSide string,
@@ -54,11 +58,15 @@ type Adapter interface {
 	GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error)
 	// GetPairs get all Binance pairs
 	GetPairs() ([]structs.ExchangePairData, error)
+	// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
 	GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error)
 
 	// WORKERS
+	// GetPriceWorker - create new market data worker
 	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
+	// GetCandleWorker - create new market candle worker
 	GetCandleWorker() workers.ICandleWorker
+	// GetTradeEventsWorker - create new market candle worker
 	GetTradeEventsWorker() workers.ITradeEventWorker
 
 	// CANDLE
