@@ -22,7 +22,9 @@ type adapter struct {
 
 func New() adp.Adapter {
 	stack.Caller(0)
-	a := adapter{}
+	a := adapter{
+		binanceAPI: NewWrapper(),
+	}
 	a.Name = "Binance Spot"
 	a.Tag = "binance-spot"
 	a.ExchangeID = consts.ExchangeIDbinanceSpot
