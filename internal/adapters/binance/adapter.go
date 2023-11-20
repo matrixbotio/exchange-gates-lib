@@ -92,7 +92,7 @@ func (a *adapter) getOrderFromService(
 			tradeData.Status = pkgStructs.OrderStatusUnknown
 			return nil, fmt.Errorf(
 				"%w %s",
-				errs.OrderNotFound,
+				errs.ErrOrderNotFound,
 				logOrderID,
 			)
 		}
@@ -220,41 +220,6 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 		}
 	}
 	return price, nil
-}
-
-// CancelPairOrder - cancel one exchange pair order by ID
-func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
-	_, err := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
-		OrderID(orderID).Do(ctx)
-	if err != nil {
-		if !a.isErrorAboutUnknownOrder(err) {
-			return err
-		}
-	}
-	return nil
-}
-
-// CancelPairOrder - cancel one exchange pair order by client order ID
-func (a *adapter) CancelPairOrderByClientOrderID(
-	pairSymbol string,
-	clientOrderID string,
-	ctx context.Context,
-) error {
-	_, err := a.binanceAPI.NewCancelOrderService().Symbol(pairSymbol).
-		OrigClientOrderID(clientOrderID).Do(ctx)
-	if err != nil {
-		if !a.isErrorAboutUnknownOrder(err) {
-			return err
-		}
-	}
-	return nil
-}
-
-func (a *adapter) isErrorAboutUnknownOrder(err error) bool {
-	if err == nil {
-		return false
-	}
-	return strings.Contains(err.Error(), "Unknown order sent")
 }
 
 // GetPairData - get pair data & limits

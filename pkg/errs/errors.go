@@ -3,6 +3,7 @@ package errs
 import "errors"
 
 var (
-	ErrOrderFilled = errors.New("Order has been filled")
-	OrderNotFound  = errors.New("order not found")
+	ErrOrderFilled                 = errors.New("order has been filled")
+	ErrOrderNotFound               = errors.New("order not found")
+	ErrOrderCancellationInProgress = errors.New("order cancellation in progress")
 )

@@ -15,7 +15,7 @@ func TestHandleCancelOrderErrorEmpty(t *testing.T) {
 	var testErr error
 
 	// when
-	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
+	err := MapCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
 	assert.NoError(t, err)
@@ -28,11 +28,11 @@ func TestHandleCancelOrderErrorAlreadyCancelled(t *testing.T) {
 	var testErr = errors.New("error: Order has been canceled")
 
 	// when
-	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
+	err := MapCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
 	assert.Error(t, err)
-	assert.Equal(t, pkgErrs.OrderNotFound, err)
+	assert.Equal(t, pkgErrs.ErrOrderNotFound, err)
 }
 
 func TestHandleCancelOrderErrorFilled(t *testing.T) {
@@ -42,7 +42,7 @@ func TestHandleCancelOrderErrorFilled(t *testing.T) {
 	var testErr = pkgErrs.ErrOrderFilled
 
 	// when
-	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
+	err := MapCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
 	assert.Error(t, err)
@@ -55,7 +55,7 @@ func TestHandleCancelOrderError(t *testing.T) {
 	var testErr error = errors.New("unknown error")
 
 	// when
-	err := HandleCancelOrderError(orderIDFormatted, pairSymbol, testErr)
+	err := MapCancelOrderError(orderIDFormatted, pairSymbol, testErr)
 
 	// then
 	assert.Error(t, err)
