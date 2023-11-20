@@ -102,8 +102,9 @@ func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.
 		OrderID:  &orderIDFormatted,
 	})
 	if err != nil {
-		return errs.HandleCancelOrderError(orderIDFormatted, pairSymbol, err)
+		return errs.MapCancelOrderError(orderIDFormatted, pairSymbol, err)
 	}
+
 	return nil
 }
 
@@ -118,7 +119,7 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 		OrderLinkID: &clientOrderID,
 	})
 	if err != nil {
-		return errs.HandleCancelOrderError(clientOrderID, pairSymbol, err)
+		return errs.MapCancelOrderError(clientOrderID, pairSymbol, err)
 	}
 	return nil
 }
