@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/go-stack/stack"
-
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -21,9 +19,12 @@ type adapter struct {
 }
 
 func New() adp.Adapter {
-	stack.Caller(0)
+	return createAdapter(NewWrapper())
+}
+
+func createAdapter(wrapper BinanceAPIWrapper) *adapter {
 	a := adapter{
-		binanceAPI: NewWrapper(),
+		binanceAPI: wrapper,
 	}
 	a.Name = "Binance Spot"
 	a.Tag = "binance-spot"

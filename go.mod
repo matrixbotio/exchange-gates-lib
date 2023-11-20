@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/adshao/go-binance/v2 v2.4.2
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
-	github.com/go-stack/stack v1.8.0
 	github.com/google/uuid v1.3.0
 	github.com/hirokisan/bybit/v2 v2.24.0
 	github.com/shopspring/decimal v1.3.1
