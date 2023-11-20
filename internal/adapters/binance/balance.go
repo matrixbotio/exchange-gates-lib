@@ -19,8 +19,7 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 }
 
 func (a *adapter) getAccountBalances() (structs.AccountData, error) {
-	data, err := a.binanceAPI.NewGetAccountService().
-		Do(context.Background())
+	data, err := a.binanceAPI.GetAccountData(context.Background())
 	if err != nil {
 		return structs.AccountData{}, fmt.Errorf("get account data: %w", err)
 	}

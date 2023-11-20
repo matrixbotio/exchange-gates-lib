@@ -6,10 +6,10 @@ import (
 )
 
 func (a *adapter) CanTrade() (bool, error) {
-	binanceAccountData, err := a.binanceAPI.NewGetAccountService().
-		Do(context.Background())
+	data, err := a.binanceAPI.GetAccountData(context.Background())
 	if err != nil {
 		return false, fmt.Errorf("get account data: %w", err)
 	}
-	return binanceAccountData.CanTrade, nil
+
+	return data.CanTrade, nil
 }

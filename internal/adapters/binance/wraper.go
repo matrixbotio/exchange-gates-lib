@@ -1,0 +1,210 @@
+package binance
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+)
+
+type BinanceAPIWrapper interface {
+	Sync(context.Context)
+	Connect(keyPublic, keySecret string, ctx context.Context) error
+	Ping(context.Context) error
+	GetAccountData(context.Context) (*binance.Account, error)
+
+	GetPrices(
+		ctx context.Context,
+		pairSymbol string,
+	) ([]*binance.SymbolPrice, error)
+
+	GetOpenOrders(
+		ctx context.Context,
+		pairSymbol string,
+	) ([]*binance.Order, error)
+
+	GetExchangeInfo(
+		ctx context.Context,
+		pairSymbol string,
+	) (*binance.ExchangeInfo, error)
+
+	CancelOrderByID(
+		ctx context.Context,
+		pairSymbol string,
+		orderID int64,
+	) error
+
+	CancelOrderByClientOrderID(
+		ctx context.Context,
+		pairSymbol string,
+		clientOrderID string,
+	) error
+
+	GetOrderDataByOrderID(
+		pairSymbol string,
+		orderID int64,
+		ctx context.Context,
+	) (*binance.Order, error)
+
+	GetOrderDataByClientOrderID(
+		pairSymbol string,
+		clientOrderID string,
+		ctx context.Context,
+	) (*binance.Order, error)
+
+	PlaceLimitOrder(
+		ctx context.Context,
+		pairSymbol string,
+		orderSide binance.SideType,
+		qty string,
+		price string,
+		optionalClientOrderID string,
+	) (*binance.CreateOrderResponse, error)
+
+	GetKlines(
+		ctx context.Context,
+		pairSymbol string,
+		interval string,
+		limit int,
+	) ([]*binance.Kline, error)
+}
+
+type BinanceClientWrapper struct {
+	*binance.Client
+}
+
+func NewWrapper() BinanceAPIWrapper {
+	return &BinanceClientWrapper{}
+}
+
+func (b *BinanceClientWrapper) Sync(ctx context.Context) {
+	b.NewSetServerTimeService().Do(context.Background())
+}
+
+func (b *BinanceClientWrapper) Connect(
+	keyPublic,
+	keySecret string,
+	ctx context.Context,
+) error {
+	b.Client = binance.NewClient(keyPublic, keySecret)
+	if err := b.Ping(ctx); err != nil {
+		return fmt.Errorf("ping binance: %w", err)
+	}
+	return nil
+}
+
+func (b *BinanceClientWrapper) Ping(ctx context.Context) error {
+	var err error
+	for attemptNumber := 1; attemptNumber <= consts.PingRetryAttempts; attemptNumber++ {
+		if err := b.NewPingService().Do(ctx); err == nil {
+			return nil
+		}
+
+		time.Sleep(consts.PingRetryWaitTime)
+	}
+
+	return fmt.Errorf("ping exchange: %w", err)
+}
+
+func (b *BinanceClientWrapper) GetOrderDataByOrderID(
+	pairSymbol string,
+	orderID int64,
+	ctx context.Context,
+) (*binance.Order, error) {
+	return b.NewGetOrderService().Symbol(pairSymbol).
+		OrderID(orderID).Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetOrderDataByClientOrderID(
+	pairSymbol string,
+	clientOrderID string,
+	ctx context.Context,
+) (*binance.Order, error) {
+	return b.NewGetOrderService().Symbol(pairSymbol).
+		OrigClientOrderID(clientOrderID).Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetAccountData(ctx context.Context) (
+	*binance.Account,
+	error,
+) {
+	return b.NewGetAccountService().Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetPrices(
+	ctx context.Context,
+	pairSymbol string,
+) ([]*binance.SymbolPrice, error) {
+	return b.NewListPricesService().Symbol(pairSymbol).Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetOpenOrders(ctx context.Context, pairSymbol string) (
+	[]*binance.Order,
+	error,
+) {
+	return b.NewListOpenOrdersService().Symbol(pairSymbol).Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetExchangeInfo(ctx context.Context, pairSymbol string) (
+	*binance.ExchangeInfo,
+	error,
+) {
+	srv := b.NewExchangeInfoService()
+	if pairSymbol != "" {
+		srv.Symbol(pairSymbol)
+	}
+
+	return srv.Do(ctx)
+}
+
+func (b *BinanceClientWrapper) CancelOrderByID(
+	ctx context.Context,
+	pairSymbol string,
+	orderID int64,
+) error {
+	_, err := b.NewCancelOrderService().Symbol(pairSymbol).
+		OrderID(orderID).Do(ctx)
+	return err
+}
+
+func (b *BinanceClientWrapper) CancelOrderByClientOrderID(
+	ctx context.Context,
+	pairSymbol string,
+	clientOrderID string,
+) error {
+	_, err := b.NewCancelOrderService().Symbol(pairSymbol).
+		OrigClientOrderID(clientOrderID).Do(ctx)
+	return err
+}
+
+func (b *BinanceClientWrapper) PlaceLimitOrder(
+	ctx context.Context,
+	pairSymbol string,
+	orderSide binance.SideType,
+	qty string,
+	price string,
+	optionalClientOrderID string,
+) (*binance.CreateOrderResponse, error) {
+	orderService := b.NewCreateOrderService().Symbol(pairSymbol).
+		Side(orderSide).Type(binance.OrderTypeLimit).
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(qty).
+		Price(price)
+
+	if optionalClientOrderID != "" {
+		orderService.NewClientOrderID(optionalClientOrderID)
+	}
+
+	return orderService.Do(ctx)
+}
+
+func (b *BinanceClientWrapper) GetKlines(
+	ctx context.Context,
+	pairSymbol string,
+	interval string,
+	limit int,
+) ([]*binance.Kline, error) {
+	return b.NewKlinesService().Symbol(pairSymbol).Interval(interval).
+		Limit(limit).Do(ctx)
+}

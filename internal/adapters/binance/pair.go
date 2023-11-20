@@ -9,10 +9,8 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
-// GetPairLastPrice - get pair last price ^ↀᴥↀ^
 func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
-	tickerService := a.binanceAPI.NewListPricesService()
-	prices, err := tickerService.Symbol(pairSymbol).Do(context.Background())
+	prices, err := a.binanceAPI.GetPrices(context.Background(), pairSymbol)
 	if err != nil {
 		return 0, fmt.Errorf("get pair last price: %w", err)
 	}
@@ -20,15 +18,12 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 	return mappers.GetPairPrice(prices, pairSymbol)
 }
 
-// GetPairData - get pair data & limits
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
-	exchangeInfo, err := a.binanceAPI.NewExchangeInfoService().
-		Symbol(pairSymbol).Do(context.Background())
+	exchangeInfo, err := a.binanceAPI.GetExchangeInfo(context.Background(), pairSymbol)
 	if err != nil {
-		return structs.ExchangePairData{}, err
+		return structs.ExchangePairData{}, fmt.Errorf("get exchange info: %w", err)
 	}
 
-	// find pairSymbol
 	for _, symbolData := range exchangeInfo.Symbols {
 		return mappers.ConvertExchangePairData(symbolData, a.ExchangeID)
 	}
@@ -37,21 +32,21 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 		fmt.Errorf("data for %q pair not found", pairSymbol)
 }
 
-// GetPairOpenOrders - get open orders array
 func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
-	ordersRaw, err := a.binanceAPI.NewListOpenOrdersService().
-		Symbol(pairSymbol).Do(context.Background())
+	ordersRaw, err := a.binanceAPI.GetOpenOrders(context.Background(), pairSymbol)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get open orders: %w", err)
 	}
 
-	return mappers.ConvertOrders(ordersRaw)
+	orders, err := mappers.ConvertOrders(ordersRaw)
+	if err != nil {
+		return nil, fmt.Errorf("convert orders: %w", err)
+	}
+	return orders, nil
 }
 
-// GetPairs get all Binance pairs
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
-	service := a.binanceAPI.NewExchangeInfoService()
-	pairsResponse, err := service.Do(context.Background())
+	pairsResponse, err := a.binanceAPI.GetExchangeInfo(context.Background(), "")
 	if err != nil {
 		return nil, fmt.Errorf("get pairs: %w", err)
 	}

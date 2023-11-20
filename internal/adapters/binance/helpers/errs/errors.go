@@ -1,10 +1,30 @@
 package errs
 
-import "strings"
+import (
+	"strings"
+
+	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
+)
 
 func IsErrorAboutUnknownOrder(err error) bool {
+	return strings.Contains(err.Error(), "Unknown order sent") ||
+		strings.Contains(err.Error(), "Order does not exist")
+}
+
+func IsErrorAboutOrderFilled(err error) bool {
+	return strings.Contains(err.Error(), "Order has been filled")
+}
+
+func HandleCancelOrderError(err error) error {
 	if err == nil {
-		return false
+		return nil
 	}
-	return strings.Contains(err.Error(), "Unknown order sent")
+
+	if IsErrorAboutUnknownOrder(err) {
+		return pkgErrs.OrderNotFound
+	}
+	if IsErrorAboutOrderFilled(err) {
+		return pkgErrs.ErrOrderFilled
+	}
+	return err
 }

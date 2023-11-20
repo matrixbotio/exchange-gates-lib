@@ -17,22 +17,21 @@ type CandleWorkerBinance struct {
 	workers.CandleWorker
 }
 
-func (a *adapter) GetCandles(limit int, symbol string, interval string) (
+func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
 	[]workers.CandleData,
 	error,
 ) {
 	ctx, cancel := context.WithTimeout(context.Background(), consts.ReadTimeout)
 	defer cancel()
 
-	klines, err := a.binanceAPI.NewKlinesService().Symbol(symbol).
-		Interval(interval).Limit(limit).Do(ctx)
+	klines, err := a.binanceAPI.GetKlines(ctx, pairSymbol, interval, limit)
 	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles rq: %w", err)
+		return nil, fmt.Errorf("get klines: %w", err)
 	}
 
 	candles, err := mappers.ConvertCandles(klines, interval)
 	if err != nil {
-		return nil, fmt.Errorf("binance adapter get candles convert: %w", err)
+		return nil, fmt.Errorf("convert candles: %w", err)
 	}
 
 	return candles, nil
