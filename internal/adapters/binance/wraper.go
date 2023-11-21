@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
 type BinanceAPIWrapper interface {
@@ -69,6 +71,13 @@ type BinanceAPIWrapper interface {
 		interval string,
 		limit int,
 	) ([]*binance.Kline, error)
+
+	SubscribeToCandle(
+		pairSymbol string,
+		interval string,
+		eventCallback func(event workers.CandleEvent),
+		errorHandler func(err error),
+	) (doneC chan struct{}, stopC chan struct{}, err error)
 }
 
 type BinanceClientWrapper struct {
@@ -207,4 +216,18 @@ func (b *BinanceClientWrapper) GetKlines(
 ) ([]*binance.Kline, error) {
 	return b.NewKlinesService().Symbol(pairSymbol).Interval(interval).
 		Limit(limit).Do(ctx)
+}
+
+func (b *BinanceClientWrapper) SubscribeToCandle(
+	pairSymbol string,
+	interval string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) (doneC chan struct{}, stopC chan struct{}, err error) {
+	return binance.WsKlineServe(
+		pairSymbol,
+		interval,
+		helpers.GetCandleEventsHandler(eventCallback, errorHandler),
+		errorHandler,
+	)
 }

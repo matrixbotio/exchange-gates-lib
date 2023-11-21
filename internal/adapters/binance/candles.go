@@ -15,6 +15,8 @@ import (
 // CandleWorkerBinance - MarketDataWorker for binance
 type CandleWorkerBinance struct {
 	workers.CandleWorker
+
+	binanceAPI BinanceAPIWrapper
 }
 
 func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
@@ -38,7 +40,9 @@ func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
 }
 
 func (a *adapter) GetCandleWorker() workers.ICandleWorker {
-	w := CandleWorkerBinance{}
+	w := CandleWorkerBinance{
+		binanceAPI: a.binanceAPI,
+	}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
@@ -48,15 +52,15 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	var openWsErr error
+	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsKlineServe(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandle(
 		pairSymbol,
 		consts.CandlesInterval,
-		helpers.GetCandleEventsHandler(eventCallback, errorHandler),
+		eventCallback,
 		errorHandler,
 	)
-	return openWsErr
+	return err
 }
 
 func (w *CandleWorkerBinance) SubscribeToCandlesList(

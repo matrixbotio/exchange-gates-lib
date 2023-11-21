@@ -5,10 +5,34 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
+
+func GetTestKlines() []*binance.Kline {
+	return []*binance.Kline{
+		{
+			OpenTime:  time.Date(2023, 6, 25, 0, 0, 0, 0, time.UTC).UnixMilli(),
+			CloseTime: time.Date(2023, 6, 25, 0, 59, 59, 0, time.UTC).UnixMilli(),
+			Open:      "1000",
+			Close:     "2000",
+			High:      "3000",
+			Low:       "500",
+			Volume:    "10000",
+		},
+		{
+			OpenTime:  time.Date(2023, 6, 25, 1, 0, 0, 0, time.UTC).UnixMilli(),
+			CloseTime: time.Date(2023, 6, 25, 1, 59, 59, 0, time.UTC).UnixMilli(),
+			Open:      "2000",
+			Close:     "3000",
+			High:      "4000",
+			Low:       "1000",
+			Volume:    "20000",
+		},
+	}
+}
 
 func fixCandleEndTime(endTime int64) int64 {
 	if strings.HasSuffix(strconv.FormatInt(endTime, 10), "999") {
