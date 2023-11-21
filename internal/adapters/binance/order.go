@@ -14,7 +14,7 @@ import (
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
 	if orderID == 0 {
-		return structs.OrderData{}, errors.New("orderID is not set")
+		return structs.OrderData{}, errs.ErrOrderIDNotSet
 	}
 
 	order, err := a.binanceAPI.GetOrderDataByOrderID(

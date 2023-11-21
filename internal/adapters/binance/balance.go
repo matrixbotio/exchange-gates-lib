@@ -2,9 +2,9 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
@@ -25,7 +25,7 @@ func (a *adapter) getAccountBalances() (structs.AccountData, error) {
 	}
 
 	if data == nil {
-		return structs.AccountData{}, errors.New("account data response is empty")
+		return structs.AccountData{}, errs.ErrAccountDataEmpty
 	}
 
 	return mappers.ConvertAccountBalances(*data)
