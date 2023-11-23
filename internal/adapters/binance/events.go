@@ -12,9 +12,12 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
+// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/196
 // PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
 	workers.PriceWorker
+
+	binanceAPI BinanceAPIWrapper
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
@@ -23,7 +26,9 @@ type TradeEventWorkerBinance struct {
 }
 
 func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
-	w := PriceWorkerBinance{}
+	w := PriceWorkerBinance{
+		binanceAPI: a.binanceAPI,
+	}
 	w.PriceWorker.ExchangeTag = a.Tag
 	w.PriceWorker.HandleEventCallback = callback
 	return &w
@@ -52,20 +57,18 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 	errorHandler func(err error),
 ) (map[string]pkgStructs.WorkerChannels, error) {
 	result := map[string]pkgStructs.WorkerChannels{}
-
-	// event handler func
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 
-	var openWsErr error
+	var err error
 	for _, pairSymbol := range pairSymbols {
 		newChannels := pkgStructs.WorkerChannels{}
-		newChannels.WsDone, newChannels.WsStop, openWsErr = binance.WsBookTickerServe(
+		newChannels.WsDone, newChannels.WsStop, err = w.binanceAPI.SubscribeToPriceEvents(
 			pairSymbol,
 			w.handlePriceEvent,
 			errorHandler,
 		)
-		if openWsErr != nil {
-			return result, fmt.Errorf("subscribe to %q price: %w", pairSymbol, openWsErr)
+		if err != nil {
+			return result, fmt.Errorf("subscribe to %q price: %w", pairSymbol, err)
 		}
 
 		result[pairSymbol] = newChannels

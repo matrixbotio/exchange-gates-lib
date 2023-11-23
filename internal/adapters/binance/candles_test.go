@@ -112,3 +112,33 @@ func TestSubscribeToCandleSuccess(t *testing.T) {
 	// then
 	require.NoError(t, err)
 }
+
+func TestSubscribeToCandlesListSuccess(t *testing.T) {
+	// given
+	w := NewMockBinanceAPIWrapper(t)
+	a := createAdapter(w)
+	worker := a.GetCandleWorker()
+
+	intervalsPerPair := map[string]string{
+		"LTCUSDT": "1m",
+	}
+
+	w.EXPECT().SubscribeToCandlesList(
+		mock.Anything, mock.Anything,
+		mock.Anything,
+	).Return(
+		make(chan struct{}),
+		make(chan struct{}),
+		nil,
+	)
+
+	// when
+	err := worker.SubscribeToCandlesList(
+		intervalsPerPair,
+		func(event workers.CandleEvent) {},
+		func(err error) {},
+	)
+
+	// then
+	require.NoError(t, err)
+}

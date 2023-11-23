@@ -711,6 +711,136 @@ func (_c *MockBinanceAPIWrapper_SubscribeToCandle_Call) RunAndReturn(run func(st
 	return _c
 }
 
+// SubscribeToCandlesList provides a mock function with given fields: intervalsPerPair, eventCallback, errorHandler
+func (_m *MockBinanceAPIWrapper) SubscribeToCandlesList(intervalsPerPair map[string]string, eventCallback func(workers.CandleEvent), errorHandler func(error)) (chan struct{}, chan struct{}, error) {
+	ret := _m.Called(intervalsPerPair, eventCallback, errorHandler)
+
+	var r0 chan struct{}
+	var r1 chan struct{}
+	var r2 error
+	if rf, ok := ret.Get(0).(func(map[string]string, func(workers.CandleEvent), func(error)) (chan struct{}, chan struct{}, error)); ok {
+		return rf(intervalsPerPair, eventCallback, errorHandler)
+	}
+	if rf, ok := ret.Get(0).(func(map[string]string, func(workers.CandleEvent), func(error)) chan struct{}); ok {
+		r0 = rf(intervalsPerPair, eventCallback, errorHandler)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(map[string]string, func(workers.CandleEvent), func(error)) chan struct{}); ok {
+		r1 = rf(intervalsPerPair, eventCallback, errorHandler)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(map[string]string, func(workers.CandleEvent), func(error)) error); ok {
+		r2 = rf(intervalsPerPair, eventCallback, errorHandler)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockBinanceAPIWrapper_SubscribeToCandlesList_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeToCandlesList'
+type MockBinanceAPIWrapper_SubscribeToCandlesList_Call struct {
+	*mock.Call
+}
+
+// SubscribeToCandlesList is a helper method to define mock.On call
+//   - intervalsPerPair map[string]string
+//   - eventCallback func(workers.CandleEvent)
+//   - errorHandler func(error)
+func (_e *MockBinanceAPIWrapper_Expecter) SubscribeToCandlesList(intervalsPerPair interface{}, eventCallback interface{}, errorHandler interface{}) *MockBinanceAPIWrapper_SubscribeToCandlesList_Call {
+	return &MockBinanceAPIWrapper_SubscribeToCandlesList_Call{Call: _e.mock.On("SubscribeToCandlesList", intervalsPerPair, eventCallback, errorHandler)}
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToCandlesList_Call) Run(run func(intervalsPerPair map[string]string, eventCallback func(workers.CandleEvent), errorHandler func(error))) *MockBinanceAPIWrapper_SubscribeToCandlesList_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(map[string]string), args[1].(func(workers.CandleEvent)), args[2].(func(error)))
+	})
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToCandlesList_Call) Return(doneC chan struct{}, stopC chan struct{}, err error) *MockBinanceAPIWrapper_SubscribeToCandlesList_Call {
+	_c.Call.Return(doneC, stopC, err)
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToCandlesList_Call) RunAndReturn(run func(map[string]string, func(workers.CandleEvent), func(error)) (chan struct{}, chan struct{}, error)) *MockBinanceAPIWrapper_SubscribeToCandlesList_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribeToPriceEvents provides a mock function with given fields: pairSymbol, eventCallback, errorHandler
+func (_m *MockBinanceAPIWrapper) SubscribeToPriceEvents(pairSymbol string, eventCallback v2.WsBookTickerHandler, errorHandler func(error)) (chan struct{}, chan struct{}, error) {
+	ret := _m.Called(pairSymbol, eventCallback, errorHandler)
+
+	var r0 chan struct{}
+	var r1 chan struct{}
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, v2.WsBookTickerHandler, func(error)) (chan struct{}, chan struct{}, error)); ok {
+		return rf(pairSymbol, eventCallback, errorHandler)
+	}
+	if rf, ok := ret.Get(0).(func(string, v2.WsBookTickerHandler, func(error)) chan struct{}); ok {
+		r0 = rf(pairSymbol, eventCallback, errorHandler)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, v2.WsBookTickerHandler, func(error)) chan struct{}); ok {
+		r1 = rf(pairSymbol, eventCallback, errorHandler)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(string, v2.WsBookTickerHandler, func(error)) error); ok {
+		r2 = rf(pairSymbol, eventCallback, errorHandler)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockBinanceAPIWrapper_SubscribeToPriceEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeToPriceEvents'
+type MockBinanceAPIWrapper_SubscribeToPriceEvents_Call struct {
+	*mock.Call
+}
+
+// SubscribeToPriceEvents is a helper method to define mock.On call
+//   - pairSymbol string
+//   - eventCallback v2.WsBookTickerHandler
+//   - errorHandler func(error)
+func (_e *MockBinanceAPIWrapper_Expecter) SubscribeToPriceEvents(pairSymbol interface{}, eventCallback interface{}, errorHandler interface{}) *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call {
+	return &MockBinanceAPIWrapper_SubscribeToPriceEvents_Call{Call: _e.mock.On("SubscribeToPriceEvents", pairSymbol, eventCallback, errorHandler)}
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call) Run(run func(pairSymbol string, eventCallback v2.WsBookTickerHandler, errorHandler func(error))) *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(v2.WsBookTickerHandler), args[2].(func(error)))
+	})
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call) Return(doneC chan struct{}, stopC chan struct{}, err error) *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call {
+	_c.Call.Return(doneC, stopC, err)
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call) RunAndReturn(run func(string, v2.WsBookTickerHandler, func(error)) (chan struct{}, chan struct{}, error)) *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Sync provides a mock function with given fields: _a0
 func (_m *MockBinanceAPIWrapper) Sync(_a0 context.Context) {
 	_m.Called(_a0)

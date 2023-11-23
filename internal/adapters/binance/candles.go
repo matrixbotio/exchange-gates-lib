@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/adshao/go-binance/v2"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -70,9 +68,9 @@ func (w *CandleWorkerBinance) SubscribeToCandlesList(
 ) error {
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = binance.WsCombinedKlineServe(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = w.binanceAPI.SubscribeToCandlesList(
 		intervalsPerPair,
-		helpers.GetCandleEventsHandler(eventCallback, errorHandler),
+		eventCallback,
 		errorHandler,
 	)
 	return openWsErr

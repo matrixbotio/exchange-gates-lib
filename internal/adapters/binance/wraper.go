@@ -78,6 +78,18 @@ type BinanceAPIWrapper interface {
 		eventCallback func(event workers.CandleEvent),
 		errorHandler func(err error),
 	) (doneC chan struct{}, stopC chan struct{}, err error)
+
+	SubscribeToCandlesList(
+		intervalsPerPair map[string]string,
+		eventCallback func(event workers.CandleEvent),
+		errorHandler func(err error),
+	) (doneC chan struct{}, stopC chan struct{}, err error)
+
+	SubscribeToPriceEvents(
+		pairSymbol string,
+		eventCallback binance.WsBookTickerHandler,
+		errorHandler func(err error),
+	) (doneC chan struct{}, stopC chan struct{}, err error)
 }
 
 type BinanceClientWrapper struct {
@@ -228,6 +240,30 @@ func (b *BinanceClientWrapper) SubscribeToCandle(
 		pairSymbol,
 		interval,
 		helpers.GetCandleEventsHandler(eventCallback, errorHandler),
+		errorHandler,
+	)
+}
+
+func (b *BinanceClientWrapper) SubscribeToCandlesList(
+	intervalsPerPair map[string]string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) (doneC chan struct{}, stopC chan struct{}, err error) {
+	return binance.WsCombinedKlineServe(
+		intervalsPerPair,
+		helpers.GetCandleEventsHandler(eventCallback, errorHandler),
+		errorHandler,
+	)
+}
+
+func (b *BinanceClientWrapper) SubscribeToPriceEvents(
+	pairSymbol string,
+	eventCallback binance.WsBookTickerHandler,
+	errorHandler func(err error),
+) (doneC chan struct{}, stopC chan struct{}, err error) {
+	return binance.WsBookTickerServe(
+		pairSymbol,
+		eventCallback,
 		errorHandler,
 	)
 }
