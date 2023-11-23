@@ -156,3 +156,78 @@ func TestSubscribeToPriceEventsError(t *testing.T) {
 	// then
 	require.ErrorIs(t, subscribeErr, errTestException)
 }
+
+func TestGetTradeEventsWorker(t *testing.T) {
+	// given
+	var w = NewMockBinanceAPIWrapper(t)
+	var a = createAdapter(w)
+
+	// when
+	var worker = a.GetTradeEventsWorker()
+
+	// then
+	assert.NotEmpty(t, worker.GetExchangeTag())
+	assert.Equal(t, a.GetTag(), worker.GetExchangeTag())
+}
+
+func TestSubscribeToTradeEventsSuccess(t *testing.T) {
+	// given
+	var w = NewMockBinanceAPIWrapper(t)
+	var a = createAdapter(w)
+	var cb = func(event workers.TradeEvent) {}
+	var worker = a.GetTradeEventsWorker()
+	var pairSymbol = "LTCUSDT"
+
+	var lastErr error
+	var errHandler = func(err error) {
+		lastErr = err
+	}
+
+	w.EXPECT().SubscribeToTradeEvents(
+		pairSymbol,
+		worker.GetExchangeTag(),
+		mock.Anything,
+		mock.Anything,
+	).Return(
+		make(chan struct{}),
+		make(chan struct{}),
+		nil,
+	)
+
+	// when
+	err := worker.SubscribeToTradeEvents(pairSymbol, cb, errHandler)
+
+	// then
+	require.NoError(t, err)
+	require.NoError(t, lastErr)
+}
+
+func TestSubscribeToTradeEventsError(t *testing.T) {
+	// given
+	var w = NewMockBinanceAPIWrapper(t)
+	var a = createAdapter(w)
+	var cb = func(event workers.TradeEvent) {}
+	var worker = a.GetTradeEventsWorker()
+	var pairSymbol = "LTCUSDT"
+
+	w.EXPECT().SubscribeToTradeEvents(
+		pairSymbol,
+		worker.GetExchangeTag(),
+		mock.Anything,
+		mock.Anything,
+	).Return(
+		make(chan struct{}),
+		make(chan struct{}),
+		errTestException,
+	)
+
+	// when
+	err := worker.SubscribeToTradeEvents(
+		pairSymbol,
+		cb,
+		func(err error) {},
+	)
+
+	// then
+	require.ErrorIs(t, err, errTestException)
+}

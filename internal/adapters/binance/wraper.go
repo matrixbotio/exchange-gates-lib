@@ -90,6 +90,13 @@ type BinanceAPIWrapper interface {
 		eventCallback binance.WsBookTickerHandler,
 		errorHandler func(err error),
 	) (doneC chan struct{}, stopC chan struct{}, err error)
+
+	SubscribeToTradeEvents(
+		pairSymbol string,
+		exchangeTag string,
+		eventCallback func(event workers.TradeEvent),
+		errorHandler func(err error),
+	) (doneC chan struct{}, stopC chan struct{}, err error)
 }
 
 type BinanceClientWrapper struct {
@@ -264,6 +271,23 @@ func (b *BinanceClientWrapper) SubscribeToPriceEvents(
 	return binance.WsBookTickerServe(
 		pairSymbol,
 		eventCallback,
+		errorHandler,
+	)
+}
+
+func (b *BinanceClientWrapper) SubscribeToTradeEvents(
+	pairSymbol string,
+	exchangeTag string,
+	eventCallback func(event workers.TradeEvent),
+	errorHandler func(err error),
+) (doneC chan struct{}, stopC chan struct{}, err error) {
+	return binance.WsTradeServe(
+		pairSymbol,
+		helpers.GetTradeEventsHandler(
+			exchangeTag,
+			eventCallback,
+			errorHandler,
+		),
 		errorHandler,
 	)
 }

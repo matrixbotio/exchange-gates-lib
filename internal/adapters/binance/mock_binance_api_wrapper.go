@@ -841,6 +841,72 @@ func (_c *MockBinanceAPIWrapper_SubscribeToPriceEvents_Call) RunAndReturn(run fu
 	return _c
 }
 
+// SubscribeToTradeEvents provides a mock function with given fields: pairSymbol, exchangeTag, eventCallback, errorHandler
+func (_m *MockBinanceAPIWrapper) SubscribeToTradeEvents(pairSymbol string, exchangeTag string, eventCallback func(workers.TradeEvent), errorHandler func(error)) (chan struct{}, chan struct{}, error) {
+	ret := _m.Called(pairSymbol, exchangeTag, eventCallback, errorHandler)
+
+	var r0 chan struct{}
+	var r1 chan struct{}
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string, func(workers.TradeEvent), func(error)) (chan struct{}, chan struct{}, error)); ok {
+		return rf(pairSymbol, exchangeTag, eventCallback, errorHandler)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, func(workers.TradeEvent), func(error)) chan struct{}); ok {
+		r0 = rf(pairSymbol, exchangeTag, eventCallback, errorHandler)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, func(workers.TradeEvent), func(error)) chan struct{}); ok {
+		r1 = rf(pairSymbol, exchangeTag, eventCallback, errorHandler)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(chan struct{})
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string, func(workers.TradeEvent), func(error)) error); ok {
+		r2 = rf(pairSymbol, exchangeTag, eventCallback, errorHandler)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockBinanceAPIWrapper_SubscribeToTradeEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeToTradeEvents'
+type MockBinanceAPIWrapper_SubscribeToTradeEvents_Call struct {
+	*mock.Call
+}
+
+// SubscribeToTradeEvents is a helper method to define mock.On call
+//   - pairSymbol string
+//   - exchangeTag string
+//   - eventCallback func(workers.TradeEvent)
+//   - errorHandler func(error)
+func (_e *MockBinanceAPIWrapper_Expecter) SubscribeToTradeEvents(pairSymbol interface{}, exchangeTag interface{}, eventCallback interface{}, errorHandler interface{}) *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call {
+	return &MockBinanceAPIWrapper_SubscribeToTradeEvents_Call{Call: _e.mock.On("SubscribeToTradeEvents", pairSymbol, exchangeTag, eventCallback, errorHandler)}
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call) Run(run func(pairSymbol string, exchangeTag string, eventCallback func(workers.TradeEvent), errorHandler func(error))) *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(func(workers.TradeEvent)), args[3].(func(error)))
+	})
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call) Return(doneC chan struct{}, stopC chan struct{}, err error) *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call {
+	_c.Call.Return(doneC, stopC, err)
+	return _c
+}
+
+func (_c *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call) RunAndReturn(run func(string, string, func(workers.TradeEvent), func(error)) (chan struct{}, chan struct{}, error)) *MockBinanceAPIWrapper_SubscribeToTradeEvents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Sync provides a mock function with given fields: _a0
 func (_m *MockBinanceAPIWrapper) Sync(_a0 context.Context) {
 	_m.Called(_a0)

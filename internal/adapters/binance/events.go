@@ -2,27 +2,24 @@ package binance
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 // TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/196
 // PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
 	workers.PriceWorker
-
 	binanceAPI BinanceAPIWrapper
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
 type TradeEventWorkerBinance struct {
 	workers.TradeEventWorker
+	binanceAPI BinanceAPIWrapper
 }
 
 func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
@@ -78,52 +75,27 @@ func (w *PriceWorkerBinance) SubscribeToPriceEvents(
 }
 
 func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	w := TradeEventWorkerBinance{}
+	w := TradeEventWorkerBinance{
+		binanceAPI: a.binanceAPI,
+	}
 	w.ExchangeTag = a.GetTag()
 	return &w
 }
 
 // SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
 func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
-	symbol string,
+	pairSymbol string,
 	eventCallback func(event workers.TradeEvent),
 	errorHandler func(err error),
 ) error {
 
-	wsErrHandler := func(err error) {
-		errorHandler(err)
-	}
-
-	wsTradeHandler := func(event *binance.WsTradeEvent) {
-		if event != nil {
-			// fix event.Time
-			if strings.HasSuffix(strconv.FormatInt(event.Time, 10), "999") {
-				event.Time++
-			}
-			wEvent := workers.TradeEvent{
-				ID:            event.TradeID,
-				Time:          event.Time,
-				Symbol:        event.Symbol,
-				ExchangeTag:   w.ExchangeTag,
-				BuyerOrderID:  event.BuyerOrderID,
-				SellerOrderID: event.SellerOrderID,
-			}
-			errs := make([]error, 2)
-			wEvent.Price, errs[0] = strconv.ParseFloat(event.Price, 64)
-			wEvent.Quantity, errs[0] = strconv.ParseFloat(event.Quantity, 64)
-			if utils.LogNotNilError(errs) {
-				return
-			}
-			eventCallback(wEvent)
-		}
-	}
-
 	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = binance.WsTradeServe(
-		symbol,
-		wsTradeHandler,
-		wsErrHandler,
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToTradeEvents(
+		pairSymbol,
+		w.GetExchangeTag(),
+		eventCallback,
+		errorHandler,
 	)
 	if err != nil {
 		return fmt.Errorf("subscribe to trade events: %w", err)
