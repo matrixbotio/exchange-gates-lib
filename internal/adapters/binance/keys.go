@@ -2,8 +2,9 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 )
 
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
@@ -13,8 +14,7 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 	}
 
 	if !accountData.CanTrade {
-		return errors.New("your API key does not have permission to trade," +
-			" change its restrictions")
+		return errs.ErrTradingNotAllowed
 	}
 	return nil
 }
