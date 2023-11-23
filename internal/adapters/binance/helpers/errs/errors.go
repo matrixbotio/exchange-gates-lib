@@ -14,10 +14,12 @@ const (
 )
 
 var (
-	ErrInvalidCredentials = errors.New("invalid credentials to connect to Binance")
-	ErrOrderIDNotSet      = errors.New("orderID is not set")
-	ErrAccountDataEmpty   = errors.New("account data response is empty")
-	ErrTradingNotAllowed  = errors.New("your API key does not have permission to trade," +
+	ErrInvalidCredentials  = errors.New("invalid credentials to connect to Binance")
+	ErrOrderIDNotSet       = errors.New("orderID is not set")
+	ErrAccountDataEmpty    = errors.New("account data response is empty")
+	ErrClientOrderIDNotSet = errors.New("client order ID is not set")
+	ErrOrderResponseEmpty  = errors.New("order response is empty")
+	ErrTradingNotAllowed   = errors.New("your API key does not have permission to trade," +
 		" change its restrictions")
 )
 

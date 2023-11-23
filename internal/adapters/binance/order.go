@@ -2,7 +2,6 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
@@ -42,7 +41,7 @@ func (a *adapter) GetOrderByClientOrderID(pairSymbol string, clientOrderID strin
 	error,
 ) {
 	if clientOrderID == "" {
-		return structs.OrderData{}, errors.New("client order ID is not set")
+		return structs.OrderData{}, errs.ErrClientOrderIDNotSet
 	}
 
 	order, err := a.binanceAPI.GetOrderDataByClientOrderID(
@@ -87,10 +86,14 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	}
 
 	if orderResponse == nil {
-		return structs.CreateOrderResponse{}, errors.New("order response is empty")
+		return structs.CreateOrderResponse{}, errs.ErrOrderResponseEmpty
 	}
 
-	return mappers.ConvertPlacedOrder(*orderResponse)
+	orderConverted, err := mappers.ConvertPlacedOrder(*orderResponse)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("convert order: %w", err)
+	}
+	return orderConverted, nil
 }
 
 func (a *adapter) GetOrderExecFee(
