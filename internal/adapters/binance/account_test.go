@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ var errTestException = errors.New("test exception")
 
 func TestCanTradeSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(
@@ -33,7 +34,7 @@ func TestCanTradeSuccess(t *testing.T) {
 
 func TestCanTradeError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)

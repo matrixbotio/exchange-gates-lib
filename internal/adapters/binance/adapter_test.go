@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestBinanceAdapter(t *testing.T) {
 
 func TestConnectSucess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsTypeKeypair,
@@ -43,7 +44,7 @@ func TestConnectSucess(t *testing.T) {
 
 func TestConnectErrorInvalidCredentials(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsType("wtf"),
@@ -58,7 +59,7 @@ func TestConnectErrorInvalidCredentials(t *testing.T) {
 
 func TestConnectErrorPingFailed(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsTypeKeypair,

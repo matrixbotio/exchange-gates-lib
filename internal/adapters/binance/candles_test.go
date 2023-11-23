@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -12,7 +13,7 @@ import (
 
 func TestGetCandlesSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
@@ -37,7 +38,7 @@ func TestGetCandlesSuccess(t *testing.T) {
 
 func TestGetCandlesGetKlinesError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
@@ -55,7 +56,7 @@ func TestGetCandlesGetKlinesError(t *testing.T) {
 
 func TestGetCandlesConvertError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
@@ -76,7 +77,7 @@ func TestGetCandlesConvertError(t *testing.T) {
 
 func TestGetCandleWorkerSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	// when
@@ -89,7 +90,7 @@ func TestGetCandleWorkerSuccess(t *testing.T) {
 
 func TestSubscribeToCandleSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	worker := a.GetCandleWorker()
 
@@ -115,7 +116,7 @@ func TestSubscribeToCandleSuccess(t *testing.T) {
 
 func TestSubscribeToCandlesListSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	worker := a.GetCandleWorker()
 

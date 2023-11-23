@@ -6,6 +6,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/bmizerany/assert"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -28,7 +29,7 @@ func getTestBalances() []binance.Balance {
 
 func TestGetAccountBalanceSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	testBalances := &binance.Account{
@@ -53,7 +54,7 @@ func TestGetAccountBalanceSuccess(t *testing.T) {
 
 func TestGetAccountBalanceError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
@@ -67,7 +68,7 @@ func TestGetAccountBalanceError(t *testing.T) {
 
 func TestGetAccountBalanceErrorEmptyResponse(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(nil, nil)
@@ -81,7 +82,7 @@ func TestGetAccountBalanceErrorEmptyResponse(t *testing.T) {
 
 func TestGetPairBalanceSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	pairSymbolData := structs.PairSymbolData{
 		BaseTicker:  "LTC",
@@ -108,7 +109,7 @@ func TestGetPairBalanceSuccess(t *testing.T) {
 
 func TestGetPairBalanceError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	pairSymbolData := structs.PairSymbolData{
 		BaseTicker:  "LTC",

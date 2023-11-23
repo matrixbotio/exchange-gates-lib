@@ -5,13 +5,14 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/bmizerany/assert"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetPairLastPriceSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).
@@ -36,7 +37,7 @@ func TestGetPairLastPriceSuccess(t *testing.T) {
 
 func TestGetPairLastPriceError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).
@@ -51,7 +52,7 @@ func TestGetPairLastPriceError(t *testing.T) {
 
 func TestGetPairLastPriceConvertError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).

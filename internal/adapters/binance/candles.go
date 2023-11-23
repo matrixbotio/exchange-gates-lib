@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -14,7 +15,7 @@ import (
 type CandleWorkerBinance struct {
 	workers.CandleWorker
 
-	binanceAPI BinanceAPIWrapper
+	binanceAPI wrapper.BinanceAPIWrapper
 }
 
 func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (

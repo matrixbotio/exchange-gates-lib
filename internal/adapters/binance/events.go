@@ -5,6 +5,7 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
@@ -13,13 +14,13 @@ import (
 // PriceWorkerBinance - MarketDataWorker for binance
 type PriceWorkerBinance struct {
 	workers.PriceWorker
-	binanceAPI BinanceAPIWrapper
+	binanceAPI wrapper.BinanceAPIWrapper
 }
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
 type TradeEventWorkerBinance struct {
 	workers.TradeEventWorker
-	binanceAPI BinanceAPIWrapper
+	binanceAPI wrapper.BinanceAPIWrapper
 }
 
 func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {

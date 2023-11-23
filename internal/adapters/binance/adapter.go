@@ -6,6 +6,7 @@ import (
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
@@ -20,14 +21,14 @@ type adapter struct {
 	Name       string
 	Tag        string
 
-	binanceAPI BinanceAPIWrapper
+	binanceAPI wrapper.BinanceAPIWrapper
 }
 
 func New() adp.Adapter {
-	return createAdapter(NewWrapper())
+	return createAdapter(wrapper.NewWrapper())
 }
 
-func createAdapter(wrapper BinanceAPIWrapper) *adapter {
+func createAdapter(wrapper wrapper.BinanceAPIWrapper) *adapter {
 	return &adapter{
 		ExchangeID: consts.ExchangeIDbinanceSpot,
 		Name:       adapterName,

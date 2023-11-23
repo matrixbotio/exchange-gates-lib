@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -12,7 +13,7 @@ import (
 
 func TestGetPriceWorkerSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	cb := func(event workers.PriceEvent) {}
 
@@ -26,7 +27,7 @@ func TestGetPriceWorkerSuccess(t *testing.T) {
 
 func TestHandlePriceEventSuccess(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 
 	var lastEvent workers.PriceEvent
@@ -52,7 +53,7 @@ func TestHandlePriceEventSuccess(t *testing.T) {
 
 func TestHandlePriceEventEmpty(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 
 	var lastEvent workers.PriceEvent
@@ -74,7 +75,7 @@ func TestHandlePriceEventEmpty(t *testing.T) {
 
 func TestHandlePriceEventBroken(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 
 	var lastEvent workers.PriceEvent
@@ -98,7 +99,7 @@ func TestHandlePriceEventBroken(t *testing.T) {
 
 func TestSubscribeToPriceEventsSuccess(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 	var cb = func(event workers.PriceEvent) {}
 	var worker = a.GetPriceWorker(cb)
@@ -131,7 +132,7 @@ func TestSubscribeToPriceEventsSuccess(t *testing.T) {
 
 func TestSubscribeToPriceEventsError(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 	var cb = func(event workers.PriceEvent) {}
 	var worker = a.GetPriceWorker(cb)
@@ -159,7 +160,7 @@ func TestSubscribeToPriceEventsError(t *testing.T) {
 
 func TestGetTradeEventsWorker(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 
 	// when
@@ -172,7 +173,7 @@ func TestGetTradeEventsWorker(t *testing.T) {
 
 func TestSubscribeToTradeEventsSuccess(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 	var cb = func(event workers.TradeEvent) {}
 	var worker = a.GetTradeEventsWorker()
@@ -204,7 +205,7 @@ func TestSubscribeToTradeEventsSuccess(t *testing.T) {
 
 func TestSubscribeToTradeEventsError(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 	var cb = func(event workers.TradeEvent) {}
 	var worker = a.GetTradeEventsWorker()

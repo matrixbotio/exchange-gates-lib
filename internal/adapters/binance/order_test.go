@@ -8,6 +8,7 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -51,7 +52,7 @@ func getTestBotOrder() structs.BotOrderAdjusted {
 
 func TestGetOrderDataErrorIDNotSet(t *testing.T) {
 	// given
-	a := createAdapter(NewMockBinanceAPIWrapper(t))
+	a := createAdapter(wrapper.NewMockBinanceAPIWrapper(t))
 
 	// when
 	_, err := a.GetOrderData(testPairSymbol, 0)
@@ -62,7 +63,7 @@ func TestGetOrderDataErrorIDNotSet(t *testing.T) {
 
 func TestGetOrderDataSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestOrderData()
 
@@ -89,7 +90,7 @@ func TestGetOrderDataSuccess(t *testing.T) {
 
 func TestGetOrderDataErrorOrderUnknown(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetOrderDataByOrderID(mock.Anything, mock.Anything, mock.Anything).
@@ -104,7 +105,7 @@ func TestGetOrderDataErrorOrderUnknown(t *testing.T) {
 
 func TestGetOrderDataErrorUnknown(t *testing.T) {
 	// given
-	var w = NewMockBinanceAPIWrapper(t)
+	var w = wrapper.NewMockBinanceAPIWrapper(t)
 	var a = createAdapter(w)
 	var testErr = errors.New("some exception")
 
@@ -120,7 +121,7 @@ func TestGetOrderDataErrorUnknown(t *testing.T) {
 
 func TestGetOrderDataCovertError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestOrderData()
 	order.Price = "strange data"
@@ -137,7 +138,7 @@ func TestGetOrderDataCovertError(t *testing.T) {
 
 func TestGetOrderByClientOrderIDSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	testOrderData := &binance.Order{
@@ -173,7 +174,7 @@ func TestGetOrderByClientOrderIDSuccess(t *testing.T) {
 
 func TestGetOrderByClientOrderIDNotSet(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	// when
@@ -185,7 +186,7 @@ func TestGetOrderByClientOrderIDNotSet(t *testing.T) {
 
 func TestGetOrderByClientOrderUnknown(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	testOrderData := getTestOrderData()
@@ -208,7 +209,7 @@ func TestGetOrderByClientOrderUnknown(t *testing.T) {
 
 func TestGetOrderByClientOrderError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	testOrderData := getTestOrderData()
@@ -231,7 +232,7 @@ func TestGetOrderByClientOrderError(t *testing.T) {
 
 func TestGetOrderByClientOrderConvertError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	testOrderData := getTestOrderData()
@@ -255,7 +256,7 @@ func TestGetOrderByClientOrderConvertError(t *testing.T) {
 
 func TestPlaceOrderSucess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestBotOrder()
 
@@ -286,7 +287,7 @@ func TestPlaceOrderSucess(t *testing.T) {
 
 func TestPlaceOrderInvalidOrderSide(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestBotOrder()
 	order.Type = "strange data"
@@ -300,7 +301,7 @@ func TestPlaceOrderInvalidOrderSide(t *testing.T) {
 
 func TestPlaceCreateOrderError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestBotOrder()
 
@@ -318,7 +319,7 @@ func TestPlaceCreateOrderError(t *testing.T) {
 
 func TestPlaceOrderResponseEmpty(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestBotOrder()
 
@@ -336,7 +337,7 @@ func TestPlaceOrderResponseEmpty(t *testing.T) {
 
 func TestPlaceOrderConvertError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 	order := getTestBotOrder()
 
@@ -356,7 +357,7 @@ func TestPlaceOrderConvertError(t *testing.T) {
 
 func TestGetOrderExecFee(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	// when

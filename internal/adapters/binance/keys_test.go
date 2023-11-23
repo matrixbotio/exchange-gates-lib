@@ -5,13 +5,14 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestVerifyAPIKeysSuccess(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(
@@ -29,7 +30,7 @@ func TestVerifyAPIKeysSuccess(t *testing.T) {
 
 func TestVerifyAPIKeysError(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(
@@ -45,7 +46,7 @@ func TestVerifyAPIKeysError(t *testing.T) {
 
 func TestVerifyAPIKeysTradingNotAllowed(t *testing.T) {
 	// given
-	w := NewMockBinanceAPIWrapper(t)
+	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := createAdapter(w)
 
 	w.EXPECT().GetAccountData(mock.Anything).Return(
