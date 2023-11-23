@@ -15,7 +15,11 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 		return 0, fmt.Errorf("get pair last price: %w", err)
 	}
 
-	return mappers.GetPairPrice(prices, pairSymbol)
+	lastPrice, err := mappers.GetPairPrice(prices, pairSymbol)
+	if err != nil {
+		return 0, fmt.Errorf("convert pair price: %w", err)
+	}
+	return lastPrice, nil
 }
 
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
