@@ -2,7 +2,6 @@ package binance
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
@@ -29,7 +28,9 @@ func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, erro
 	}
 
 	for _, symbolData := range exchangeInfo.Symbols {
-		return mappers.ConvertExchangePairData(symbolData, a.ExchangeID)
+		if symbolData.Symbol == pairSymbol {
+			return mappers.ConvertExchangePairData(symbolData, a.ExchangeID)
+		}
 	}
 
 	return structs.ExchangePairData{},
@@ -56,7 +57,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	}
 
 	if pairsResponse == nil {
-		return nil, errors.New("pairs response is empty")
+		return nil, errs.ErrPairResponseEmpty
 	}
 
 	return mappers.ConvertExchangePairsData(*pairsResponse, a.ExchangeID)

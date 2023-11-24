@@ -18,32 +18,7 @@ func getTestBinancePairData() binance.Symbol {
 		BaseAssetPrecision:   8,
 		QuotePrecision:       4,
 		IsSpotTradingAllowed: true,
-		Filters: []map[string]interface{}{
-			{
-				"filterType": string(binance.SymbolFilterTypeLotSize),
-				"maxQty":     "999999",
-				"minQty":     "0.0001",
-				"stepSize":   "0.0001",
-			},
-			{
-				"filterType": string(binance.SymbolFilterTypePriceFilter),
-				"maxPrice":   "1000000",
-				"minPrice":   "0.01",
-				"tickSize":   "0.01",
-			},
-			{
-				"filterType":    string(binance.SymbolFilterTypeNotional),
-				"minNotional":   "1",
-				"avgPriceMins":  0.01,
-				"applyToMarket": true,
-			},
-			{
-				"filterType": string(binance.SymbolFilterTypeMarketLotSize),
-				"maxQty":     "999999",
-				"minQty":     "0.0001",
-				"stepSize":   "0.0001",
-			},
-		},
+		Filters:              GetTestPairDataFilters(),
 	}
 }
 

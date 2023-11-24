@@ -19,6 +19,7 @@ var (
 	ErrAccountDataEmpty    = errors.New("account data response is empty")
 	ErrClientOrderIDNotSet = errors.New("client order ID is not set")
 	ErrOrderResponseEmpty  = errors.New("order response is empty")
+	ErrPairResponseEmpty   = errors.New("pairs response is empty")
 	ErrTradingNotAllowed   = errors.New("your API key does not have permission to trade," +
 		" change its restrictions")
 )
