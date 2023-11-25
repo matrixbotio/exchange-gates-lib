@@ -56,3 +56,19 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 	}()
 	return nil
 }
+
+func (w *CandleEventWorkerBybit) SubscribeToCandlesList(
+	intervalsPerPair map[string]string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) error {
+	for pairSymbol := range intervalsPerPair {
+		if err := w.SubscribeToCandle(pairSymbol, eventCallback, errorHandler); err != nil {
+			return fmt.Errorf(
+				"subscribe to %q candle events: %w",
+				pairSymbol, err,
+			)
+		}
+	}
+	return nil
+}

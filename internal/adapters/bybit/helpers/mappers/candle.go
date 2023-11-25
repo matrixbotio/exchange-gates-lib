@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hirokisan/bybit/v2"
@@ -180,6 +181,13 @@ func getCandleEndTimeData(
 
 	return CandleTimeData{
 		StartTimeMs: startTimeMs,
-		EndTimeMs:   endTime.UnixMilli(),
+		EndTimeMs:   fixCandleEndTime(endTime.UnixMilli()),
 	}, nil
+}
+
+func fixCandleEndTime(endTime int64) int64 {
+	if strings.HasSuffix(strconv.FormatInt(endTime, 10), "9999") {
+		return endTime - 59999
+	}
+	return endTime
 }
