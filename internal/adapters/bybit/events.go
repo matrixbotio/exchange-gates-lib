@@ -87,6 +87,11 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 	return result, nil
 }
 
+/*
+TBD: implement this method after
+the realtime stream of trading events from the exchange is connected
+https://github.com/matrixbotio/exchange-gates-lib/issues/153
+*/
 func (a *adapter) IsTradeEventUsed(
 	_ workers.TradeEvent,
 	_ workers.TradeEventPartialFilledData,
