@@ -74,4 +74,9 @@ type Adapter interface {
 
 	// CANDLE
 	GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error)
+
+	IsTradeEventUsed(
+		workers.TradeEvent,
+		workers.TradeEventPartialFilledData,
+	) bool
 }

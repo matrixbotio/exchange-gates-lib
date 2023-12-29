@@ -54,3 +54,5 @@ type TradeEvent struct {
 	BuyerOrderID  int64   `json:"buyerID"`
 	SellerOrderID int64   `json:"sellerID"`
 }
+
+type TradeEventPartialFilledData map[string]struct{}

@@ -181,3 +181,10 @@ func (a *adapter) GetOrderExecFee(
 		QuoteAsset: decimal.NewFromInt(0),
 	}, nil
 }
+
+func (a *adapter) IsTradeEventUsed(
+	workers.TradeEvent,
+	workers.TradeEventPartialFilledData,
+) bool {
+	return false
+}

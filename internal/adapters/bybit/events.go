@@ -86,3 +86,10 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 
 	return result, nil
 }
+
+func (a *adapter) IsTradeEventUsed(
+	_ workers.TradeEvent,
+	_ workers.TradeEventPartialFilledData,
+) bool {
+	return false
+}

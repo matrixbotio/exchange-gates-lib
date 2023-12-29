@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/workers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
@@ -77,4 +78,17 @@ func (a *adapter) GetTradeEventsWorker() iWorkers.ITradeEventWorker {
 		a.GetTag(),
 		a.binanceAPI,
 	)
+}
+
+func (a *adapter) IsTradeEventUsed(
+	event iWorkers.TradeEvent,
+	handledParts iWorkers.TradeEventPartialFilledData,
+) bool {
+	if len(handledParts) == 0 {
+		return false
+	}
+
+	cacheKey := helpers.GetTradeEventCacheKey(event.BuyerOrderID, event.SellerOrderID)
+	_, isEventUsed := handledParts[cacheKey]
+	return isEventUsed
 }
