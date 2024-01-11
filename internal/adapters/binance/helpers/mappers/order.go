@@ -63,6 +63,7 @@ func ConvertPlacedOrder(orderResponse binance.CreateOrderResponse) (
 		Price:         orderResPrice,
 		Symbol:        orderResponse.Symbol,
 		Type:          orderSide,
+		CreatedTime:   orderResponse.TransactTime,
 	}, nil
 }
 
