@@ -34,6 +34,7 @@ type CreateOrderResponse struct {
 	Symbol        string  `json:"symbol"`
 	Type          string  `json:"orderRes"`
 	CreatedTime   int64   `json:"createdTime"` // unix timestamp ms
+	Status        string  `json:"status"`
 }
 
 // Balance - Trading pair balance
