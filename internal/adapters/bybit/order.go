@@ -68,6 +68,7 @@ func (a *adapter) PlaceOrder(
 		Price:         orderData.Price,
 		Symbol:        orderData.Symbol,
 		Type:          orderData.Type,
+		CreatedTime:   orderData.CreatedTime,
 	}, nil
 }
 

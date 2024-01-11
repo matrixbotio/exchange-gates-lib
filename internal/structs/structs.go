@@ -33,6 +33,7 @@ type CreateOrderResponse struct {
 	Price         float64 `json:"price"`
 	Symbol        string  `json:"symbol"`
 	Type          string  `json:"orderRes"`
+	CreatedTime   int64   `json:"createdTime"` // unix timestamp ms
 }
 
 // Balance - Trading pair balance
