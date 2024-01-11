@@ -64,6 +64,7 @@ func ConvertPlacedOrder(orderResponse binance.CreateOrderResponse) (
 		Symbol:        orderResponse.Symbol,
 		Type:          orderSide,
 		CreatedTime:   orderResponse.TransactTime,
+		Status:        string(orderResponse.Status),
 	}, nil
 }
 
