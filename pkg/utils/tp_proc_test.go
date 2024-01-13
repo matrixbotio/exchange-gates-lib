@@ -13,7 +13,7 @@ import (
 var (
 	testTPCoinsQty      float64 = 0.00126
 	testTPProfitPercent float64 = 0.3
-	testTPDepositSpent  float64 = 32.64787
+	testTPDepositSpent          = decimal.NewFromFloat(32.64787)
 )
 
 func TestCalcTPOrderErrorEmptyStrategy(t *testing.T) {
@@ -34,7 +34,8 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
-	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
+	zeroProfitPrice := testTPDepositSpent.Div(decimal.NewFromFloat(testTPCoinsQty))
+	zeroProfitPriceFloat, _ := zeroProfitPrice.Float64()
 
 	proc := NewCalcTPOrderProcessor().CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
@@ -49,7 +50,7 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(25833.5), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.LessOrEqual(t, order.Price, zeroProfitPrice)
+	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -68,7 +69,7 @@ func TestCalcTPOrderShortNoFeesBigQty(t *testing.T) {
 	srv := NewCalcTPOrderProcessor().
 		CoinsQty(348).
 		Profit(0.1).
-		DepositSpent(262.33212).
+		DepositSpent(decimal.NewFromFloat(262.33212)).
 		Strategy(pkgStructs.BotStrategyShort).
 		PairData(pairData)
 
@@ -90,7 +91,8 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
-	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
+	zeroProfitPrice := testTPDepositSpent.Div(decimal.NewFromFloat(testTPCoinsQty))
+	zeroProfitPriceFloat, _ := zeroProfitPrice.Float64()
 
 	fees := structs.OrderFees{
 		BaseAsset:  decimal.NewFromInt(0),
@@ -111,7 +113,7 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(25807.68), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.LessOrEqual(t, order.Price, zeroProfitPrice)
+	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -123,7 +125,8 @@ func TestCalcTPOrderLongNoFees(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
-	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
+	zeroProfitPrice := testTPDepositSpent.Div(decimal.NewFromFloat(testTPCoinsQty))
+	zeroProfitPriceFloat, _ := zeroProfitPrice.Float64()
 
 	proc := NewCalcTPOrderProcessor().
 		CoinsQty(testTPCoinsQty).
@@ -139,7 +142,7 @@ func TestCalcTPOrderLongNoFees(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(25988.74), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.GreaterOrEqual(t, order.Price, zeroProfitPrice)
+	assert.GreaterOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -151,7 +154,8 @@ func TestCalcTPOrderLongFees(t *testing.T) {
 		QtyStep:   0.00001,
 		PriceStep: 0.01,
 	}
-	zeroProfitPrice := testTPDepositSpent / testTPCoinsQty
+	zeroProfitPrice := testTPDepositSpent.Div(decimal.NewFromFloat(testTPCoinsQty))
+	zeroProfitPriceFloat, _ := zeroProfitPrice.Float64()
 
 	fees := structs.OrderFees{
 		BaseAsset:  decimal.NewFromFloat(testTPCoinsQty * 0.001),
@@ -173,7 +177,7 @@ func TestCalcTPOrderLongFees(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(26014.75), order.Price)
 	assert.Equal(t, float64(0.00125), order.Qty)
-	assert.GreaterOrEqual(t, order.Price, zeroProfitPrice)
+	assert.GreaterOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -199,7 +203,7 @@ func TestCalcTPOrderLongFeesBigQty(t *testing.T) {
 	proc := NewCalcTPOrderProcessor().
 		CoinsQty(coinsQty).
 		Profit(0.5).
-		DepositSpent(depoSpent).
+		DepositSpent(decimal.NewFromFloat(depoSpent)).
 		Strategy(pkgStructs.BotStrategyLong).
 		PairData(pairData).
 		Fees(fees)
