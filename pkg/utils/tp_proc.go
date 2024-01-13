@@ -13,7 +13,7 @@ type CalcTPProcessor struct {
 	strategy     pkgStructs.BotStrategy
 	coinsQty     float64
 	profit       float64
-	depositSpent float64
+	depositSpent decimal.Decimal
 	fees         structs.OrderFees
 	pairData     structs.ExchangePairData
 }
@@ -37,7 +37,7 @@ func (s *CalcTPProcessor) Profit(profit float64) *CalcTPProcessor {
 	return s
 }
 
-func (s *CalcTPProcessor) DepositSpent(depositSpent float64) *CalcTPProcessor {
+func (s *CalcTPProcessor) DepositSpent(depositSpent decimal.Decimal) *CalcTPProcessor {
 	s.depositSpent = depositSpent
 	return s
 }
@@ -62,7 +62,7 @@ func (s *CalcTPProcessor) checkParams() error {
 	if s.profit == 0 {
 		return errors.New("invalid profit value (0)")
 	}
-	if s.depositSpent == 0 {
+	if s.depositSpent.IsZero() {
 		return errors.New("invalid depositSpent value (0)")
 	}
 	if s.pairData.IsEmpty() {
@@ -105,7 +105,7 @@ func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 	// subtract fees from depo spent in quote asset (from default SELL orders)
 	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
-	depositSpentWithFee := decimal.NewFromFloat(s.depositSpent).Sub(s.fees.QuoteAsset)
+	depositSpentWithFee := s.depositSpent.Sub(s.fees.QuoteAsset)
 
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
 	profitDec := decimal.NewFromFloat(s.profit)
@@ -139,12 +139,11 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).Sub(s.fees.BaseAsset)
 
-	depositSpentDec := decimal.NewFromFloat(s.depositSpent)
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
 
 	// deposit = (1 + profit/100) * depositSpent
-	tpDeposit := profitDelta.Mul(depositSpentDec)
+	tpDeposit := profitDelta.Mul(s.depositSpent)
 
 	tpPrice := tpDeposit.Div(coinsQtyDec)
 
