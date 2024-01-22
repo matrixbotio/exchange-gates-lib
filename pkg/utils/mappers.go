@@ -55,3 +55,19 @@ func OrderResponseToBotOrder(response structs.CreateOrderResponse) pkgStructs.Bo
 		ClientOrderID: response.ClientOrderID,
 	}
 }
+
+func OrderDataToCreateOrderResponse(
+	data structs.OrderData,
+	orderID int64,
+) structs.CreateOrderResponse {
+	return structs.CreateOrderResponse{
+		OrderID:       orderID,
+		ClientOrderID: data.ClientOrderID,
+		OrigQuantity:  data.AwaitQty,
+		Price:         data.Price,
+		Symbol:        data.Symbol,
+		Type:          data.Type,
+		CreatedTime:   data.CreatedTime,
+		Status:        data.Status,
+	}
+}

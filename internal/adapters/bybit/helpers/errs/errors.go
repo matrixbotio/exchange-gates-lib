@@ -9,4 +9,5 @@ const (
 	ErrMsgOrderHasBeenCancelled       = "Order has been canceled"
 	ErrMsgOrderNotFound               = "Order does not exist"
 	ErrMsgOrderCancellationInProgress = "Order cancellation in progress"
+	ErrMsgOrderDuplicate              = "Duplicate clientOrderId"
 )
