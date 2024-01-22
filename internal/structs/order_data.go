@@ -29,7 +29,7 @@ func (data OrderData) IsExpired() bool {
 }
 
 func (data OrderData) IsPartiallyFilled() bool {
-	return data.FilledQty < data.AwaitQty
+	return data.FilledQty < data.AwaitQty && data.FilledQty > 0
 }
 
 func (data OrderData) IsFullFilled() bool {
