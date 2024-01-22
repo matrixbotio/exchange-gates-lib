@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/errs"
 	order_mappers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers/order"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
@@ -48,6 +51,11 @@ func (a *adapter) PlaceOrder(
 		OrderLinkID: &order.ClientOrderID,
 	})
 	if err != nil {
+		// if the order has already been placed, we will receive and return its data
+		if strings.Contains(err.Error(), errs.ErrMsgOrderDuplicate) {
+			return structs.CreateOrderResponse{}, pkgErrs.ErrOrderDuplicate
+		}
+
 		return structs.CreateOrderResponse{}, fmt.Errorf("create: %w", err)
 	}
 
@@ -58,19 +66,10 @@ func (a *adapter) PlaceOrder(
 
 	orderData, err := a.GetOrderData(order.PairSymbol, orderID)
 	if err != nil {
-		return structs.CreateOrderResponse{}, fmt.Errorf("get order data: %w", err)
+		return structs.CreateOrderResponse{},
+			fmt.Errorf("get order data after place order: %w", err)
 	}
-
-	return structs.CreateOrderResponse{
-		OrderID:       orderID,
-		ClientOrderID: orderData.ClientOrderID,
-		OrigQuantity:  orderData.AwaitQty,
-		Price:         orderData.Price,
-		Symbol:        orderData.Symbol,
-		Type:          orderData.Type,
-		CreatedTime:   orderData.CreatedTime,
-		Status:        orderData.Status,
-	}, nil
+	return utils.OrderDataToCreateOrderResponse(orderData, orderID), nil
 }
 
 func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (

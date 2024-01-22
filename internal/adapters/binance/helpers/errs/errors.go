@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	UnknownOrderMsg   = "Unknown order sent"
-	orderNotExistsMsg = "Order does not exist"
-	orderFilledMsg    = "Order has been filled"
+	UnknownOrderMsg      = "Unknown order sent"
+	ErrMsgOrderDuplicate = "Duplicate order sent"
+	orderNotExistsMsg    = "Order does not exist"
+	orderFilledMsg       = "Order has been filled"
 )
 
 var (

@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
@@ -10,7 +11,10 @@ import (
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
 
-func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+func (a *adapter) GetOrderData(
+	pairSymbol string,
+	orderID int64,
+) (structs.OrderData, error) {
 	if orderID == 0 {
 		return structs.OrderData{}, errs.ErrOrderIDNotSet
 	}
@@ -81,6 +85,10 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		order.ClientOrderID,
 	)
 	if err != nil {
+		if strings.Contains(err.Error(), errs.ErrMsgOrderDuplicate) {
+			return structs.CreateOrderResponse{}, pkgErrs.ErrOrderDuplicate
+		}
+
 		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
 	}
 
