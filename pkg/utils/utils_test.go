@@ -391,3 +391,14 @@ func TestGetQtyStep2(t *testing.T) {
 	// then
 	assert.Equal(t, qtyStepExpected, qtyStep)
 }
+
+func TestGetValueStep_Successful(t *testing.T) {
+	// given
+	minOrderQTY := 821.02
+
+	// when
+	result := GetValueStep(minOrderQTY)
+
+	// then
+	assert.Equal(t, 0.01, result)
+}
