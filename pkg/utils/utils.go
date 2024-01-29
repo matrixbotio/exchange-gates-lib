@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -21,27 +20,15 @@ func GenerateUUID() string {
 
 // GetFloatPrecision returns the number of decimal places in a float
 func GetFloatPrecision(value float64) int {
-	// if you put 15, then the test will fall,
-	// because Float is rounded incorrectly
-	maxPrecision := 14
-	valueFormated := strconv.FormatFloat(math.Abs(value), 'f', maxPrecision, 64)
-	valueParts := strings.Split(valueFormated, ".")
-	if len(valueParts) <= 1 {
-		return 0
-	}
-	valueLastPartTrimmed := strings.TrimRight(valueParts[1], "0")
-	return len(valueLastPartTrimmed)
-}
-
-// LogNotNilError logs an array of errors and returns true if an error is found
-func LogNotNilError(errs []error) bool {
-	for _, err := range errs {
-		if err != nil {
-			log.Println(err)
-			return true
+	precision := 0
+	for {
+		rounded := math.Round(value*math.Pow(10, float64(precision))) / math.Pow(10, float64(precision))
+		if value == rounded {
+			break
 		}
+		precision++
 	}
-	return false
+	return precision
 }
 
 func roundFloatToDecimal(val float64, precision int) decimal.Decimal {
@@ -211,7 +198,8 @@ func GetDefaultPairData() structs.ExchangePairData {
 }
 
 func GetValueStep(minValue float64) float64 {
-	base := decimal.NewFromFloat(math.Pow10(int(GetFloatPrecision(minValue))))
-	f, _ := decimal.NewFromInt(1).Div(base).Float64()
-	return f
+	precision := GetFloatPrecision(minValue)
+	divisor := decimal.NewFromFloat(math.Pow(10, float64(precision)))
+	valueStep, _ := decimal.NewFromInt(1).Div(divisor).Float64()
+	return valueStep
 }
