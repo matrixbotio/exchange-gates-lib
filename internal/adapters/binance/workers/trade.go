@@ -45,3 +45,22 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 	}
 	return nil
 }
+
+func (w *TradeEventWorkerBinance) SubscribeToTradeEventsPrivate(
+	eventCallback iWorkers.TradeEventPrivateCallback,
+	errorHandler func(err error),
+) error {
+	var err error
+	w.WsChannels = new(pkgStructs.WorkerChannels)
+
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToTradeEventsPrivate(
+		w.ExchangeTag,
+		eventCallback,
+		errorHandler,
+	)
+	if err != nil {
+		return fmt.Errorf("subscribe to trade events: %w", err)
+	}
+
+	return nil
+}

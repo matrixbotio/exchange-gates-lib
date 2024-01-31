@@ -54,3 +54,35 @@ func ConvertTradeEvent(
 	}
 	return wEvent, nil
 }
+
+func ConvertTradeEventPrivate(event binance.WsUserDataEvent, exchangeTag string) (workers.TradeEventPrivate, error) {
+	wEvent := workers.TradeEventPrivate{
+		ID:            strconv.FormatInt(event.OrderUpdate.TradeId, 10),
+		Time:          fixTradeEventEndTime(event.Time),
+		ExchangeTag:   exchangeTag,
+		Symbol:        event.OrderUpdate.Symbol,
+		OrderID:       strconv.FormatInt(event.OrderUpdate.Id, 10),
+		ClientOrderID: event.OrderUpdate.ClientOrderId,
+	}
+
+	var err error
+	wEvent.Price, err = strconv.ParseFloat(event.OrderUpdate.Price, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse price: %w", err)
+	}
+
+	wEvent.Quantity, err = strconv.ParseFloat(event.OrderUpdate.Volume, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse quantity: %w", err)
+	}
+
+	wEvent.FilledQuantity, err = strconv.ParseFloat(event.OrderUpdate.FilledVolume, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse filledQuantity: %w", err)
+	}
+
+	return wEvent, nil
+}

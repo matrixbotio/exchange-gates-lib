@@ -1,7 +1,10 @@
 package mappers
 
 import (
+	"github.com/google/uuid"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
@@ -94,4 +97,46 @@ func TestConvertTradeEventParseQtyError(t *testing.T) {
 
 	// then
 	require.ErrorContains(t, err, "parse qty: strconv.ParseFloat")
+}
+
+func TestConvertTradeEventPrivateSuccess(t *testing.T) {
+	// given
+	exchangeTag := "binance-spot"
+	eventTime := time.Now().UnixMilli()
+	symbol := "BTCUSDT"
+	orderID := int64(11111)
+	clientOrderID := uuid.NewString()
+	quantity := 10.12
+	price := 134.3335
+	filledQuantity := 5.234
+	tradeID := int64(12345)
+
+	event := binance.WsUserDataEvent{
+		Event: binance.UserDataEventTypeExecutionReport,
+		Time:  eventTime,
+		OrderUpdate: binance.WsOrderUpdate{
+			Id:            orderID,
+			Symbol:        symbol,
+			ClientOrderId: clientOrderID,
+			Volume:        strconv.FormatFloat(quantity, 'f', -1, 64),
+			Price:         strconv.FormatFloat(price, 'f', -1, 64),
+			FilledVolume:  strconv.FormatFloat(filledQuantity, 'f', -1, 64),
+			TradeId:       tradeID,
+		},
+	}
+
+	// when
+	result, err := ConvertTradeEventPrivate(event, exchangeTag)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, strconv.FormatInt(tradeID, 10), result.ID)
+	assert.Equal(t, eventTime, result.Time)
+	assert.Equal(t, exchangeTag, result.ExchangeTag)
+	assert.Equal(t, symbol, result.Symbol)
+	assert.Equal(t, strconv.FormatInt(orderID, 10), result.OrderID)
+	assert.Equal(t, clientOrderID, result.ClientOrderID)
+	assert.Equal(t, price, result.Price)
+	assert.Equal(t, quantity, result.Quantity)
+	assert.Equal(t, filledQuantity, result.FilledQuantity)
 }
