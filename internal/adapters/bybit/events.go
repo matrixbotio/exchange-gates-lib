@@ -23,11 +23,58 @@ type TradeEventWorkerBybit struct {
 }
 
 func (w *TradeEventWorkerBybit) SubscribeToTradeEvents(
-	symbol string,
-	eventCallback workers.TradeEventCallback,
-	errorHandler func(err error),
+	_ string,
+	_ workers.TradeEventCallback,
+	_ func(err error),
 ) error {
 	// TBD: https://github.com/matrixbotio/exchange-gates-lib/issues/153
+	return nil
+}
+
+func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
+	eventCallback workers.TradeEventPrivateCallback,
+	errorHandler func(err error),
+) error {
+	service, err := w.wsClient.V5().Private()
+	if err != nil {
+		return fmt.Errorf("failed to get private subscription service: %w", err)
+	}
+
+	handler := func(e bybit.V5WebsocketPrivateOrderResponse) error {
+		for _, datum := range e.Data {
+			event, err := mappers.ParseTradeEvent(datum, e.CreationTime, w.ExchangeTag)
+			if err != nil {
+				return fmt.Errorf("parse trade event: %w", err)
+			}
+
+			eventCallback(event)
+		}
+
+		return nil
+	}
+
+	unsubscribe, err := service.SubscribeOrder(handler)
+	if err != nil {
+		return fmt.Errorf("subscribe to order events: %w", err)
+	}
+
+	w.WsChannels.WsStop = make(chan struct{}, 1)
+	go func() {
+		<-w.WsChannels.WsStop
+		if err := unsubscribe(); err != nil {
+			errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
+		}
+	}()
+
+	wsErrHandler := func(isWebsocketClosed bool, wsErr error) {
+		// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
+		errorHandler(fmt.Errorf("trade events subscription: %w", wsErr))
+	}
+
+	if err := service.Start(context.Background(), wsErrHandler); err != nil {
+		return fmt.Errorf("start trade events subscriber: %w", err)
+	}
+
 	return nil
 }
 

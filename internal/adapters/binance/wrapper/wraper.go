@@ -3,6 +3,7 @@ package wrapper
 import (
 	"context"
 	"fmt"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"time"
 
 	"github.com/adshao/go-binance/v2"
@@ -98,6 +99,12 @@ type BinanceAPIWrapper interface {
 		errorHandler func(err error),
 	) (doneC chan struct{}, stopC chan struct{}, err error)
 
+	SubscribeToTradeEventsPrivate(
+		exchangeTag string,
+		callback workers.TradeEventPrivateCallback,
+		handler func(err error),
+	) (doneC chan struct{}, stopC chan struct{}, err error)
+
 	GetOrderTradeHistory(
 		ctx context.Context,
 		orderID int64,
@@ -114,7 +121,8 @@ func NewWrapper() BinanceAPIWrapper {
 }
 
 func (b *BinanceClientWrapper) Sync(ctx context.Context) {
-	b.NewSetServerTimeService().Do(context.Background())
+	//goland:noinspection GoUnhandledErrorResult
+	b.NewSetServerTimeService().Do(ctx)
 }
 
 func (b *BinanceClientWrapper) Connect(
@@ -296,6 +304,63 @@ func (b *BinanceClientWrapper) SubscribeToTradeEvents(
 		),
 		errorHandler,
 	)
+}
+
+func (b *BinanceClientWrapper) SubscribeToTradeEventsPrivate(
+	exchangeTag string,
+	eventCallback workers.TradeEventPrivateCallback,
+	errorHandler func(err error),
+) (doneC chan struct{}, stopC chan struct{}, err error) {
+	listenKey, err := b.Client.NewStartUserStreamService().Do(context.Background())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	binanceEventCallback := func(event *binance.WsUserDataEvent) {
+		if event == nil {
+			return
+		}
+
+		if event.Event != binance.UserDataEventTypeExecutionReport {
+			// ignore non order-related events
+			return
+		}
+
+		wEvent, err := mappers.ConvertTradeEventPrivate(*event, exchangeTag)
+		if err != nil {
+			errorHandler(fmt.Errorf("convert trade event: %w", err))
+			return
+		}
+
+		eventCallback(wEvent)
+	}
+
+	doneC, bStopC, err := binance.WsUserDataServe(listenKey, binanceEventCallback, errorHandler)
+
+	stopC = make(chan struct{})
+
+	go func() {
+		for {
+			select {
+			case <-time.After(time.Minute * 30):
+				err := b.Client.NewKeepaliveUserStreamService().ListenKey(listenKey).Do(context.Background())
+				if err != nil {
+					b.Logger.Println(err)
+
+					doneC, bStopC, err = binance.WsUserDataServe(listenKey, binanceEventCallback, errorHandler)
+					if err != nil {
+						b.Logger.Println("Failed to reestablish WebSocket connection:", err)
+						return
+					}
+				}
+			case <-stopC:
+				bStopC <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	return doneC, stopC, nil
 }
 
 func (b *BinanceClientWrapper) GetOrderTradeHistory(

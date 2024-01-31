@@ -32,3 +32,38 @@ func ParsePriceEvent(
 		Bid:         lastPrice,
 	}, nil
 }
+
+func ParseTradeEvent(event bybit.V5WebsocketPrivateOrderData, eventTime int64, exchangeTag string) (
+	workers.TradeEventPrivate,
+	error,
+) {
+	wEvent := workers.TradeEventPrivate{
+		ID:            event.BlockTradeID,
+		Time:          eventTime,
+		ExchangeTag:   exchangeTag,
+		Symbol:        string(event.Symbol),
+		OrderID:       event.OrderID,
+		ClientOrderID: event.OrderLinkID,
+	}
+
+	var err error
+	wEvent.Price, err = strconv.ParseFloat(event.Price, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse price: %w", err)
+	}
+
+	wEvent.Quantity, err = strconv.ParseFloat(event.Qty, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse quantity: %w", err)
+	}
+
+	wEvent.FilledQuantity, err = strconv.ParseFloat(event.CumExecQty, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse filledQuantity: %w", err)
+	}
+
+	return wEvent, nil
+}
