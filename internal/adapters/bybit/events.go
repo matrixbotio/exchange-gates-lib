@@ -3,7 +3,6 @@ package bybit
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
@@ -61,18 +60,9 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 
 	w.WsChannels.WsStop = make(chan struct{}, 1)
 	go func() {
-		for {
-			select {
-			case <-time.After(20 * time.Second):
-				if err := service.Ping(); err != nil {
-					// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
-					errorHandler(fmt.Errorf("trade events ping: %w", err))
-				}
-			case <-w.WsChannels.WsStop:
-				if err := unsubscribe(); err != nil {
-					errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
-				}
-			}
+		<-w.WsChannels.WsStop
+		if err := unsubscribe(); err != nil {
+			errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
 		}
 	}()
 
@@ -128,18 +118,9 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 
 		newChannels.WsStop = make(chan struct{}, 1)
 		go func() {
-			for {
-				select {
-				case <-time.After(20 * time.Second):
-					if err := wsSrv.Ping(); err != nil {
-						// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
-						errorHandler(fmt.Errorf("ticker ping: %w", err))
-					}
-				case <-newChannels.WsStop:
-					if err := unsubscribe(); err != nil {
-						errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
-					}
-				}
+			<-newChannels.WsStop
+			if err := unsubscribe(); err != nil {
+				errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
 			}
 		}()
 
