@@ -67,13 +67,17 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 	}()
 
 	wsErrHandler := func(isWebsocketClosed bool, wsErr error) {
-		// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
+		if !isWebsocketClosed {
+			_ = service.Close()
+		}
 		errorHandler(fmt.Errorf("trade events subscription: %w", wsErr))
 	}
 
-	if err := service.Start(context.Background(), wsErrHandler); err != nil {
-		return fmt.Errorf("start trade events subscriber: %w", err)
-	}
+	go func() {
+		if err := service.Start(context.Background(), wsErrHandler); err != nil {
+			errorHandler(fmt.Errorf("start trade events subscriber: %w", err))
+		}
+	}()
 
 	return nil
 }
@@ -112,7 +116,10 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 		}
 
 		wsErrHandler := func(isWebsocketClosed bool, wsErr error) {
-			// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
+			if !isWebsocketClosed {
+				_ = wsSrv.Close()
+			}
+
 			errorHandler(fmt.Errorf("ticker subscription: %w", wsErr))
 		}
 
@@ -124,9 +131,11 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 			}
 		}()
 
-		if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
-			return nil, fmt.Errorf("start ticker subscriber: %w", err)
-		}
+		go func() {
+			if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
+				errorHandler(fmt.Errorf("start ticker subscriber: %w", err))
+			}
+		}()
 
 		result[pairSymbol] = newChannels
 	}
