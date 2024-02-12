@@ -42,8 +42,10 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 	}
 
 	wsErrHandler := func(isWebsocketClosed bool, err error) {
-		// TBD: handle reconnect: https://github.com/matrixbotio/exchange-gates-lib/issues/154
-		errorHandler(err)
+		if !isWebsocketClosed {
+			_ = wsSrv.Close()
+		}
+		errorHandler(fmt.Errorf("bybit candles subscription: %w", err))
 	}
 
 	go func() {
@@ -54,6 +56,7 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 			))
 		}
 	}()
+
 	return nil
 }
 
@@ -70,5 +73,6 @@ func (w *CandleEventWorkerBybit) SubscribeToCandlesList(
 			)
 		}
 	}
+
 	return nil
 }
