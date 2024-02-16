@@ -35,6 +35,10 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 	eventCallback workers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
+	w.WsChannels = new(pkgStructs.WorkerChannels)
+	w.WsChannels.WsStop = make(chan struct{}, 1)
+	w.WsChannels.WsDone = make(chan struct{}, 1)
+
 	service, err := w.wsClient.V5().Private()
 	if err != nil {
 		return fmt.Errorf("failed to get private subscription service: %w", err)
@@ -55,14 +59,16 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 
 	unsubscribe, err := service.SubscribeOrder(handler)
 	if err != nil {
-		return fmt.Errorf("subscribe to order events: %w", err)
+		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
 
-	w.WsChannels.WsStop = make(chan struct{}, 1)
 	go func() {
-		<-w.WsChannels.WsStop
-		if err := unsubscribe(); err != nil {
-			errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
+		select {
+		case <-w.WsChannels.WsStop:
+			if err := unsubscribe(); err != nil {
+				errorHandler(fmt.Errorf("unsubscribe from trade events: %w", err))
+			}
+		case <-w.WsChannels.WsDone:
 		}
 	}()
 
@@ -70,11 +76,15 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 		if !isWebsocketClosed {
 			_ = service.Close()
 		}
+
+		w.WsChannels.WsDone <- struct{}{}
+
 		errorHandler(fmt.Errorf("trade events subscription: %w", wsErr))
 	}
 
 	go func() {
 		if err := service.Start(context.Background(), wsErrHandler); err != nil {
+			w.WsChannels.WsDone <- struct{}{}
 			errorHandler(fmt.Errorf("start trade events subscriber: %w", err))
 		}
 	}()
@@ -92,6 +102,8 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 
 	for _, pairSymbol := range pairSymbols {
 		newChannels := pkgStructs.WorkerChannels{}
+		newChannels.WsStop = make(chan struct{}, 1)
+		newChannels.WsDone = make(chan struct{}, 1)
 
 		wsSrv, err := w.wsClient.V5().Public(bybit.CategoryV5Spot)
 		if err != nil {
@@ -120,19 +132,24 @@ func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 				_ = wsSrv.Close()
 			}
 
+			newChannels.WsDone <- struct{}{}
+
 			errorHandler(fmt.Errorf("ticker subscription: %w", wsErr))
 		}
 
-		newChannels.WsStop = make(chan struct{}, 1)
 		go func() {
-			<-newChannels.WsStop
-			if err := unsubscribe(); err != nil {
-				errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
+			select {
+			case <-newChannels.WsStop:
+				if err := unsubscribe(); err != nil {
+					errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
+				}
+			case <-newChannels.WsDone:
 			}
 		}()
 
 		go func() {
 			if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
+				newChannels.WsDone <- struct{}{}
 				errorHandler(fmt.Errorf("start ticker subscriber: %w", err))
 			}
 		}()
