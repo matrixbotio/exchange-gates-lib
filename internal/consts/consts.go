@@ -47,3 +47,8 @@ const (
 	ExchangeIDbinanceSpot = 1
 	ExchangeIDbybitSpot   = 2
 )
+
+const (
+	CheckOrdersTimeoutBinance = time.Second * 30
+	CheckOrdersTimeoutBybit   = time.Second * 10
+)

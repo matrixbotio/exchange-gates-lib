@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
@@ -13,6 +14,21 @@ import (
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 )
+
+const (
+	defaultCheckOrdersTimeout = time.Second * 30
+)
+
+func GetCheckOrdersTimeout(exchangeID int) time.Duration {
+	switch exchangeID {
+	default:
+		return defaultCheckOrdersTimeout
+	case consts.ExchangeIDbinanceSpot:
+		return consts.CheckOrdersTimeoutBinance
+	case consts.ExchangeIDbybitSpot:
+		return consts.CheckOrdersTimeoutBybit
+	}
+}
 
 func GenerateUUID() string {
 	return uuid.New().String()
