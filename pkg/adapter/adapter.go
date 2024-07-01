@@ -33,9 +33,10 @@ type (
 
 // events
 type (
-	PriceEvent  = workers.PriceEvent
-	TradeEvent  = workers.TradeEvent
-	CandleEvent = workers.CandleEvent
+	PriceEvent        = workers.PriceEvent
+	TradeEvent        = workers.TradeEvent
+	TradeEventPrivate = workers.TradeEventPrivate
+	CandleEvent       = workers.CandleEvent
 )
 
 const PairStatusTrading = consts.PairDefaultStatus
