@@ -43,6 +43,7 @@ func (a *adapter) GetName() string {
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	a.client.WithAuth(credentials.Keypair.Public, credentials.Keypair.Secret)
+	a.wsClient.WithAuth(credentials.Keypair.Public, credentials.Keypair.Secret)
 
 	if err := a.client.SyncServerTime(); err != nil {
 		return fmt.Errorf("sync time: %w", err)
