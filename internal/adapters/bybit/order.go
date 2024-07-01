@@ -148,7 +148,7 @@ func (a *adapter) GetOrderExecFee(
 	payload := bybit.V5GetExecutionParam{
 		Category: bybit.CategoryV5Spot,
 		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
-		OrderId:  &orderIDFormatted,
+		OrderID:  &orderIDFormatted,
 	}
 
 	orderExecData, err := a.client.V5().Execution().GetExecutionList(payload)
