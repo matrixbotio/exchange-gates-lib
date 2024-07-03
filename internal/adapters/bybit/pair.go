@@ -91,7 +91,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	response, err := a.client.V5().Account().GetWalletBalance(
-		bybit.AccountType(bybit.AccountTypeV5SPOT),
+		bybit.AccountTypeV5(bybit.AccountTypeV5SPOT),
 		nil,
 	)
 	if err != nil {

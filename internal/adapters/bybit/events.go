@@ -49,9 +49,13 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 		return fmt.Errorf("failed to get private subscription service: %w", err)
 	}
 
-	handler := func(e bybit.V5WebsocketPrivateOrderResponse) error {
-		for _, datum := range e.Data {
-			event, err := mappers.ParseTradeEvent(datum, e.CreationTime, w.ExchangeTag)
+	if err := service.Subscribe(); err != nil {
+		return fmt.Errorf("init service: %w", err)
+	}
+
+	handler := func(e bybit.V5WebsocketPrivateExecutionResponse) error {
+		for _, eventRaw := range e.Data {
+			event, err := mappers.ParseTradeEventPrivate(eventRaw, e.CreationTime, w.ExchangeTag)
 			if err != nil {
 				return fmt.Errorf("parse trade event: %w", err)
 			}
@@ -62,7 +66,7 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 		return nil
 	}
 
-	unsubscribe, err := service.SubscribeOrder(handler)
+	unsubscribe, err := service.SubscribeExecution(handler)
 	if err != nil {
 		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
