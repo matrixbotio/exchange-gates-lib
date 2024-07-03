@@ -33,7 +33,24 @@ func ParsePriceEvent(
 	}, nil
 }
 
-func ParseTradeEvent(event bybit.V5WebsocketPrivateOrderData, eventTime int64, exchangeTag string) (
+func ParseTradeEventPrivate(
+	event bybit.V5WebsocketPrivateExecutionData,
+	eventTime int64,
+	exchangeTag string,
+) (
+	workers.TradeEventPrivate,
+	error,
+) {
+	// TODO
+
+	return workers.TradeEventPrivate{}, nil
+}
+
+func ParseTradeEvent(
+	event bybit.V5WebsocketPrivateOrderData,
+	eventTime int64,
+	exchangeTag string,
+) (
 	workers.TradeEventPrivate,
 	error,
 ) {
