@@ -62,13 +62,12 @@ type TradeEvent struct {
 }
 
 type TradeEventPrivate struct {
-	ID             string  `json:"id,omitempty"`
-	Time           int64   `json:"time,omitempty"`
-	ExchangeTag    string  `json:"exchangeTag,omitempty"`
-	Symbol         string  `json:"symbol,omitempty"`
-	OrderID        string  `json:"orderID,omitempty"`
-	ClientOrderID  string  `json:"clientOrderID,omitempty"`
-	Price          float64 `json:"price,omitempty"`
-	Quantity       float64 `json:"quantity,omitempty"`
-	FilledQuantity float64 `json:"filledQuantity"`
+	ID            string  `json:"id,omitempty"`
+	Time          int64   `json:"time,omitempty"`
+	ExchangeTag   string  `json:"exchangeTag,omitempty"`
+	Symbol        string  `json:"symbol,omitempty"`
+	OrderID       string  `json:"orderID,omitempty"`
+	ClientOrderID string  `json:"clientOrderID,omitempty"`
+	Price         float64 `json:"price,omitempty"`
+	Quantity      float64 `json:"quantity,omitempty"`
 }

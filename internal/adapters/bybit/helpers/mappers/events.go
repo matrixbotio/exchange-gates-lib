@@ -41,9 +41,29 @@ func ParseTradeEventPrivate(
 	workers.TradeEventPrivate,
 	error,
 ) {
-	// TODO
+	wEvent := workers.TradeEventPrivate{
+		ID:            event.BlockTradeID,
+		Time:          eventTime,
+		ExchangeTag:   exchangeTag,
+		Symbol:        string(event.Symbol),
+		OrderID:       event.OrderID,
+		ClientOrderID: event.OrderLinkID,
+	}
 
-	return workers.TradeEventPrivate{}, nil
+	var err error
+	wEvent.Price, err = strconv.ParseFloat(event.ExecPrice, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse price: %w", err)
+	}
+
+	wEvent.Quantity, err = strconv.ParseFloat(event.ExecQty, 64)
+	if err != nil {
+		return workers.TradeEventPrivate{},
+			fmt.Errorf("parse quantity: %w", err)
+	}
+
+	return wEvent, nil
 }
 
 func ParseTradeEvent(
@@ -74,12 +94,6 @@ func ParseTradeEvent(
 	if err != nil {
 		return workers.TradeEventPrivate{},
 			fmt.Errorf("parse quantity: %w", err)
-	}
-
-	wEvent.FilledQuantity, err = strconv.ParseFloat(event.CumExecQty, 64)
-	if err != nil {
-		return workers.TradeEventPrivate{},
-			fmt.Errorf("parse filledQuantity: %w", err)
 	}
 
 	return wEvent, nil

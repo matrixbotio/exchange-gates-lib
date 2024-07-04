@@ -78,11 +78,5 @@ func ConvertTradeEventPrivate(event binance.WsUserDataEvent, exchangeTag string)
 			fmt.Errorf("parse quantity: %w", err)
 	}
 
-	wEvent.FilledQuantity, err = strconv.ParseFloat(event.OrderUpdate.FilledVolume, 64)
-	if err != nil {
-		return workers.TradeEventPrivate{},
-			fmt.Errorf("parse filledQuantity: %w", err)
-	}
-
 	return wEvent, nil
 }
