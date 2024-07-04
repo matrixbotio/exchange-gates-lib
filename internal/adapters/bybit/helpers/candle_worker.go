@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"fmt"
+
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 
 	"github.com/hirokisan/bybit/v2"
@@ -26,7 +27,7 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 
 	wsSrv, err := w.WsClient.V5().Public(bybit.CategoryV5Spot)
 	if err != nil {
-		return fmt.Errorf("create trade events subscription service: %w", err)
+		return fmt.Errorf("create candle events subscription service: %w", err)
 	}
 
 	eventHandler := CandleEventsHandler{

@@ -1,8 +1,9 @@
 package mappers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/stretchr/testify/require"
@@ -39,7 +40,6 @@ func TestParseTradeEventSuccessful(t *testing.T) {
 		OrderLinkID:  "abcdef",
 		Price:        "45000.50",
 		Qty:          "1.5",
-		CumExecQty:   "1.0",
 	}
 
 	eventTime := int64(1643616000)
@@ -58,5 +58,4 @@ func TestParseTradeEventSuccessful(t *testing.T) {
 	assert.Equal(t, "abcdef", result.ClientOrderID)
 	assert.Equal(t, 45000.50, result.Price)
 	assert.Equal(t, 1.5, result.Quantity)
-	assert.Equal(t, 1.0, result.FilledQuantity)
 }

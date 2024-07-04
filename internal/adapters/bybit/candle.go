@@ -23,8 +23,8 @@ func (a *adapter) GetCandles(
 	periodDuration := bybitInterval.Duration * time.Duration(limit)
 	timeFrom := timeTo.Add(-periodDuration)
 
-	fromTimestamp := int(timeFrom.UnixMilli())
-	toTimestamp := int(timeTo.UnixMilli())
+	fromTimestamp := timeFrom.UnixMilli()
+	toTimestamp := timeTo.UnixMilli()
 
 	response, err := a.client.V5().Market().GetKline(bybit.V5GetKlineParam{
 		Category: bybit.CategoryV5Spot,

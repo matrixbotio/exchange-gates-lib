@@ -1,10 +1,11 @@
 package mappers
 
 import (
-	"github.com/google/uuid"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
@@ -108,7 +109,6 @@ func TestConvertTradeEventPrivateSuccess(t *testing.T) {
 	clientOrderID := uuid.NewString()
 	quantity := 10.12
 	price := 134.3335
-	filledQuantity := 5.234
 	tradeID := int64(12345)
 
 	event := binance.WsUserDataEvent{
@@ -120,7 +120,6 @@ func TestConvertTradeEventPrivateSuccess(t *testing.T) {
 			ClientOrderId: clientOrderID,
 			Volume:        strconv.FormatFloat(quantity, 'f', -1, 64),
 			Price:         strconv.FormatFloat(price, 'f', -1, 64),
-			FilledVolume:  strconv.FormatFloat(filledQuantity, 'f', -1, 64),
 			TradeId:       tradeID,
 		},
 	}
@@ -138,5 +137,4 @@ func TestConvertTradeEventPrivateSuccess(t *testing.T) {
 	assert.Equal(t, clientOrderID, result.ClientOrderID)
 	assert.Equal(t, price, result.Price)
 	assert.Equal(t, quantity, result.Quantity)
-	assert.Equal(t, filledQuantity, result.FilledQuantity)
 }
