@@ -16,10 +16,22 @@ type CalcTPProcessor struct {
 	depositSpent decimal.Decimal
 	fees         structs.OrderFees
 	pairData     structs.ExchangePairData
+
+	accBase  decimal.Decimal
+	accQuote decimal.Decimal
 }
 
 func NewCalcTPOrderProcessor() *CalcTPProcessor {
 	return &CalcTPProcessor{}
+}
+
+func (s *CalcTPProcessor) Remains(
+	accBase decimal.Decimal,
+	accQuote decimal.Decimal,
+) *CalcTPProcessor {
+	s.accBase = accBase
+	s.accQuote = accQuote
+	return s
 }
 
 func (s *CalcTPProcessor) Strategy(strategy pkgStructs.BotStrategy) *CalcTPProcessor {
@@ -80,21 +92,10 @@ func (s *CalcTPProcessor) checkParams() error {
 	return nil
 }
 
-func (s *CalcTPProcessor) checkFees() {
-	if s.fees.BaseAsset.IsZero() && s.fees.QuoteAsset.IsZero() {
-		s.fees = structs.OrderFees{
-			BaseAsset:  decimal.NewFromInt(0),
-			QuoteAsset: decimal.NewFromInt(0),
-		}
-	}
-}
-
 func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	if err := s.checkParams(); err != nil {
 		return pkgStructs.BotOrder{}, fmt.Errorf("check params: %w", err)
 	}
-
-	s.checkFees()
 
 	if s.strategy == pkgStructs.BotStrategyShort {
 		return s.calcShortTPOrder(), nil
@@ -105,7 +106,9 @@ func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 	// subtract fees from depo spent in quote asset (from default SELL orders)
 	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
-	depositSpentWithFee := s.depositSpent.Sub(s.fees.QuoteAsset)
+	depositSpentWithFee := s.depositSpent.
+		Sub(s.fees.QuoteAsset).
+		Add(s.accQuote)
 
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
 	profitDec := decimal.NewFromFloat(s.profit)
@@ -137,7 +140,9 @@ func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
-	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).Sub(s.fees.BaseAsset)
+	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
+		Sub(s.fees.BaseAsset).
+		Add(s.accBase)
 
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
