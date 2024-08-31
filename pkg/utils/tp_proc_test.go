@@ -219,6 +219,43 @@ func TestCalcTPOrderLongRemains(t *testing.T) {
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
+func TestCalcTPOrderShortRemains(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:    "BTCUSDT",
+		QtyStep:   0.000001,
+		PriceStep: 0.01,
+	}
+	coinsQty := 0.000484
+	depoSpent := decimal.NewFromFloat(28.80802933)
+	profit := float64(1)
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: decimal.NewFromFloat(0.02880802933),
+	}
+
+	accBase := decimal.NewFromFloat(0)
+	accQuote := decimal.NewFromFloat(0.05853762067)
+
+	// when
+	order, err := NewCalcTPOrderProcessor().CoinsQty(coinsQty).
+		Profit(profit).
+		DepositSpent(depoSpent).
+		Strategy(pkgStructs.BotStrategyShort).
+		PairData(pairData).
+		Remains(accBase, accQuote).
+		Fees(fees).
+		Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(58992.22), order.Price)
+	assert.Equal(t, float64(0.000488), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+}
+
 func TestCalcTPOrderLongFeesBigQty(t *testing.T) {
 	// given
 	pairData := structs.ExchangePairData{
