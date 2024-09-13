@@ -89,9 +89,37 @@ func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (
 
 	data, err := order_mappers.ParseHistoryOrder(r, orderID, pairSymbol)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return a.getOpenedOrder(param)
+		}
+
 		return structs.OrderData{}, fmt.Errorf("parse history order: %w", err)
 	}
 	return data, nil
+}
+
+func (a *adapter) getOpenedOrder(param bybit.V5GetHistoryOrdersParam) (
+	structs.OrderData,
+	error,
+) {
+	orderID := accessors.GetOrderIDFromHistoryOrdersParam(param)
+	pairSymbol := accessors.GetOrderSymbolFromHistoryOrdersParam(param)
+
+	r, err := a.client.V5().Order().GetOpenOrders(bybit.V5GetOpenOrdersParam{
+		Category:    param.Category,
+		Symbol:      param.Symbol,
+		OrderID:     param.OrderID,
+		OrderLinkID: param.OrderLinkID,
+	})
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("get open orders: %w", err)
+	}
+
+	orderData, err := order_mappers.ParseHistoryOrder(r, orderID, pairSymbol)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("parse: %w", err)
+	}
+	return orderData, nil
 }
 
 func (a *adapter) CancelPairOrder(pairSymbol string, orderID int64, ctx context.Context) error {
