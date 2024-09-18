@@ -99,12 +99,22 @@ func TestGetAccountBalanceSpot(t *testing.T) {
 						},
 					},
 				},
+				{
+					AccountType: string(bybit.AccountTypeV5UNIFIED),
+					Coin: []bybit.V5WalletBalanceCoin{
+						{
+							Coin: "LTC",
+							Free: "5",
+						},
+					},
+				},
 			},
 		},
 	}
+	accountType := bybit.AccountTypeV5SPOT
 
 	// when
-	spotBalance, err := GetAccountBalanceSpot(data)
+	spotBalance, err := GetAccountBalance(data, accountType)
 
 	// then
 	require.NoError(t, err)

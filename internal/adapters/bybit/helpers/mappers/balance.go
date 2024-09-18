@@ -10,8 +10,11 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
-func ConvertAccountBalance(data bybit.V5GetWalletBalanceResponse) ([]structs.Balance, error) {
-	spotBalance, err := accessors.GetAccountBalanceSpot(data)
+func ConvertAccountBalance(
+	data bybit.V5GetWalletBalanceResponse,
+	accountType bybit.AccountTypeV5,
+) ([]structs.Balance, error) {
+	balance, err := accessors.GetAccountBalance(data, accountType)
 	if err != nil {
 		if errors.Is(err, errs.ErrSpotBalanceNotFound) {
 			return nil, nil
@@ -20,7 +23,7 @@ func ConvertAccountBalance(data bybit.V5GetWalletBalanceResponse) ([]structs.Bal
 	}
 
 	var result []structs.Balance
-	for _, tickerData := range spotBalance.Coin {
+	for _, tickerData := range balance.Coin {
 		tickerBalance, err := convertCoinData(tickerData, string(tickerData.Coin))
 		if err != nil {
 			return nil, fmt.Errorf("convert ticker balance: %w", err)

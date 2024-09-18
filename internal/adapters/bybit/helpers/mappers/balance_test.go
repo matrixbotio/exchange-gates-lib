@@ -34,9 +34,10 @@ func TestConvertAccountBalance(t *testing.T) {
 			},
 		},
 	}
+	accountType := bybit.AccountTypeV5SPOT
 
 	// when
-	balances, err := ConvertAccountBalance(data)
+	balances, err := ConvertAccountBalance(data, accountType)
 
 	// then
 	require.NoError(t, err)

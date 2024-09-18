@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -218,4 +220,13 @@ func GetValueStep(minValue float64) float64 {
 	divisor := decimal.NewFromFloat(math.Pow(10, float64(precision)))
 	valueStep, _ := decimal.NewFromInt(1).Div(divisor).Float64()
 	return valueStep
+}
+
+func PrintObject(o any) {
+	data, err := json.MarshalIndent(o, "", "	")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(string(data))
 }
