@@ -51,12 +51,14 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 		return fmt.Errorf("sync time: %w", err)
 	}
 
-	accountInfo, err := a.client.V5().Account().GetAccountInfo()
-	if err != nil {
-		return fmt.Errorf("get account info: %w", err)
-	}
+	if credentials.Keypair.Public != "" && credentials.Keypair.Secret != "" {
+		accountInfo, err := a.client.V5().Account().GetAccountInfo()
+		if err != nil {
+			return fmt.Errorf("get account info: %w", err)
+		}
 
-	a.marginStatus = accountInfo.Result.UnifiedMarginStatus
+		a.marginStatus = accountInfo.Result.UnifiedMarginStatus
+	}
 	return nil
 }
 
