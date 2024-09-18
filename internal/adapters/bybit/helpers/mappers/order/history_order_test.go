@@ -23,7 +23,7 @@ func TestParseHistoryOrder(t *testing.T) {
 					OrderID:     orderIDStr,
 					Qty:         "0.5",
 					CumExecQty:  "0.1",
-					AvgPrice:    "82",
+					Price:       "82",
 					UpdatedTime: "1692119310600",
 					Side:        bybit.SideSell,
 					OrderStatus: bybit.OrderStatusActive,
