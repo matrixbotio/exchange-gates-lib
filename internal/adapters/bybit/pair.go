@@ -91,7 +91,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	response, err := a.client.V5().Account().GetWalletBalance(
-		bybit.AccountTypeV5(bybit.AccountTypeV5SPOT),
+		a.getAccountType(),
 		nil,
 	)
 	if err != nil {
@@ -101,7 +101,7 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	if response == nil {
 		return nil, fmt.Errorf("get wallet balance: response is empty")
 	}
-	return mappers.ConvertAccountBalance(*response)
+	return mappers.ConvertAccountBalance(*response, a.getAccountType())
 }
 
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {

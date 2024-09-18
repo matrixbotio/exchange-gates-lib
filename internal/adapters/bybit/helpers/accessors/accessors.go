@@ -12,7 +12,7 @@ const (
 	unknownOrderID    = "unknown-id"
 )
 
-func GetAccountBalanceSpot(data bybit.V5GetWalletBalanceResponse) (
+func GetAccountBalance(data bybit.V5GetWalletBalanceResponse, accountType bybit.AccountTypeV5) (
 	bybit.V5WalletBalanceList, error,
 ) {
 	if len(data.Result.List) == 0 {
@@ -20,7 +20,7 @@ func GetAccountBalanceSpot(data bybit.V5GetWalletBalanceResponse) (
 	}
 
 	for _, tickerData := range data.Result.List {
-		if tickerData.AccountType == string(bybit.AccountTypeV5SPOT) {
+		if tickerData.AccountType == string(accountType) {
 			return tickerData, nil
 		}
 	}

@@ -17,6 +17,8 @@ type adapter struct {
 
 	client   *bybit.Client
 	wsClient *bybit.WebSocketClient
+
+	marginStatus bybit.UnifiedMarginStatus
 }
 
 func New() adp.Adapter {
@@ -48,7 +50,22 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	if err := a.client.SyncServerTime(); err != nil {
 		return fmt.Errorf("sync time: %w", err)
 	}
+
+	accountInfo, err := a.client.V5().Account().GetAccountInfo()
+	if err != nil {
+		return fmt.Errorf("get account info: %w", err)
+	}
+
+	a.marginStatus = accountInfo.Result.UnifiedMarginStatus
 	return nil
+}
+
+func (a *adapter) getAccountType() bybit.AccountTypeV5 {
+	if a.marginStatus == bybit.UnifiedMarginStatusRegular {
+		return bybit.AccountTypeV5SPOT
+	}
+
+	return bybit.AccountTypeV5UNIFIED
 }
 
 func (a *adapter) CanTrade() (bool, error) {
