@@ -56,10 +56,10 @@ func ConvertOrderData(data bybit.V5GetOrder) (structs.OrderData, error) {
 		return structs.OrderData{}, fmt.Errorf("parse executed qty: %w", err)
 	}
 
-	if data.Price == "" {
+	if data.AvgPrice == "" {
 		return structs.OrderData{}, errors.New("order price is empty")
 	}
-	price, err := strconv.ParseFloat(data.Price, 64)
+	price, err := strconv.ParseFloat(data.AvgPrice, 64)
 	if err != nil {
 		return structs.OrderData{}, fmt.Errorf("parse price: %w", err)
 	}
