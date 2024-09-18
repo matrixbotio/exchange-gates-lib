@@ -197,7 +197,7 @@ func TestConvertOrderData(t *testing.T) {
 		OrderID:     "12345",
 		Side:        bybit.SideSell,
 		Qty:         "0.35",
-		AvgPrice:    "80.156",
+		Price:       "80.156",
 		CumExecQty:  "0.1",
 		UpdatedTime: "1692119310600",
 		OrderStatus: bybit.OrderStatusActive,
