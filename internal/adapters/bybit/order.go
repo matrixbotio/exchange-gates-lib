@@ -64,8 +64,17 @@ func (a *adapter) PlaceOrder(
 		return structs.CreateOrderResponse{}, fmt.Errorf("parse order ID: %w", err)
 	}
 
-	orderData, err := a.GetOrderData(order.PairSymbol, orderID)
+	orderData, err := a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
+		Category: bybit.CategoryV5Spot,
+		Symbol:   accessors.GetPairSymbolPointerV5(order.PairSymbol),
+		OrderID:  utils.StringPointer(strconv.FormatInt(orderID, 10)),
+	})
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			// order not found, return original order data
+			return utils.OrderToOrderResponse(order, orderID)
+		}
+
 		return structs.CreateOrderResponse{},
 			fmt.Errorf("get order data after place order: %w", err)
 	}
@@ -90,6 +99,7 @@ func (a *adapter) getOrderDataByParams(param bybit.V5GetHistoryOrdersParam) (
 	data, err := order_mappers.ParseHistoryOrder(r, orderID, pairSymbol)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
+			// history order not available, let's find in opened orders
 			return a.getOpenedOrder(param)
 		}
 
