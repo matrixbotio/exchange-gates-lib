@@ -230,3 +230,7 @@ func PrintObject(o any) {
 
 	fmt.Println(string(data))
 }
+
+func StringPointer(val string) *string {
+	return &val
+}
