@@ -141,8 +141,7 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
-		Sub(s.fees.BaseAsset).
-		Add(s.accBase)
+		Sub(s.fees.BaseAsset)
 
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
@@ -157,12 +156,14 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	tpPriceFloat, _ := tpPrice.RoundFloor(int32(pricePrecision)).Float64()
 
 	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
-	tpCoinsQty, _ := coinsQtyDec.RoundFloor(int32(qtyPrecision)).Float64()
+	tpCoinsQty := coinsQtyDec.Add(s.accBase)
+
+	tpCoinsQtyFloat := tpCoinsQty.RoundFloor(int32(qtyPrecision)).InexactFloat64()
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           tpCoinsQty,
+		Qty:           tpCoinsQtyFloat,
 		Price:         tpPriceFloat,
 		Deposit:       tpDepositFloat,
 		ClientOrderID: GenerateUUID(),
