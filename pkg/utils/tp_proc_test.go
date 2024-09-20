@@ -219,6 +219,47 @@ func TestCalcTPOrderLongRemains(t *testing.T) {
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
+func TestCalcTPOrderLongRemainsBigQtyStep(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:    "FIREUSDT",
+		QtyStep:   1,
+		PriceStep: 0.0001,
+	}
+	coinsQty := float64(2)
+	depoSpent := decimal.NewFromFloat(2.6694)
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromFloat(0.000088),
+		QuoteAsset: decimal.Zero,
+	}
+
+	zeroProfitPrice := depoSpent.InexactFloat64() / coinsQty
+
+	accBase := decimal.NewFromFloat(0.9966683)
+	accQuote := decimal.Zero
+
+	proc := NewCalcTPOrderProcessor().
+		CoinsQty(coinsQty).
+		Profit(0.7).
+		DepositSpent(depoSpent).
+		Strategy(pkgStructs.BotStrategyLong).
+		PairData(pairData).
+		Remains(accBase, accQuote).
+		Fees(fees)
+
+	// when
+	order, err := proc.Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(1.3441), order.Price)
+	assert.Equal(t, float64(2), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+	assert.Greater(t, order.Price, zeroProfitPrice)
+}
+
 func TestCalcTPOrderShortRemains(t *testing.T) {
 	// given
 	pairData := structs.ExchangePairData{
@@ -254,6 +295,46 @@ func TestCalcTPOrderShortRemains(t *testing.T) {
 	assert.Equal(t, float64(0.00048884), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
+}
+
+func TestCalcTPOrderShortRemainsBigQtyStep(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:    "FIREUSDT",
+		QtyStep:   1,
+		PriceStep: 0.0001,
+	}
+	coinsQty := float64(2)
+	depoSpent := decimal.NewFromFloat(2.6694)
+	profit := float64(1)
+
+	zeroProfitPrice := depoSpent.InexactFloat64() / coinsQty
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: decimal.NewFromFloat(0.02880802933),
+	}
+
+	accBase := decimal.NewFromFloat(0)
+	accQuote := decimal.NewFromFloat(0.585)
+
+	// when
+	order, err := NewCalcTPOrderProcessor().CoinsQty(coinsQty).
+		Profit(profit).
+		DepositSpent(depoSpent).
+		Strategy(pkgStructs.BotStrategyShort).
+		PairData(pairData).
+		Remains(accBase, accQuote).
+		Fees(fees).
+		Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(1.5968), order.Price)
+	assert.Equal(t, float64(2), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+	assert.Less(t, order.Price, zeroProfitPrice)
 }
 
 func TestCalcTPOrderLongFeesBigQty(t *testing.T) {
