@@ -7,4 +7,5 @@ var (
 	ErrOrderNotFound               = errors.New("order not found")
 	ErrOrderCancellationInProgress = errors.New("order cancellation in progress")
 	ErrOrderDuplicate              = errors.New("order has already been placed")
+	ErrMinimumTP                   = errors.New("minimum TP order not passed")
 )
