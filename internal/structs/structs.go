@@ -25,6 +25,10 @@ type BotOrderAdjusted struct {
 	MinDepositPassed bool    `json:"minDepositPassed"`
 }
 
+func (o BotOrderAdjusted) IsEmpty() bool {
+	return o.Qty == "" && o.Price == ""
+}
+
 // CreateOrderResponse - response from the exchange about the placed order
 type CreateOrderResponse struct {
 	OrderID       int64   `json:"orderID"`

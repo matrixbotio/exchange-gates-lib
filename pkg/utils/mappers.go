@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -70,4 +74,30 @@ func OrderDataToCreateOrderResponse(
 		CreatedTime:   data.CreatedTime,
 		Status:        data.Status,
 	}
+}
+
+func OrderToOrderResponse(order structs.BotOrderAdjusted, orderID int64) (
+	structs.CreateOrderResponse,
+	error,
+) {
+	data := structs.CreateOrderResponse{
+		OrderID:       orderID,
+		ClientOrderID: order.ClientOrderID,
+		Symbol:        order.PairSymbol,
+		Type:          order.Type,
+		CreatedTime:   time.Now().UnixMilli(),
+		Status:        pkgStructs.OrderStatusNew,
+	}
+
+	var err error
+	data.OrigQuantity, err = strconv.ParseFloat(order.Qty, 64)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("parse qty: %w", err)
+	}
+
+	data.Price, err = strconv.ParseFloat(order.Price, 64)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("parse price: %w", err)
+	}
+	return data, nil
 }
