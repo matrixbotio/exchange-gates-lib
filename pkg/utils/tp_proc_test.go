@@ -330,7 +330,7 @@ func TestCalcTPOrderShortRemainsBigQtyStep(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(1.5968), order.Price)
+	assert.Equal(t, float64(1.3072), order.Price)
 	assert.Equal(t, float64(2), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
