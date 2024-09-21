@@ -108,6 +108,10 @@ func (s *CalcTPProcessor) calcShortTPQty(depositSpentWithFee decimal.Decimal) de
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
 		Sub(s.fees.BaseAsset)
 
+	if s.accQuote.IsZero() {
+		return coinsQtyDec
+	}
+
 	// Let's try to calculate how much remains amount we can
 	// convert to qty to add to the order
 	zeroProfitPrice := depositSpentWithFee.Div(coinsQtyDec)
@@ -134,13 +138,14 @@ func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 
 	// price = depositSpent / tpQty
 	tpPrice := depositSpentWithFee.Div(tpQty)
+	tpAmount := tpPrice.Mul(tpQty)
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
 		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
-		Deposit:       depositSpentWithFee.InexactFloat64(),
+		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
 	}
 }
@@ -155,10 +160,8 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
 
 	// deposit = (1 + profit/100) * depositSpent
-	tpDeposit := profitDelta.Mul(s.depositSpent)
-
-	tpPrice := tpDeposit.Div(coinsQtyDec)
-
+	tpAmount := profitDelta.Mul(s.depositSpent)
+	tpPrice := tpAmount.Div(coinsQtyDec)
 	tpCoinsQty := coinsQtyDec.Add(s.accBase)
 
 	return pkgStructs.BotOrder{
@@ -166,7 +169,7 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
 		Qty:           tpCoinsQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
-		Deposit:       tpDeposit.InexactFloat64(),
+		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
 	}
 }
