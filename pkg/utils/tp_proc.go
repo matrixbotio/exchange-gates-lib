@@ -119,20 +119,12 @@ func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 	// price = depositSpent / tpQty
 	tpPriceWithoutFee := depositSpentWithFee.Div(tpQty)
 
-	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
-	tpQtyFloat, _ := tpQty.RoundFloor(int32(qtyPrecision)).Float64()
-
-	pricePrecision := GetFloatPrecision(s.pairData.PriceStep)
-	tpPriceFloat, _ := tpPriceWithoutFee.RoundFloor(int32(pricePrecision)).Float64()
-
-	depoSpentFloat, _ := depositSpentWithFee.Float64()
-
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
-		Qty:           tpQtyFloat,
-		Price:         tpPriceFloat,
-		Deposit:       depoSpentFloat,
+		Qty:           tpQty.InexactFloat64(),
+		Price:         tpPriceWithoutFee.InexactFloat64(),
+		Deposit:       depositSpentWithFee.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
 	}
 }
