@@ -45,6 +45,18 @@ func TestGetFloatPrecision3(t *testing.T) {
 	assert.Equal(t, precisionExpected, precision)
 }
 
+func TestGetFloatPrecision4(t *testing.T) {
+	// given
+	var val float64 = 1
+	var precisionExpected int = 0
+
+	// when
+	var precision = GetFloatPrecision(val)
+
+	// then
+	assert.Equal(t, precisionExpected, precision)
+}
+
 func TestOrderResponseToBotOrder(t *testing.T) {
 	fromOrder := structs.CreateOrderResponse{}
 
@@ -98,6 +110,42 @@ func TestRoundPairOrderValues(t *testing.T) {
 
 	assert.Equal(t, 0.6666, parsedOrder.Qty)
 	assert.Equal(t, 100.66, parsedOrder.Price)
+	assert.LessOrEqual(t, parsedOrder.Deposit, originalOrder.Deposit)
+	assert.NotEmpty(t, parsedOrder.ClientOrderID)
+}
+
+func TestRoundPairOrderValuesBigQtyStep(t *testing.T) {
+	originalOrder := pkgStructs.BotOrder{
+		Qty:           3.999,
+		Price:         1.456,
+		ClientOrderID: "12345",
+	}
+	originalOrder.Deposit = originalOrder.Qty * originalOrder.Price
+
+	pairData := structs.ExchangePairData{
+		BaseAsset:          "SUI",
+		QuoteAsset:         "USDT",
+		BasePrecision:      8,
+		QuotePrecision:     8,
+		Symbol:             "SUIUSDT",
+		MinQty:             1,
+		MaxQty:             9000,
+		OriginalMinDeposit: 1,
+		MinDeposit:         1,
+		MinPrice:           0.001,
+		QtyStep:            1,
+		PriceStep:          0.001,
+	}
+
+	roundedOrder, err := RoundPairOrderValues(originalOrder, pairData)
+	require.Nil(t, err)
+	assert.Equal(t, "3", roundedOrder.Qty)
+
+	parsedOrder, err := ParseAdjustedOrder(roundedOrder)
+	require.Nil(t, err)
+
+	assert.Equal(t, float64(3), parsedOrder.Qty)
+	assert.Equal(t, float64(1.456), parsedOrder.Price)
 	assert.LessOrEqual(t, parsedOrder.Deposit, originalOrder.Deposit)
 	assert.NotEmpty(t, parsedOrder.ClientOrderID)
 }
@@ -167,6 +215,20 @@ func TestFormatFloatFloor3(t *testing.T) {
 	assert.Equal(t, qtyFormatedExpected, qtyFormated)
 }
 
+func TestFormatFloatFloor7(t *testing.T) {
+	// given
+	qty := float64(3.999)
+	precision := 0
+	qtyFormatedExpected := "3"
+
+	// when
+	qtyFormated, err := formatFloatFloor(qty, precision)
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, qtyFormatedExpected, qtyFormated)
+}
+
 func TestRoundFloatToDecimal(t *testing.T) {
 	// given
 	val := float64(70)
@@ -190,7 +252,7 @@ func TestFormatAndTrimFloat(t *testing.T) {
 		{valRaw: 60.1, valExpected: "60.1"},
 		{valRaw: 15.32, valExpected: "15.32"},
 		{valRaw: 1250, valExpected: "1250"},
-		{valRaw: 0.918, valExpected: "0.92"},
+		{valRaw: 0.918, valExpected: "0.91"},
 		{valRaw: 0.01, valExpected: "0.01"},
 	}
 	precision := int(2)

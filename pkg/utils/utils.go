@@ -7,7 +7,6 @@ import (
 	"log"
 	"math"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -61,15 +60,10 @@ func RoundFloatFloor(val float64, precision int) (float64, error) {
 		return 0, errors.New("value is Inf")
 	}
 
-	f, _ := roundFloatToDecimal(val, precision).Float64()
-	return f, nil
+	return roundFloatToDecimal(val, precision).InexactFloat64(), nil
 }
 
 func formatFloatFloor(val float64, precision int) (string, error) {
-	if precision == 0 {
-		return strconv.FormatFloat(val, 'f', 0, 64), nil
-	}
-
 	valRounded, err := RoundFloatFloor(val, precision)
 	if err != nil {
 		return "", fmt.Errorf("round value: %w", err)
@@ -79,12 +73,7 @@ func formatFloatFloor(val float64, precision int) (string, error) {
 }
 
 func formatAndTrimFloat(val float64, precision int) string {
-	f := strconv.FormatFloat(val, 'f', precision, 64)
-	v := strings.TrimRight(strings.TrimRight(f, "0"), ".")
-	if v == "" {
-		return "0"
-	}
-	return v
+	return decimal.NewFromFloat(val).RoundFloor(int32(precision)).String()
 }
 
 /*
