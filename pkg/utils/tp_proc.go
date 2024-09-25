@@ -103,28 +103,44 @@ func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	return s.calcLongOrder(), nil
 }
 
+func (s *CalcTPProcessor) calcShortTPQty(depositSpentWithFee decimal.Decimal) decimal.Decimal {
+	// coins qty - fees
+	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
+		Sub(s.fees.BaseAsset)
+
+	// Let's try to calculate how much remains amount we can
+	// convert to qty to add to the order
+	zeroProfitPrice := depositSpentWithFee.Div(coinsQtyDec)
+	remainsQty := s.accQuote.Div(zeroProfitPrice)
+	qtyWithRemains := coinsQtyDec.Add(remainsQty)
+
+	// let's round qty
+	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
+	return qtyWithRemains.RoundFloor(int32(qtyPrecision))
+}
+
 func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 	// subtract fees from depo spent in quote asset (from default SELL orders)
 	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
 	depositSpentWithFee := s.depositSpent.
-		Sub(s.fees.QuoteAsset).
-		Add(s.accQuote)
+		Sub(s.fees.QuoteAsset)
 
-	coinsQtyDec := decimal.NewFromFloat(s.coinsQty)
+	coinsQtyDec := s.calcShortTPQty(depositSpentWithFee)
+
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
 	// qty = (1 + profit/100) * coinsQty
 	tpQty := coinsQtyDec.Mul(profitDelta)
 
 	// price = depositSpent / tpQty
-	tpPriceWithoutFee := depositSpentWithFee.Div(tpQty)
+	tpPrice := depositSpentWithFee.Div(tpQty)
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
 		Qty:           tpQty.InexactFloat64(),
-		Price:         tpPriceWithoutFee.InexactFloat64(),
-		Deposit:       depositSpentWithFee.InexactFloat64(),
+		Price:         tpPrice.InexactFloat64(),
+		Deposit:       depositSpentWithFee.InexactFloat64(), // TODO: recalc tp depo
 		ClientOrderID: GenerateUUID(),
 	}
 }
@@ -133,21 +149,20 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
-		Sub(s.fees.BaseAsset).
-		Add(s.accBase)
+		Sub(s.fees.BaseAsset)
 
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
 
 	// deposit = (1 + profit/100) * depositSpent
 	tpDeposit := profitDelta.Mul(s.depositSpent)
-
 	tpPrice := tpDeposit.Div(coinsQtyDec)
+	tpCoinsQty := coinsQtyDec.Add(s.accBase)
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           coinsQtyDec.InexactFloat64(),
+		Qty:           tpCoinsQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpDeposit.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
