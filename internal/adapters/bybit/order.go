@@ -19,22 +19,38 @@ import (
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
 	orderIDFormatted := strconv.FormatInt(orderID, 10)
 
-	return a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
+	data, err := a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
 		Category: bybit.CategoryV5Spot,
 		Symbol:   accessors.GetPairSymbolPointerV5(pairSymbol),
 		OrderID:  &orderIDFormatted,
 	})
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return structs.OrderData{}, pkgErrs.ErrOrderNotFound
+		}
+		return structs.OrderData{}, err
+	}
+
+	return data, nil
 }
 
 func (a *adapter) GetOrderByClientOrderID(pairSymbol, clientOrderID string) (
 	structs.OrderData,
 	error,
 ) {
-	return a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
+	data, err := a.getOrderDataByParams(bybit.V5GetHistoryOrdersParam{
 		Category:    bybit.CategoryV5Spot,
 		Symbol:      accessors.GetPairSymbolPointerV5(pairSymbol),
 		OrderLinkID: &clientOrderID,
 	})
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return structs.OrderData{}, pkgErrs.ErrOrderNotFound
+		}
+		return structs.OrderData{}, err
+	}
+
+	return data, nil
 }
 
 func (a *adapter) PlaceOrder(
