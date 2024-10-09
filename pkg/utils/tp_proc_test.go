@@ -35,7 +35,6 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 		PriceStep: 0.01,
 	}
 	zeroProfitPrice := testTPDepositSpent.Div(decimal.NewFromFloat(testTPCoinsQty))
-	zeroProfitPriceFloat, _ := zeroProfitPrice.Float64()
 
 	proc := NewCalcTPOrderProcessor().CoinsQty(testTPCoinsQty).
 		Profit(testTPProfitPercent).
@@ -50,7 +49,7 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(25911), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
-	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
+	assert.LessOrEqual(t, order.Price, zeroProfitPrice.InexactFloat64())
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }

@@ -144,14 +144,10 @@ func (s *CalcTPProcessor) getMinPriceError(price decimal.Decimal) error {
 	)
 }
 
-func (s *CalcTPProcessor) calcShortTPQty(amountAvailable decimal.Decimal) (
+func (s *CalcTPProcessor) calcShortTPQty(coinsQtyDec, amountAvailable decimal.Decimal) (
 	decimal.Decimal,
 	error,
 ) {
-	// coins qty - fees
-	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
-		Sub(s.fees.BaseAsset)
-
 	// increase qty by profit %
 	profitDec := decimal.NewFromFloat(s.profit)
 	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
@@ -207,8 +203,12 @@ func (s *CalcTPProcessor) roundAmount(amount decimal.Decimal) decimal.Decimal {
 }
 
 func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
+	// coins qty - fees
+	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
+		Sub(s.fees.BaseAsset)
+
 	amountAvailable := s.depositSpent.Sub(s.fees.QuoteAsset)
-	tpQty, err := s.calcShortTPQty(amountAvailable)
+	tpQty, err := s.calcShortTPQty(coinsQtyDec, amountAvailable)
 	if err != nil {
 		return pkgStructs.BotOrder{}, err
 	}
@@ -232,16 +232,26 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	// recalc amount
 	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
 
-	// TODO: let's check that the TP order will not close in the minus
-
-	return pkgStructs.BotOrder{
+	order := pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
 		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
-	}, nil
+	}
+
+	// let's check that the TP order will not close in the minus
+	zeroProfitPrice := s.depositSpent.Div(coinsQtyDec)
+	if tpPrice.GreaterThan(zeroProfitPrice) {
+		return pkgStructs.BotOrder{},
+			fmt.Errorf(
+				"invalid TP calc: order: %s",
+				order.String(),
+			)
+	}
+
+	return order, nil
 }
 
 func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
@@ -279,14 +289,24 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 		return pkgStructs.BotOrder{}, s.getMinPriceError(tpPrice)
 	}
 
-	// TODO: let's check that the TP order will not close in the minus
-
-	return pkgStructs.BotOrder{
+	order := pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
 		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
-	}, nil
+	}
+
+	// let's check that the TP order will not close in the minus
+	zeroProfitPrice := s.depositSpent.Div(coinsQtyDec)
+	if tpPrice.LessThan(zeroProfitPrice) {
+		return pkgStructs.BotOrder{},
+			fmt.Errorf(
+				"invalid TP calc: order: %s",
+				order.String(),
+			)
+	}
+
+	return order, nil
 }
