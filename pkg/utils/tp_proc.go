@@ -101,7 +101,7 @@ func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	if s.strategy == pkgStructs.BotStrategyShort {
 		return s.calcShortTPOrder()
 	}
-	return s.calcLongOrder(), nil
+	return s.calcLongOrder()
 }
 
 func (s *CalcTPProcessor) getMinQtyError(qty decimal.Decimal) error {
@@ -228,7 +228,11 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	}
 
 	tpPrice = s.roundPrice(tpPrice)
-	tpAmount = s.roundAmount(tpAmount)
+
+	// recalc amount
+	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
+
+	// TODO: let's check that the TP order will not close in the minus
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
@@ -240,7 +244,7 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	}, nil
 }
 
-func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
+func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
@@ -254,12 +258,28 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	tpPrice := tpAmount.Div(coinsQtyDec)
 	tpQty := coinsQtyDec.Add(s.accBase)
 
-	// TODO: check min qty
-	// TODO: check min amount
-	// TODO: round qty
-	// TODO: round amount
-	// TODO: round price
-	// TODO: check price
+	// check min qty
+	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
+		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
+	}
+
+	// check amount
+	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
+		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+	}
+
+	tpQty = s.roundQty(tpQty)
+	tpPrice = s.roundPrice(tpPrice)
+
+	// recalc amount
+	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
+
+	// check price
+	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
+		return pkgStructs.BotOrder{}, s.getMinPriceError(tpPrice)
+	}
+
+	// TODO: let's check that the TP order will not close in the minus
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
@@ -268,5 +288,5 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
-	}
+	}, nil
 }
