@@ -125,3 +125,19 @@ func PrintObject(o any) {
 func StringPointer(val string) *string {
 	return &val
 }
+
+func RoundAmount(
+	amount decimal.Decimal,
+	strategy string,
+	basePrecision int,
+	quotePrecision int,
+) decimal.Decimal {
+	var assetPrecision int
+	if strategy == string(pkgStructs.BotStrategyLong) {
+		assetPrecision = quotePrecision
+	} else {
+		assetPrecision = basePrecision
+	}
+
+	return amount.RoundFloor(int32(assetPrecision))
+}

@@ -192,14 +192,12 @@ func (s *CalcTPProcessor) roundPrice(price decimal.Decimal) decimal.Decimal {
 }
 
 func (s *CalcTPProcessor) roundAmount(amount decimal.Decimal) decimal.Decimal {
-	var assetPrecision int
-	if s.strategy == pkgStructs.BotStrategyLong {
-		assetPrecision = s.pairData.QuotePrecision
-	} else {
-		assetPrecision = s.pairData.BasePrecision
-	}
-
-	return amount.RoundFloor(int32(assetPrecision))
+	return RoundAmount(
+		amount,
+		string(s.strategy),
+		s.pairData.BasePrecision,
+		s.pairData.QuotePrecision,
+	)
 }
 
 func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
