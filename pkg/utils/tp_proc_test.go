@@ -48,8 +48,8 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(25833.507414265143), order.Price)
-	assert.Equal(t, float64(0.00126378), order.Qty)
+	assert.Equal(t, float64(25911), order.Price)
+	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
@@ -78,8 +78,8 @@ func TestCalcTPOrderShortNoFeesBigQty(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(0.7530748561783045), order.Price)
-	assert.Equal(t, float64(348.348), order.Qty)
+	assert.Equal(t, float64(0.7538), order.Price)
+	assert.Equal(t, float64(348), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -111,8 +111,8 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(25807.680134200575), order.Price)
-	assert.Equal(t, float64(0.00126378), order.Qty)
+	assert.Equal(t, float64(25885.1), order.Price)
+	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
@@ -291,8 +291,8 @@ func TestCalcTPOrderShortRemains(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(58872.4762717249), order.Price)
-	assert.Equal(t, float64(0.00048884), order.Qty)
+	assert.Equal(t, float64(58853.21), order.Price)
+	assert.Equal(t, float64(0.000489), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
@@ -330,8 +330,58 @@ func TestCalcTPOrderShortRemainsBigQtyStep(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(1.3072237478564357), order.Price)
-	assert.Equal(t, float64(2.02), order.Qty)
+	assert.Equal(t, float64(1.3202), order.Price)
+	assert.Equal(t, float64(2), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+	assert.Less(t, order.Price, zeroProfitPrice)
+}
+
+func TestCalcTPOrderShortRemainsBigQtyStep2(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		ExchangeID:     2,
+		BaseAsset:      "SUI",
+		QuoteAsset:     "USDT",
+		Symbol:         "SUIUSDT",
+		BasePrecision:  4,
+		QuotePrecision: 4,
+		MinQty:         1,
+		MaxQty:         9999999,
+		QtyStep:        1,
+		MinPrice:       0.000001,
+		PriceStep:      0.0001,
+		MinDeposit:     1,
+	}
+	coinsQty := float64(1)
+	depoSpent := decimal.NewFromFloat(1.9068)
+	profit := float64(0.15)
+
+	zeroProfitPrice := depoSpent.InexactFloat64() / coinsQty
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromInt(0),
+		QuoteAsset: decimal.NewFromFloat(0.0019068),
+	}
+
+	accBase := decimal.NewFromFloat(0)
+	accQuote := decimal.NewFromFloat(0.0057874)
+
+	// when
+	order, err := NewCalcTPOrderProcessor().
+		CoinsQty(coinsQty).
+		Profit(profit).
+		DepositSpent(depoSpent).
+		Strategy(pkgStructs.BotStrategyShort).
+		PairData(pairData).
+		Remains(accBase, accQuote).
+		Fees(fees).
+		Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(1.9048), order.Price)
+	assert.Equal(t, float64(1), order.Qty)
 	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 	assert.Less(t, order.Price, zeroProfitPrice)

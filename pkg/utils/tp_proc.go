@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	pkgErrors "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 )
@@ -98,47 +99,136 @@ func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
 	}
 
 	if s.strategy == pkgStructs.BotStrategyShort {
-		return s.calcShortTPOrder(), nil
+		return s.calcShortTPOrder()
 	}
 	return s.calcLongOrder(), nil
 }
 
-func (s *CalcTPProcessor) calcShortTPQty(depositSpentWithFee decimal.Decimal) decimal.Decimal {
+func (s *CalcTPProcessor) getMinQtyError(qty decimal.Decimal) error {
+	return fmt.Errorf(
+		"%w: not enough coins (%s %s with a minimum of %v %s)",
+		pkgErrors.ErrMinimumTP,
+		qty.String(),
+		s.pairData.BaseAsset,
+		s.pairData.MinQty,
+		s.pairData.BaseAsset,
+	)
+}
+
+func (s *CalcTPProcessor) getMaxQtyError(qty decimal.Decimal) error {
+	return fmt.Errorf(
+		"too many coins (%s %s with a max of %v %s)",
+		qty.String(),
+		s.pairData.BaseAsset,
+		s.pairData.MaxQty,
+		s.pairData.BaseAsset,
+	)
+}
+
+func (s *CalcTPProcessor) getMinAmountError(amount decimal.Decimal) error {
+	return fmt.Errorf(
+		"%w: not enough amount (%s %s with a minimum of %v %s)",
+		pkgErrors.ErrMinimumTP,
+		amount.String(),
+		s.pairData.QuoteAsset,
+		s.pairData.MinDeposit,
+		s.pairData.QuoteAsset,
+	)
+}
+
+func (s *CalcTPProcessor) getMinPriceError(price decimal.Decimal) error {
+	return fmt.Errorf(
+		"too low price (%s with a minimum of %v)",
+		price.String(),
+		s.pairData.MinPrice,
+	)
+}
+
+func (s *CalcTPProcessor) calcShortTPQty(amountAvailable decimal.Decimal) (
+	decimal.Decimal,
+	error,
+) {
 	// coins qty - fees
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
 		Sub(s.fees.BaseAsset)
 
+	// increase qty by profit %
+	profitDec := decimal.NewFromFloat(s.profit)
+	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
+
+	// qty = coinsQty * (1 + profit/100)
+	tpQty := coinsQtyDec.Mul(profitDelta)
+
+	// check min qty
+	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
+		return decimal.Zero, s.getMinQtyError(tpQty)
+	}
+
+	// check max qty
+	if s.pairData.MaxQty > 0 &&
+		tpQty.GreaterThan(decimal.NewFromFloat(s.pairData.MaxQty)) {
+		return decimal.Zero, s.getMaxQtyError(tpQty)
+	}
+
 	if s.accQuote.IsZero() {
-		return coinsQtyDec
+		// remains not set
+		return s.roundQty(tpQty), nil
 	}
 
 	// Let's try to calculate how much remains amount we can
 	// convert to qty to add to the order
-	zeroProfitPrice := depositSpentWithFee.Div(coinsQtyDec)
+	zeroProfitPrice := amountAvailable.Div(tpQty)
 	remainsQty := s.accQuote.Div(zeroProfitPrice)
-	qtyWithRemains := coinsQtyDec.Add(remainsQty)
+	qtyWithRemains := tpQty.Add(remainsQty)
 
-	// let's round qty
-	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
-	return qtyWithRemains.RoundFloor(int32(qtyPrecision))
+	// round qty with remains
+	return s.roundQty(qtyWithRemains), nil
 }
 
-func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
-	// subtract fees from depo spent in quote asset (from default SELL orders)
-	// example: when pair is LTCUSDT, fees summed up for SELL orders in USDT
-	depositSpentWithFee := s.depositSpent.
-		Sub(s.fees.QuoteAsset)
+func (s *CalcTPProcessor) roundQty(qty decimal.Decimal) decimal.Decimal {
+	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
+	return qty.RoundFloor(int32(qtyPrecision))
+}
 
-	coinsQtyDec := s.calcShortTPQty(depositSpentWithFee)
+func (s *CalcTPProcessor) roundPrice(price decimal.Decimal) decimal.Decimal {
+	pricePrecision := GetFloatPrecision(s.pairData.PriceStep)
+	return price.RoundFloor(int32(pricePrecision))
+}
 
-	profitDec := decimal.NewFromFloat(s.profit)
-	profitDelta := decimal.NewFromFloat(1).Add(profitDec.Div(decimal.NewFromInt(100)))
-	// qty = (1 + profit/100) * coinsQty
-	tpQty := coinsQtyDec.Mul(profitDelta)
+func (s *CalcTPProcessor) roundAmount(amount decimal.Decimal) decimal.Decimal {
+	var assetPrecision int
+	if s.strategy == pkgStructs.BotStrategyLong {
+		assetPrecision = s.pairData.QuotePrecision
+	} else {
+		assetPrecision = s.pairData.BasePrecision
+	}
+
+	return amount.RoundFloor(int32(assetPrecision))
+}
+
+func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
+	amountAvailable := s.depositSpent.Sub(s.fees.QuoteAsset)
+	tpQty, err := s.calcShortTPQty(amountAvailable)
+	if err != nil {
+		return pkgStructs.BotOrder{}, err
+	}
 
 	// price = depositSpent / tpQty
-	tpPrice := depositSpentWithFee.Div(tpQty)
+	tpPrice := amountAvailable.Div(tpQty)
 	tpAmount := tpPrice.Mul(tpQty)
+
+	// check min amount
+	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
+		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+	}
+
+	// check price
+	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
+		return pkgStructs.BotOrder{}, s.getMinPriceError(tpPrice)
+	}
+
+	tpPrice = s.roundPrice(tpPrice)
+	tpAmount = s.roundAmount(tpAmount)
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
@@ -147,7 +237,7 @@ func (s *CalcTPProcessor) calcShortTPOrder() pkgStructs.BotOrder {
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
-	}
+	}, nil
 }
 
 func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
@@ -162,12 +252,19 @@ func (s *CalcTPProcessor) calcLongOrder() pkgStructs.BotOrder {
 	// deposit = (1 + profit/100) * depositSpent
 	tpAmount := profitDelta.Mul(s.depositSpent)
 	tpPrice := tpAmount.Div(coinsQtyDec)
-	tpCoinsQty := coinsQtyDec.Add(s.accBase)
+	tpQty := coinsQtyDec.Add(s.accBase)
+
+	// TODO: check min qty
+	// TODO: check min amount
+	// TODO: round qty
+	// TODO: round amount
+	// TODO: round price
+	// TODO: check price
 
 	return pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           tpCoinsQty.InexactFloat64(),
+		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
