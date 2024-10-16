@@ -30,7 +30,6 @@ func ConvertPairsData(pairs *bybit.V5GetInstrumentsInfoSpotResult, exchangeID in
 			ExchangeID:    exchangeID,
 			BaseAsset:     string(rawPairData.BaseCoin),
 			QuoteAsset:    string(rawPairData.QuoteCoin),
-			MinPrice:      consts.PairDefaultMinPrice,
 			Symbol:        pairSymbol,
 			Status:        consts.PairDefaultStatus,
 			AllowedMargin: false,
@@ -78,6 +77,7 @@ func ConvertPairsData(pairs *bybit.V5GetInstrumentsInfoSpotResult, exchangeID in
 		if pairData.PriceStep == 0 {
 			return nil, fmt.Errorf("%q price step is empty", pairSymbol)
 		}
+		pairData.MinPrice = pairData.PriceStep
 
 		result = append(result, pairData)
 	}
