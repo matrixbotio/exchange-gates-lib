@@ -28,6 +28,8 @@ func GetCheckOrdersTimeout(exchangeID int) time.Duration {
 		return consts.CheckOrdersTimeoutBinance
 	case consts.ExchangeIDbybitSpot:
 		return consts.CheckOrdersTimeoutBybit
+	case consts.ExchangeIDgateSpot:
+		return consts.CheckOrdersTimeoutGate
 	}
 }
 
