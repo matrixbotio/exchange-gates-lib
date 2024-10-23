@@ -24,7 +24,7 @@ type adapter struct {
 func New() adp.Adapter {
 	return &adapter{
 		ExchangeID: consts.ExchangeIDbybitSpot,
-		Name:       "ByBit Spot (Beta)",
+		Name:       "ByBit Spot",
 		Tag:        "bybit-spot",
 		client:     bybit.NewClient(),
 		wsClient:   bybit.NewWebsocketClient(),
