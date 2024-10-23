@@ -2,13 +2,30 @@ package gate
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
+	"github.com/gateio/gateapi-go/v6"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+	data, _, err := a.client.SpotApi.GetOrder(
+		a.auth,
+		strconv.FormatInt(orderID, 10),
+		pairSymbol,
+		&gateapi.GetOrderOpts{},
+	)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("get order: %w", err)
+	}
+
 	// TODO
-	return structs.OrderData{}, nil
+	return structs.OrderData{
+		OrderID:       orderID,
+		ClientOrderID: data.Text,
+		// TODO
+	}, nil
 }
 
 func (a *adapter) GetOrderByClientOrderID(

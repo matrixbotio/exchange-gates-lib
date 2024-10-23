@@ -8,6 +8,7 @@ import (
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 type adapter struct {
@@ -41,6 +42,10 @@ func (a *adapter) GetID() int {
 
 func (a *adapter) GetName() string {
 	return a.Name
+}
+
+func (a *adapter) GenClientOrderID() string {
+	return utils.GenClientOrderID()
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {

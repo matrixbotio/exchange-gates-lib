@@ -11,7 +11,10 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
+
+const clientOrderIDFormat = "t-%s"
 
 type adapter struct {
 	ExchangeID int
@@ -43,6 +46,10 @@ func (a *adapter) GetName() string {
 	return a.Name
 }
 
+func (a *adapter) GenClientOrderID() string {
+	return fmt.Sprintf(clientOrderIDFormat, utils.GenClientOrderID())
+}
+
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	a.auth = context.WithValue(
 		context.Background(),
@@ -69,6 +76,8 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
+	//a.client.SpotApi.ListSpotAccounts(a.auth, &gateapi.ListSpotAccountsOpts{})
+
 	// TODO
 	return nil, nil
 }
