@@ -43,6 +43,7 @@ type Adapter interface {
 		orderSide string,
 		orderID int64,
 	) (structs.OrderFees, error)
+	GenClientOrderID() string
 
 	// PAIR
 	// GetPairData - get pair data & limits
