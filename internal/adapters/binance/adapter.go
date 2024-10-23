@@ -12,6 +12,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	iWorkers "github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 const (
@@ -53,6 +54,10 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 		MaxConnectionsPerBatch:   299,
 		MaxConnectionsInDuration: 5 * time.Minute,
 	}
+}
+
+func (a *adapter) GenClientOrderID() string {
+	return utils.GenClientOrderID()
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
