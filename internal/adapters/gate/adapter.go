@@ -3,6 +3,7 @@ package gate
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gateio/gateapi-go/v6"
 
@@ -15,14 +16,17 @@ import (
 )
 
 const clientOrderIDFormat = "t-%s"
+const requestTimeout = time.Second * 10
+const spotAccountType = "spot"
 
 type adapter struct {
 	ExchangeID int
 	Name       string
 	Tag        string
 
-	client *gateapi.APIClient
-	auth   context.Context
+	keyPublic string
+	client    *gateapi.APIClient
+	auth      context.Context
 }
 
 func New() adp.Adapter {
@@ -51,6 +55,8 @@ func (a *adapter) GenClientOrderID() string {
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
+	a.keyPublic = credentials.Keypair.Public
+
 	a.auth = context.WithValue(
 		context.Background(),
 		gateapi.ContextGateAPIV4,
@@ -62,12 +68,34 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	return nil
 }
 
-func (a *adapter) CanTrade() (bool, error) {
-	_, _, err := a.client.AccountApi.GetAccountDetail(a.auth)
+func (a *adapter) getUID() (int64, error) {
+	data, _, err := a.client.AccountApi.GetAccountDetail(a.auth)
 	if err != nil {
-		return false, fmt.Errorf("get account data: %w", err)
+		return 0, fmt.Errorf("get account data: %w", err)
 	}
-	return true, nil
+	return data.UserId, nil
+}
+
+func (a *adapter) CanTrade() (bool, error) {
+	uid, err := a.getUID()
+	if err != nil {
+		return false, fmt.Errorf("uid: %w", err)
+	}
+
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	keyData, _, err := a.client.SubAccountApi.GetSubAccountKey(ctx, int32(uid), a.keyPublic)
+	if err != nil {
+		return false, fmt.Errorf("get key data: %w", err)
+	}
+
+	for _, permissions := range keyData.Perms {
+		if permissions.Name == spotAccountType {
+			return !permissions.ReadOnly, nil
+		}
+	}
+	return false, nil
 }
 
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
