@@ -99,8 +99,18 @@ func (a *adapter) CanTrade() (bool, error) {
 }
 
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
-	// TODO
-	return nil
+	if err := a.Connect(pkgStructs.APICredentials{
+		Type: pkgStructs.APICredentialsTypeKeypair,
+		Keypair: pkgStructs.APIKeypair{
+			Public: keyPublic,
+			Secret: keySecret,
+		},
+	}); err != nil {
+		return fmt.Errorf("connect: %w", err)
+	}
+
+	_, err := a.CanTrade()
+	return err
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
