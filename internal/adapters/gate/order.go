@@ -11,6 +11,8 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
+const orderTypeLimit = "limit"
+
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
 	return a.GetOrderByClientOrderID(
 		pairSymbol,
@@ -73,7 +75,22 @@ func (a *adapter) PlaceOrder(
 	ctx context.Context,
 	order structs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
-	// TODO
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	response, _, err := a.client.SpotApi.CreateOrder(ctx, gateapi.Order{
+		Text:         order.ClientOrderID,
+		CurrencyPair: order.PairSymbol,
+		Type:         orderTypeLimit,
+		Account:      spotAccountType,
+		Side:         order.Type,
+		Amount:       order.Qty,
+		Price:        order.Price,
+	})
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
+	}
+
 	return structs.CreateOrderResponse{}, nil
 }
 
