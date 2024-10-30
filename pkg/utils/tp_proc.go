@@ -168,7 +168,7 @@ func (s *CalcTPProcessor) calcShortTPQty(coinsQtyDec, amountAvailable decimal.De
 
 	if s.accQuote.IsZero() {
 		// remains not set
-		return s.roundQty(tpQty), nil
+		return tpQty, nil
 	}
 
 	// Let's try to calculate how much remains amount we can
@@ -178,12 +178,17 @@ func (s *CalcTPProcessor) calcShortTPQty(coinsQtyDec, amountAvailable decimal.De
 	qtyWithRemains := tpQty.Add(remainsQty)
 
 	// round qty with remains
-	return s.roundQty(qtyWithRemains), nil
+	return qtyWithRemains, nil
 }
 
-func (s *CalcTPProcessor) roundQty(qty decimal.Decimal) decimal.Decimal {
+func (s *CalcTPProcessor) roundQtyDown(qty decimal.Decimal) decimal.Decimal {
 	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
 	return qty.RoundFloor(int32(qtyPrecision))
+}
+
+func (s *CalcTPProcessor) roundQtyUp(qty decimal.Decimal) decimal.Decimal {
+	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
+	return qty.Round(int32(qtyPrecision))
 }
 
 func (s *CalcTPProcessor) roundPrice(price decimal.Decimal) decimal.Decimal {
@@ -206,13 +211,15 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 		Sub(s.fees.BaseAsset)
 
 	amountAvailable := s.depositSpent.Sub(s.fees.QuoteAsset)
-	tpQty, err := s.calcShortTPQty(coinsQtyDec, amountAvailable)
+	tpQtyRaw, err := s.calcShortTPQty(coinsQtyDec, amountAvailable)
 	if err != nil {
 		return pkgStructs.BotOrder{}, err
 	}
 
+	tpQty := s.roundQtyDown(tpQtyRaw)
+
 	// price = depositSpent / tpQty
-	tpPrice := amountAvailable.Div(tpQty)
+	tpPrice := amountAvailable.Div(tpQtyRaw)
 	tpAmount := tpPrice.Mul(tpQty)
 
 	// check min amount
@@ -276,7 +283,7 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
 	}
 
-	tpQty = s.roundQty(tpQty)
+	tpQty = s.roundQtyDown(tpQty)
 	tpPrice = s.roundPrice(tpPrice)
 
 	// recalc amount
