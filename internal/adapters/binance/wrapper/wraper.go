@@ -261,8 +261,7 @@ func (b *BinanceClientWrapper) PlaceMarketOrder(
 ) (*binance.CreateOrderResponse, error) {
 	orderService := b.NewCreateOrderService().Symbol(pairSymbol).
 		Side(orderSide).Type(binance.OrderTypeMarket).
-		TimeInForce(binance.TimeInForceTypeGTC).Quantity(qty).
-		Price(price)
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(qty)
 
 	if optionalClientOrderID != "" {
 		orderService.NewClientOrderID(optionalClientOrderID)

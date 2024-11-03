@@ -57,20 +57,22 @@ func (a *adapter) PlaceOrder(
 	ctx context.Context,
 	order structs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
-	orderType := bybit.OrderTypeLimit
-	if order.IsMarketOrder {
-		orderType = bybit.OrderTypeMarket
-	}
-
-	response, err := a.client.V5().Order().CreateOrder(bybit.V5CreateOrderParam{
+	data := bybit.V5CreateOrderParam{
 		Category:    bybit.CategoryV5Spot,
 		Symbol:      bybit.SymbolV5(order.PairSymbol),
 		Side:        order_mappers.ConvertOrderSideToBybit(order.Type),
-		OrderType:   orderType,
+		OrderType:   bybit.OrderTypeLimit,
 		Qty:         order.Qty,
 		Price:       &order.Price,
 		OrderLinkID: &order.ClientOrderID,
-	})
+	}
+
+	if order.IsMarketOrder {
+		data.OrderType = bybit.OrderTypeMarket
+		data.Price = nil
+	}
+
+	response, err := a.client.V5().Order().CreateOrder(data)
 	if err != nil {
 		// if the order has already been placed, we will receive and return its data
 		if strings.Contains(err.Error(), errs.ErrMsgOrderDuplicate) {
