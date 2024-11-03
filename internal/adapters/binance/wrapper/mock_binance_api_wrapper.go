@@ -582,6 +582,29 @@ func (_m *MockBinanceAPIWrapper) PlaceLimitOrder(ctx context.Context, pairSymbol
 	return r0, r1
 }
 
+// PlaceLimitOrder provides a mock function with given fields: ctx, pairSymbol, orderSide, qty, price, optionalClientOrderID
+func (_m *MockBinanceAPIWrapper) PlaceMarketOrder(ctx context.Context, pairSymbol string, orderSide binance.SideType, qty string, price string, optionalClientOrderID string) (*binance.CreateOrderResponse, error) {
+	ret := _m.Called(ctx, pairSymbol, orderSide, qty, price, optionalClientOrderID)
+
+	var r0 *binance.CreateOrderResponse
+	if rf, ok := ret.Get(0).(func(context.Context, string, binance.SideType, string, string, string) *binance.CreateOrderResponse); ok {
+		r0 = rf(ctx, pairSymbol, orderSide, qty, price, optionalClientOrderID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*binance.CreateOrderResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, binance.SideType, string, string, string) error); ok {
+		r1 = rf(ctx, pairSymbol, orderSide, qty, price, optionalClientOrderID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // MockBinanceAPIWrapper_PlaceLimitOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PlaceLimitOrder'
 type MockBinanceAPIWrapper_PlaceLimitOrder_Call struct {
 	*mock.Call

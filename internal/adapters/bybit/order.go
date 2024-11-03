@@ -57,11 +57,16 @@ func (a *adapter) PlaceOrder(
 	ctx context.Context,
 	order structs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
+	orderType := bybit.OrderTypeLimit
+	if order.IsMarketOrder {
+		orderType = bybit.OrderTypeMarket
+	}
+
 	response, err := a.client.V5().Order().CreateOrder(bybit.V5CreateOrderParam{
 		Category:    bybit.CategoryV5Spot,
 		Symbol:      bybit.SymbolV5(order.PairSymbol),
 		Side:        order_mappers.ConvertOrderSideToBybit(order.Type),
-		OrderType:   bybit.OrderTypeLimit,
+		OrderType:   orderType,
 		Qty:         order.Qty,
 		Price:       &order.Price,
 		OrderLinkID: &order.ClientOrderID,

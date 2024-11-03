@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
@@ -76,14 +77,27 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 		return structs.CreateOrderResponse{}, fmt.Errorf("get order side: %w", err)
 	}
 
-	orderResponse, err := a.binanceAPI.PlaceLimitOrder(
-		ctx,
-		order.PairSymbol,
-		orderSide,
-		order.Qty,
-		order.Price,
-		order.ClientOrderID,
-	)
+	var orderResponse *binance.CreateOrderResponse
+	if order.IsMarketOrder {
+		orderResponse, err = a.binanceAPI.PlaceMarketOrder(
+			ctx,
+			order.PairSymbol,
+			orderSide,
+			order.Qty,
+			order.Price,
+			order.ClientOrderID,
+		)
+	} else {
+		orderResponse, err = a.binanceAPI.PlaceLimitOrder(
+			ctx,
+			order.PairSymbol,
+			orderSide,
+			order.Qty,
+			order.Price,
+			order.ClientOrderID,
+		)
+	}
+
 	if err != nil {
 		if strings.Contains(err.Error(), errs.ErrMsgOrderDuplicate) {
 			return structs.CreateOrderResponse{}, pkgErrs.ErrOrderDuplicate
