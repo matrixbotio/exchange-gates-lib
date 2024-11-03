@@ -3,8 +3,9 @@ package wrapper
 import (
 	"context"
 	"fmt"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"time"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers"
@@ -58,6 +59,15 @@ type BinanceAPIWrapper interface {
 	) (*binance.Order, error)
 
 	PlaceLimitOrder(
+		ctx context.Context,
+		pairSymbol string,
+		orderSide binance.SideType,
+		qty string,
+		price string,
+		optionalClientOrderID string,
+	) (*binance.CreateOrderResponse, error)
+
+	PlaceMarketOrder(
 		ctx context.Context,
 		pairSymbol string,
 		orderSide binance.SideType,
@@ -231,6 +241,26 @@ func (b *BinanceClientWrapper) PlaceLimitOrder(
 ) (*binance.CreateOrderResponse, error) {
 	orderService := b.NewCreateOrderService().Symbol(pairSymbol).
 		Side(orderSide).Type(binance.OrderTypeLimit).
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(qty).
+		Price(price)
+
+	if optionalClientOrderID != "" {
+		orderService.NewClientOrderID(optionalClientOrderID)
+	}
+
+	return orderService.Do(ctx)
+}
+
+func (b *BinanceClientWrapper) PlaceMarketOrder(
+	ctx context.Context,
+	pairSymbol string,
+	orderSide binance.SideType,
+	qty string,
+	price string,
+	optionalClientOrderID string,
+) (*binance.CreateOrderResponse, error) {
+	orderService := b.NewCreateOrderService().Symbol(pairSymbol).
+		Side(orderSide).Type(binance.OrderTypeMarket).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(qty).
 		Price(price)
 
