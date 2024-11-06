@@ -9,6 +9,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/shopspring/decimal"
 )
 
 const orderTypeLimit = "limit"
@@ -72,7 +73,7 @@ func (a *adapter) GetOrderByClientOrderID(
 }
 
 func (a *adapter) PlaceOrder(
-	ctx context.Context,
+	_ context.Context,
 	order structs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
 	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
@@ -91,7 +92,31 @@ func (a *adapter) PlaceOrder(
 		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
 	}
 
-	return structs.CreateOrderResponse{}, nil
+	orderID, err := strconv.ParseInt(response.Id, 10, 64)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("parse order ID: %w", err)
+	}
+
+	qty, err := decimal.NewFromString(response.Amount)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("parse order qty: %w", err)
+	}
+
+	price, err := decimal.NewFromString(response.Price)
+	if err != nil {
+		return structs.CreateOrderResponse{}, fmt.Errorf("parse order price: %w", err)
+	}
+
+	return structs.CreateOrderResponse{
+		OrderID:       orderID,
+		ClientOrderID: response.Text,
+		OrigQuantity:  qty.InexactFloat64(),
+		Price:         price.InexactFloat64(),
+		Symbol:        order.PairSymbol,
+		Type:          order.Type,
+		CreatedTime:   response.CreateTimeMs,
+		Status:        mappers.ConvertOrderStatus(response.Status),
+	}, nil
 }
 
 func (a *adapter) GetOrderExecFee(
