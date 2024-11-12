@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"fmt"
+	"time"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
@@ -45,6 +46,13 @@ func (a *adapter) GetID() int {
 
 func (a *adapter) GetName() string {
 	return a.Name
+}
+
+func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
+	return pkgStructs.ExchangeLimits{
+		MaxConnectionsPerBatch:   299,
+		MaxConnectionsInDuration: 5 * time.Minute,
+	}
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {

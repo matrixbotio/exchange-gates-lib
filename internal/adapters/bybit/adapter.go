@@ -2,6 +2,7 @@ package bybit
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/hirokisan/bybit/v2"
 
@@ -41,6 +42,13 @@ func (a *adapter) GetID() int {
 
 func (a *adapter) GetName() string {
 	return a.Name
+}
+
+func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
+	return pkgStructs.ExchangeLimits{
+		MaxConnectionsPerBatch:   499,
+		MaxConnectionsInDuration: 5 * time.Minute,
+	}
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
