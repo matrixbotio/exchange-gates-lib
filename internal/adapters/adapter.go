@@ -25,6 +25,7 @@ type Adapter interface {
 	VerifyAPIKeys(keyPublic, keySecret string) error
 	// GetAccountBalance - get account balances for individual tickers
 	GetAccountBalance() ([]structs.Balance, error)
+	GetLimits() pkgStructs.ExchangeLimits
 
 	// ORDER
 	// GetOrderData - get order data

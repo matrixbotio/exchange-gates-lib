@@ -1,6 +1,10 @@
 package structs
 
-import "github.com/matrixbotio/exchange-gates-lib/internal/structs"
+import (
+	"time"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+)
 
 // APICredentialsTypeKeypair - public and private key pair
 var APICredentialsTypeKeypair APICredentialsType = "keypair"
@@ -36,3 +40,10 @@ type APIKeypair struct {
 }
 
 type BotStrategy string
+
+type ExchangeLimits struct {
+	// How many connections can be opened in a certain time.
+	// For example, no more than 500 connections in 5 minutes
+	MaxConnectionsPerBatch   int           `json:"maxConnPerBatch"`
+	MaxConnectionsInDuration time.Duration `json:"maxConnInDuration"`
+}
