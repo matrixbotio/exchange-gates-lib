@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/adshao/go-binance/v2"
@@ -34,19 +33,12 @@ func GetTestKlines() []*binance.Kline {
 	}
 }
 
-func fixCandleEndTime(endTime int64) int64 {
-	if strings.HasSuffix(strconv.FormatInt(endTime, 10), "999") {
-		return endTime - 59999
-	}
-	return endTime
-}
-
 func ConvertBinanceCandleEvent(event *binance.WsKlineEvent) (workers.CandleEvent, error) {
 	e := workers.CandleEvent{
 		Symbol: event.Symbol,
 		Candle: workers.CandleData{
 			StartTime: event.Kline.StartTime,
-			EndTime:   fixCandleEndTime(event.Kline.EndTime),
+			EndTime:   event.Kline.EndTime,
 			Interval:  event.Kline.Interval,
 		},
 		Time: event.Time,
@@ -97,7 +89,7 @@ func ConvertCandles(klines []*binance.Kline, interval string) ([]workers.CandleD
 	for _, kline := range klines {
 		candle := workers.CandleData{
 			StartTime: kline.OpenTime,
-			EndTime:   fixCandleEndTime(kline.CloseTime),
+			EndTime:   kline.CloseTime,
 			Interval:  interval,
 		}
 

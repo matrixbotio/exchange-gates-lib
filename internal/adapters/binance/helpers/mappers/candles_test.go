@@ -24,7 +24,7 @@ func TestConvertCandles(t *testing.T) {
 
 	// validate the contents of the first candle
 	assert.Equal(t, klines[0].OpenTime, candles[0].StartTime)
-	assert.Equal(t, fixCandleEndTime(klines[0].CloseTime), candles[0].EndTime)
+	assert.Equal(t, klines[0].CloseTime, candles[0].EndTime)
 	assert.Equal(t, interval, candles[0].Interval)
 	assert.Equal(t, 1000.0, candles[0].Open)
 	assert.Equal(t, 2000.0, candles[0].Close)
@@ -80,5 +80,5 @@ func TestConvertBinanceCandleEvent(t *testing.T) {
 	assert.Equal(t, float64(120), event.Candle.High)
 	assert.Equal(t, float64(98), event.Candle.Low)
 	assert.Equal(t, float64(500), event.Candle.Volume)
-	assert.Equal(t, int64(1682506268000), event.Candle.EndTime)
+	assert.Equal(t, int64(1682506327999), event.Candle.EndTime)
 }
