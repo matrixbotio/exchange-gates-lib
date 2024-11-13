@@ -220,12 +220,6 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 
 	// price = depositSpent / tpQty
 	tpPrice := amountAvailable.Div(tpQtyRaw)
-	tpAmount := tpPrice.Mul(tpQty)
-
-	// check min amount
-	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
-		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
-	}
 
 	// check price
 	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
@@ -235,7 +229,12 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	tpPrice = s.roundPrice(tpPrice)
 
 	// recalc amount
-	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
+	tpAmount := s.roundAmount(tpQty.Mul(tpPrice))
+
+	// check min amount
+	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
+		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+	}
 
 	order := pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
@@ -278,16 +277,16 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
 	}
 
-	// check amount
-	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
-		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
-	}
-
 	tpQty = s.roundQtyDown(tpQty)
 	tpPrice = s.roundPrice(tpPrice)
 
 	// recalc amount
 	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
+
+	// check amount
+	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
+		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+	}
 
 	// check price
 	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
