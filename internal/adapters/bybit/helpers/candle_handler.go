@@ -19,9 +19,6 @@ type CandleEventsHandler struct {
 func (h *CandleEventsHandler) handle(e bybit.V5WebsocketPublicKlineResponse) error {
 	for _, eventData := range e.Data {
 		event, err := mappers.ConvertWsCandle(h.pairSymbol, eventData)
-		if !event.IsFinished {
-			continue // use only events of candle completion
-		}
 		if err != nil {
 			return fmt.Errorf("convert candle: %w", err)
 		}
