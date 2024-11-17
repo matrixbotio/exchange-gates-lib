@@ -16,7 +16,7 @@ type BotOrder struct {
 }
 
 func (o BotOrder) IsEmpty() bool {
-	return o.PairSymbol == "" && o.Qty == 0
+	return o.Qty == 0
 }
 
 func (o BotOrder) String() string {
