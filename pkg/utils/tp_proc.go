@@ -155,11 +155,6 @@ func (s *CalcTPProcessor) calcShortTPQty(coinsQtyDec, amountAvailable decimal.De
 	// qty = coinsQty * (1 + profit/100)
 	tpQty := coinsQtyDec.Mul(profitDelta)
 
-	// check min qty
-	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
-		return decimal.Zero, s.getMinQtyError(tpQty)
-	}
-
 	// check max qty
 	if s.pairData.MaxQty > 0 &&
 		tpQty.GreaterThan(decimal.NewFromFloat(s.pairData.MaxQty)) {
@@ -218,6 +213,11 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 
 	tpQty := s.roundQtyDown(tpQtyRaw)
 
+	// check min qty
+	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
+		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
+	}
+
 	// price = depositSpent / tpQty
 	tpPrice := amountAvailable.Div(tpQtyRaw)
 
@@ -271,13 +271,13 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 	tpAmount := profitDelta.Mul(s.depositSpent)
 	tpPrice := tpAmount.Div(coinsQtyDec)
 	tpQty := coinsQtyDec.Add(s.accBase)
+	tpQty = s.roundQtyDown(tpQty)
 
 	// check min qty
 	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
 		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
 	}
 
-	tpQty = s.roundQtyDown(tpQty)
 	tpPrice = s.roundPrice(tpPrice)
 
 	// recalc amount
