@@ -32,6 +32,13 @@ func (s *CalcTPProcessor) Remains(
 ) *CalcTPProcessor {
 	s.accBase = accBase
 	s.accQuote = accQuote
+
+	if s.accBase.IsNegative() {
+		s.accBase = decimal.Zero
+	}
+	if s.accQuote.IsNegative() {
+		s.accQuote = decimal.Zero
+	}
 	return s
 }
 
@@ -93,9 +100,21 @@ func (s *CalcTPProcessor) checkParams() error {
 	return nil
 }
 
-func (s *CalcTPProcessor) Do() (pkgStructs.BotOrder, error) {
+type CalcTPResult struct {
+	TPOrder pkgStructs.BotOrder
+
+	// remains
+	AccBaseOriginal  decimal.Decimal
+	AccQuoteOriginal decimal.Decimal
+
+	// remains used in TP
+	AccBaseUsed  decimal.Decimal
+	AccQuoteUsed decimal.Decimal
+}
+
+func (s *CalcTPProcessor) Do() (CalcTPResult, error) {
 	if err := s.checkParams(); err != nil {
-		return pkgStructs.BotOrder{}, fmt.Errorf("check params: %w", err)
+		return CalcTPResult{}, fmt.Errorf("check params: %w", err)
 	}
 
 	if s.strategy == pkgStructs.BotStrategyShort {
@@ -161,7 +180,7 @@ func (s *CalcTPProcessor) calcShortTPQty(coinsQtyDec, amountAvailable decimal.De
 		return decimal.Zero, s.getMaxQtyError(tpQty)
 	}
 
-	if s.accQuote.IsZero() {
+	if !s.accQuote.IsPositive() {
 		// remains not set
 		return tpQty, nil
 	}
@@ -181,11 +200,6 @@ func (s *CalcTPProcessor) roundQtyDown(qty decimal.Decimal) decimal.Decimal {
 	return qty.RoundFloor(int32(qtyPrecision))
 }
 
-func (s *CalcTPProcessor) roundQtyUp(qty decimal.Decimal) decimal.Decimal {
-	qtyPrecision := GetFloatPrecision(s.pairData.QtyStep)
-	return qty.Round(int32(qtyPrecision))
-}
-
 func (s *CalcTPProcessor) roundPrice(price decimal.Decimal) decimal.Decimal {
 	pricePrecision := GetFloatPrecision(s.pairData.PriceStep)
 	return price.RoundFloor(int32(pricePrecision))
@@ -200,46 +214,49 @@ func (s *CalcTPProcessor) roundAmount(amount decimal.Decimal) decimal.Decimal {
 	)
 }
 
-func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
+func (s *CalcTPProcessor) calcShortTPOrder() (CalcTPResult, error) {
 	// coins qty - fees
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
 		Sub(s.fees.BaseAsset)
 
 	amountAvailable := s.depositSpent.Sub(s.fees.QuoteAsset)
-	tpQtyRaw, err := s.calcShortTPQty(coinsQtyDec, amountAvailable)
+	tpQtyWithRemains, err := s.calcShortTPQty(coinsQtyDec, amountAvailable)
 	if err != nil {
-		return pkgStructs.BotOrder{}, err
+		return CalcTPResult{}, err
 	}
 
-	tpQty := s.roundQtyDown(tpQtyRaw)
+	tpQtyRounded := s.roundQtyDown(tpQtyWithRemains)
 
 	// check min qty
-	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
-		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
+	if tpQtyRounded.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
+		return CalcTPResult{}, s.getMinQtyError(tpQtyRounded)
 	}
 
 	// price = depositSpent / tpQty
-	tpPrice := amountAvailable.Div(tpQtyRaw)
+	tpPrice := amountAvailable.Div(tpQtyWithRemains)
 
 	// check price
 	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
-		return pkgStructs.BotOrder{}, s.getMinPriceError(tpPrice)
+		return CalcTPResult{}, s.getMinPriceError(tpPrice)
 	}
 
 	tpPrice = s.roundPrice(tpPrice)
 
+	// calc remains used
+	accQuoteUsed := tpQtyRounded.Sub(tpQtyWithRemains).Mul(tpPrice).Add(s.accQuote)
+
 	// recalc amount
-	tpAmount := s.roundAmount(tpQty.Mul(tpPrice))
+	tpAmount := s.roundAmount(tpQtyRounded.Mul(tpPrice))
 
 	// check min amount
 	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
-		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+		return CalcTPResult{}, s.getMinAmountError(tpAmount)
 	}
 
 	order := pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyShort),
-		Qty:           tpQty.InexactFloat64(),
+		Qty:           tpQtyRounded.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
@@ -248,17 +265,27 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	// let's check that the TP order will not close in the minus
 	zeroProfitPrice := s.depositSpent.Div(coinsQtyDec)
 	if tpPrice.GreaterThan(zeroProfitPrice) {
-		return pkgStructs.BotOrder{},
+		return CalcTPResult{},
 			fmt.Errorf(
 				"invalid TP calc: order: %s",
 				order.String(),
 			)
 	}
 
-	return order, nil
+	result := CalcTPResult{
+		TPOrder:         order,
+		AccBaseOriginal: decimal.Zero,
+		AccBaseUsed:     decimal.Zero,
+	}
+	if s.accQuote.IsPositive() {
+		result.AccQuoteOriginal = s.accQuote
+		result.AccQuoteUsed = accQuoteUsed
+	}
+
+	return result, nil
 }
 
-func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
+func (s *CalcTPProcessor) calcLongOrder() (CalcTPResult, error) {
 	// subtract fees from coins qty in base asset (from default BUY orders)
 	// example: when pair is LTCUSDT, fees summed up for BUY orders in LTC
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
@@ -270,33 +297,41 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 	// deposit = (1 + profit/100) * depositSpent
 	tpAmount := profitDelta.Mul(s.depositSpent)
 	tpPrice := tpAmount.Div(coinsQtyDec)
-	tpQty := coinsQtyDec.Add(s.accBase)
-	tpQty = s.roundQtyDown(tpQty)
+
+	tpQtyWithRemains := coinsQtyDec.Copy()
+	if s.accBase.IsPositive() {
+		tpQtyWithRemains = tpQtyWithRemains.Add(s.accBase)
+	}
+
+	tpQtyRounded := s.roundQtyDown(tpQtyWithRemains)
 
 	// check min qty
-	if tpQty.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
-		return pkgStructs.BotOrder{}, s.getMinQtyError(tpQty)
+	if tpQtyRounded.LessThan(decimal.NewFromFloat(s.pairData.MinQty)) {
+		return CalcTPResult{}, s.getMinQtyError(tpQtyRounded)
 	}
 
 	tpPrice = s.roundPrice(tpPrice)
 
 	// recalc amount
-	tpAmount = s.roundAmount(tpQty.Mul(tpPrice))
+	tpAmount = s.roundAmount(tpQtyRounded.Mul(tpPrice))
 
 	// check amount
 	if tpAmount.LessThan(decimal.NewFromFloat(s.pairData.MinDeposit)) {
-		return pkgStructs.BotOrder{}, s.getMinAmountError(tpAmount)
+		return CalcTPResult{}, s.getMinAmountError(tpAmount)
 	}
 
 	// check price
 	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
-		return pkgStructs.BotOrder{}, s.getMinPriceError(tpPrice)
+		return CalcTPResult{}, s.getMinPriceError(tpPrice)
 	}
+
+	// calc remains used
+	accBaseUsed := tpQtyRounded.Sub(tpQtyWithRemains).Add(s.accBase)
 
 	order := pkgStructs.BotOrder{
 		PairSymbol:    s.pairData.Symbol,
 		Type:          GetTPOrderType(pkgStructs.BotStrategyLong),
-		Qty:           tpQty.InexactFloat64(),
+		Qty:           tpQtyRounded.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
 		ClientOrderID: GenerateUUID(),
@@ -305,12 +340,22 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 	// let's check that the TP order will not close in the minus
 	zeroProfitPrice := s.depositSpent.Div(coinsQtyDec)
 	if tpPrice.LessThan(zeroProfitPrice) {
-		return pkgStructs.BotOrder{},
+		return CalcTPResult{},
 			fmt.Errorf(
 				"invalid TP calc: order: %s",
 				order.String(),
 			)
 	}
 
-	return order, nil
+	result := CalcTPResult{
+		TPOrder:          order,
+		AccQuoteOriginal: decimal.Zero,
+		AccQuoteUsed:     decimal.Zero,
+	}
+	if s.accBase.IsPositive() {
+		result.AccBaseOriginal = s.accBase
+		result.AccBaseUsed = accBaseUsed
+	}
+
+	return result, nil
 }
