@@ -507,6 +507,49 @@ func TestCalcTPOrderShortFeesInBaseAsset(t *testing.T) {
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
+func TestCalcTPShort(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:     "HFTUSDT",
+		QtyStep:    0.1,
+		PriceStep:  0.0001,
+		MinQty:     2.5,
+		MinDeposit: 1,
+	}
+
+	strategy := pkgStructs.BotStrategyShort
+	profit := float64(0.65)
+	lapCoinsQty := decimal.NewFromFloat(290.5)
+	depoSpent := decimal.NewFromFloat(73.97813)
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromFloat(0),
+		QuoteAsset: decimal.NewFromFloat(0),
+	}
+
+	accBase := decimal.Zero
+	accQuote := decimal.NewFromFloat(0.39016245)
+
+	proc := NewCalcTPOrderProcessor().
+		CoinsQty(lapCoinsQty.InexactFloat64()).
+		Profit(profit).
+		DepositSpent(depoSpent).
+		Strategy(strategy).
+		PairData(pairData).
+		Fees(fees).
+		Remains(accBase, accQuote)
+
+	// when
+	order, err := proc.Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(0.2516), order.Price)
+	assert.Equal(t, float64(293.9), order.Qty)
+	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.NotEmpty(t, order.ClientOrderID)
+}
+
 func TestRoundQtyDown(t *testing.T) {
 	// given
 	pairData := structs.ExchangePairData{
