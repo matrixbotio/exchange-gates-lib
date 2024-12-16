@@ -11,12 +11,13 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 // old -> new
-var orderStatusConvertor = map[bybit.OrderStatus]string{
+var orderStatusConvertor = map[bybit.OrderStatus]consts.OrderStatus{
 	bybit.OrderStatusCreated:                     pkgStructs.OrderStatusNew,
 	bybit.OrderStatusRejected:                    pkgStructs.OrderStatusRejected,
 	bybit.OrderStatusNew:                         pkgStructs.OrderStatusNew,
@@ -96,26 +97,26 @@ func ConvertOrderData(data bybit.V5GetOrder) (structs.OrderData, error) {
 		FilledQty:     filledQty,
 		Price:         price,
 		Symbol:        string(data.Symbol),
-		Type:          orderType,
+		Side:          orderType,
 		UpdatedTime:   updatedTime,
 	}, nil
 }
 
-func convertOrderType(side bybit.Side) (string, error) {
-	orderType := strings.ToLower(string(side))
+func convertOrderType(side bybit.Side) (consts.OrderSide, error) {
+	orderType := consts.OrderSide(strings.ToLower(string(side)))
 
-	if orderType != pkgStructs.OrderTypeBuy &&
-		orderType != pkgStructs.OrderTypeSell {
+	if orderType != consts.OrderSideBuy &&
+		orderType != consts.OrderSideSell {
 		return "", fmt.Errorf("unknown order type: %q", string(side))
 	}
 
 	return orderType, nil
 }
 
-func convertOrderStatus(status bybit.OrderStatus) (string, error) {
+func convertOrderStatus(status bybit.OrderStatus) (consts.OrderStatus, error) {
 	formattedStatus, isExists := orderStatusConvertor[status]
 	if !isExists {
-		return pkgStructs.OrderStatusUnknown,
+		return consts.OrderStatusUnknown,
 			fmt.Errorf("uknown status: %q", string(status))
 	}
 	return formattedStatus, nil
@@ -136,11 +137,14 @@ func ParseHistoryOrder(
 	return ConvertOrderData(ordersResponse.Result.List[0])
 }
 
-func ConvertOrderSideToBybit(side string) bybit.Side {
-	return bybit.Side(cases.Title(language.Und, cases.NoLower).String(side))
+func ConvertOrderSideToBybit(side consts.OrderSide) bybit.Side {
+	return bybit.Side(cases.Title(language.Und, cases.NoLower).String(string(side)))
 }
 
-func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult, orderSide string) (
+func ParseOrderExecFee(
+	orderExecData bybit.V5GetExecutionListResult,
+	orderSide consts.OrderSide,
+) (
 	structs.OrderFees,
 	error,
 ) {
@@ -162,7 +166,7 @@ func ParseOrderExecFee(orderExecData bybit.V5GetExecutionListResult, orderSide s
 		orderFees = orderFees.Add(execFee)
 	}
 
-	if orderSide == pkgStructs.OrderTypeBuy {
+	if orderSide == consts.OrderSideBuy {
 		return structs.OrderFees{
 			BaseAsset:  orderFees,
 			QuoteAsset: decimal.NewFromInt(0),

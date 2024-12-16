@@ -3,17 +3,18 @@ package structs
 import (
 	"context"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/shopspring/decimal"
 )
 
 // BotOrderAdjusted - the same as BotOrder, only with the given values for the trading pair
 type BotOrderAdjusted struct {
 	// required
-	PairSymbol string `json:"pair"`
-	Type       string `json:"type"`
-	Qty        string `json:"qty"`
-	Price      string `json:"price"`
-	Deposit    string `json:"deposit"`
+	PairSymbol string           `json:"pair"`
+	Type       consts.OrderSide `json:"type"`
+	Qty        string           `json:"qty"`
+	Price      string           `json:"price"`
+	Deposit    string           `json:"deposit"`
 
 	// optional
 	ClientOrderID string `json:"clientOrderID"`
@@ -32,14 +33,14 @@ func (o BotOrderAdjusted) IsEmpty() bool {
 
 // CreateOrderResponse - response from the exchange about the placed order
 type CreateOrderResponse struct {
-	OrderID       int64   `json:"orderID"`
-	ClientOrderID string  `json:"clientOrderID"`
-	OrigQuantity  float64 `json:"originalQty"`
-	Price         float64 `json:"price"`
-	Symbol        string  `json:"symbol"`
-	Type          string  `json:"orderRes"`
-	CreatedTime   int64   `json:"createdTime"` // unix timestamp ms
-	Status        string  `json:"status"`
+	OrderID       int64              `json:"orderID"`
+	ClientOrderID string             `json:"clientOrderID"`
+	OrigQuantity  float64            `json:"originalQty"`
+	Price         float64            `json:"price"`
+	Symbol        string             `json:"symbol"`
+	Type          consts.OrderSide   `json:"orderRes"`
+	CreatedTime   int64              `json:"createdTime"` // unix timestamp ms
+	Status        consts.OrderStatus `json:"status"`
 }
 
 // Balance - Trading pair balance

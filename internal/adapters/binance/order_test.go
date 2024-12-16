@@ -9,6 +9,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -42,7 +43,7 @@ func getTestOrderData() binance.Order {
 func getTestBotOrder() structs.BotOrderAdjusted {
 	return structs.BotOrderAdjusted{
 		PairSymbol:    testPairSymbol,
-		Type:          pkgStructs.OrderTypeBuy,
+		Type:          consts.OrderSideBuy,
 		Qty:           "0.1005",
 		Price:         "102.1924",
 		Deposit:       "10.2703",
@@ -84,7 +85,7 @@ func TestGetOrderDataSuccess(t *testing.T) {
 	assert.Equal(t, testOrderID, orderData.OrderID)
 	assert.Equal(t, testClientOrderID, orderData.ClientOrderID)
 	assert.Equal(t, pkgStructs.OrderStatusFilled, orderData.Status)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, orderData.Type)
+	assert.Equal(t, consts.OrderSideBuy, orderData.Side)
 	assert.Equal(t, order.Time, orderData.CreatedTime)
 }
 
@@ -396,7 +397,7 @@ func TestGetOrderExecFeeSuccess(t *testing.T) {
 	fees, err := a.GetOrderExecFee(
 		baseAsset,
 		quoteAsset,
-		pkgStructs.OrderTypeBuy,
+		consts.OrderSideBuy,
 		testOrderID,
 	)
 
@@ -421,7 +422,7 @@ func TestGetOrderExecFeeGetHistoryError(t *testing.T) {
 	_, err := a.GetOrderExecFee(
 		baseAsset,
 		quoteAsset,
-		pkgStructs.OrderTypeBuy,
+		consts.OrderSideBuy,
 		testOrderID,
 	)
 
@@ -451,7 +452,7 @@ func TestGetOrderExecFeeParseError(t *testing.T) {
 	_, err := a.GetOrderExecFee(
 		baseAsset,
 		quoteAsset,
-		pkgStructs.OrderTypeBuy,
+		consts.OrderSideBuy,
 		testOrderID,
 	)
 

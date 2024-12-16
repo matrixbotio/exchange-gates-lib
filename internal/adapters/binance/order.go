@@ -8,6 +8,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 )
@@ -120,7 +121,7 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 func (a *adapter) GetOrderExecFee(
 	baseAssetTicker string,
 	quoteAssetTicker string,
-	orderSide string,
+	_ consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
 	pairSymbol := baseAssetTicker + quoteAssetTicker

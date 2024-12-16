@@ -3,6 +3,7 @@ package utils
 import (
 	"testing"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
@@ -50,7 +51,7 @@ func TestCalcTPOrderShortNoFees(t *testing.T) {
 	assert.Equal(t, float64(25833.5), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.LessOrEqual(t, order.Price, zeroProfitPrice.InexactFloat64())
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -79,7 +80,7 @@ func TestCalcTPOrderShortNoFeesBigQty(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(0.753), order.Price)
 	assert.Equal(t, float64(348), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -113,7 +114,7 @@ func TestCalcTPOrderShortWithFees(t *testing.T) {
 	assert.Equal(t, float64(25807.68), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.LessOrEqual(t, order.Price, zeroProfitPriceFloat)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -142,7 +143,7 @@ func TestCalcTPOrderLongNoFees(t *testing.T) {
 	assert.Equal(t, float64(25988.74), order.Price)
 	assert.Equal(t, float64(0.00126), order.Qty)
 	assert.GreaterOrEqual(t, order.Price, zeroProfitPriceFloat)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -177,7 +178,7 @@ func TestCalcTPOrderLongFees(t *testing.T) {
 	assert.Equal(t, float64(26014.75), order.Price)
 	assert.Equal(t, float64(0.00125), order.Qty)
 	assert.GreaterOrEqual(t, order.Price, zeroProfitPriceFloat)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -214,7 +215,7 @@ func TestCalcTPOrderLongRemains(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(69.9), order.Price)
 	assert.Equal(t, float64(0.088), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -254,7 +255,7 @@ func TestCalcTPOrderLongRemainsBigQtyStep(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(1.3441), order.Price)
 	assert.Equal(t, float64(2), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 	assert.Greater(t, order.Price, zeroProfitPrice)
 }
@@ -292,7 +293,7 @@ func TestCalcTPOrderShortRemains(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(58752.97), order.Price)
 	assert.Equal(t, float64(0.000489), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -331,7 +332,7 @@ func TestCalcTPOrderShortRemainsBigQtyStep(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(1.3043), order.Price)
 	assert.Equal(t, float64(2), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 	assert.Less(t, order.Price, zeroProfitPrice)
 }
@@ -381,7 +382,7 @@ func TestCalcTPOrderShortRemainsBigQtyStep2(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(1.8962), order.Price)
 	assert.Equal(t, float64(1), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 	assert.Less(t, order.Price, zeroProfitPrice)
 }
@@ -421,7 +422,7 @@ func TestCalcTPOrderLongRemainsBig(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, float64(1.7397), order.Price)
 	assert.Equal(t, float64(3), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 	assert.Greater(t, order.Price, zeroProfitPrice)
 }
@@ -460,7 +461,7 @@ func TestCalcTPOrderLongFeesBigQty(t *testing.T) {
 	assert.Equal(t, float64(2.515), order.Price)
 	assert.Equal(t, float64(125.03), order.Qty)
 	assert.GreaterOrEqual(t, order.Price, zeroProfitPrice)
-	assert.Equal(t, pkgStructs.OrderTypeSell, order.Type)
+	assert.Equal(t, consts.OrderSideSell, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -503,7 +504,7 @@ func TestCalcTPOrderShortFeesInBaseAsset(t *testing.T) {
 	assert.Equal(t, float64(590.3), order.Price)
 	assert.Equal(t, float64(0.009), order.Qty)
 	assert.Less(t, order.Price, gridOrderPrice.InexactFloat64())
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 

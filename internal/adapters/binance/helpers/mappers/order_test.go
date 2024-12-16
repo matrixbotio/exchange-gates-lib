@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 )
 
 var testBaseAssetTicker = "MTXB"
@@ -78,7 +78,7 @@ func TestBinanceConvertOrderSide(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, orderSide, structs.OrderTypeBuy)
+	assert.Equal(t, orderSide, consts.OrderSideBuy)
 }
 
 func TestConvertOrderSideSell(t *testing.T) {
@@ -90,7 +90,7 @@ func TestConvertOrderSideSell(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, orderSide, structs.OrderTypeSell)
+	assert.Equal(t, orderSide, consts.OrderSideSell)
 }
 
 func TestConvertOrderSideUnknown(t *testing.T) {
@@ -106,7 +106,7 @@ func TestConvertOrderSideUnknown(t *testing.T) {
 
 func TestGetBinanceOrderSideBuy(t *testing.T) {
 	// given
-	var botOrderSide = structs.OrderTypeBuy
+	var botOrderSide = consts.OrderSideBuy
 
 	// when
 	orderType, err := GetBinanceOrderSide(botOrderSide)
@@ -118,7 +118,7 @@ func TestGetBinanceOrderSideBuy(t *testing.T) {
 
 func TestGetBinanceOrderSideSell(t *testing.T) {
 	// given
-	var botOrderSide = structs.OrderTypeSell
+	var botOrderSide = consts.OrderSideSell
 
 	// when
 	orderType, err := GetBinanceOrderSide(botOrderSide)
@@ -130,7 +130,7 @@ func TestGetBinanceOrderSideSell(t *testing.T) {
 
 func TestGetBinanceOrderSideUnknown(t *testing.T) {
 	// given
-	var botOrderSide = "wtf"
+	var botOrderSide consts.OrderSide = "wtf"
 
 	// when
 	_, err := GetBinanceOrderSide(botOrderSide)
@@ -163,7 +163,7 @@ func TestConvertBinanceToBotOrderSuccess(t *testing.T) {
 	assert.Equal(t, orderResponse.ClientOrderID, order.ClientOrderID)
 	assert.Equal(t, float64(65.108), order.Price)
 	assert.Equal(t, float64(1.219), order.OrigQuantity)
-	assert.Equal(t, structs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
 }
 
 func TestConvertBinanceToBotOrderInvalidQty(t *testing.T) {

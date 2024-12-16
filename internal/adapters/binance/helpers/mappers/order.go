@@ -5,31 +5,31 @@ import (
 	"strconv"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 )
 
 // ConvertOrderSide - convert order side from binance format to bot order side
-func ConvertOrderSide(orderSide binance.SideType) (string, error) {
+func ConvertOrderSide(orderSide binance.SideType) (consts.OrderSide, error) {
 	switch orderSide {
 	default:
 		return "", fmt.Errorf("unknown order side: %q", orderSide)
 	case binance.SideTypeBuy:
-		return pkgStructs.OrderTypeBuy, nil
+		return consts.OrderSideBuy, nil
 	case binance.SideTypeSell:
-		return pkgStructs.OrderTypeSell, nil
+		return consts.OrderSideSell, nil
 	}
 }
 
 // GetBinanceOrderSide - convert bot order type to binance order type
-func GetBinanceOrderSide(botOrderSide string) (binance.SideType, error) {
+func GetBinanceOrderSide(botOrderSide consts.OrderSide) (binance.SideType, error) {
 	switch botOrderSide {
 	default:
 		return "", fmt.Errorf("unknown order side: %q", botOrderSide)
-	case pkgStructs.OrderTypeBuy:
+	case consts.OrderSideBuy:
 		return binance.SideTypeBuy, nil
-	case pkgStructs.OrderTypeSell:
+	case consts.OrderSideSell:
 		return binance.SideTypeSell, nil
 	}
 }
@@ -64,7 +64,7 @@ func ConvertPlacedOrder(orderResponse binance.CreateOrderResponse) (
 		Symbol:        orderResponse.Symbol,
 		Type:          orderSide,
 		CreatedTime:   orderResponse.TransactTime,
-		Status:        string(orderResponse.Status),
+		Status:        consts.OrderStatus(orderResponse.Status),
 	}, nil
 }
 
@@ -94,12 +94,12 @@ func ConvertOrderData(orderResponse *binance.Order) (structs.OrderData, error) {
 	return structs.OrderData{
 		OrderID:       orderResponse.OrderID,
 		ClientOrderID: orderResponse.ClientOrderID,
-		Status:        string(orderResponse.Status),
+		Status:        consts.OrderStatus(orderResponse.Status),
 		AwaitQty:      awaitQty,
 		FilledQty:     filledQty,
 		Price:         price,
 		Symbol:        orderResponse.Symbol,
-		Type:          orderSide,
+		Side:          orderSide,
 		CreatedTime:   orderResponse.Time,
 		UpdatedTime:   orderResponse.UpdateTime,
 	}, nil
