@@ -6,6 +6,7 @@ import (
 
 	"github.com/bmizerany/assert"
 	"github.com/hirokisan/bybit/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/stretchr/testify/require"
@@ -110,25 +111,25 @@ func Test_convertOrderStatus(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    string
+		want    consts.OrderStatus
 		wantErr bool
 	}{
 		{
 			name:    "order cancelled",
 			args:    args{status: bybit.OrderStatusCancelled},
-			want:    pkgStructs.OrderStatusCancelled,
+			want:    consts.OrderStatusCancelled,
 			wantErr: false,
 		},
 		{
 			name:    "order created",
 			args:    args{status: bybit.OrderStatusCreated},
-			want:    pkgStructs.OrderStatusNew,
+			want:    consts.OrderStatusNew,
 			wantErr: false,
 		},
 		{
 			name:    "order unknown",
 			args:    args{status: bybit.OrderStatus("wtf")},
-			want:    pkgStructs.OrderStatusUnknown,
+			want:    consts.OrderStatusUnknown,
 			wantErr: true,
 		},
 	}
@@ -153,19 +154,19 @@ func Test_convertOrderType(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    string
+		want    consts.OrderSide
 		wantErr bool
 	}{
 		{
 			name:    "buy",
 			args:    args{side: bybit.SideBuy},
-			want:    pkgStructs.OrderTypeBuy,
+			want:    consts.OrderSideBuy,
 			wantErr: false,
 		},
 		{
 			name:    "sell",
 			args:    args{side: bybit.SideSell},
-			want:    pkgStructs.OrderTypeSell,
+			want:    consts.OrderSideSell,
 			wantErr: false,
 		},
 		{
@@ -209,7 +210,7 @@ func TestConvertOrderData(t *testing.T) {
 	// then
 	require.NoError(t, err)
 	assert.Equal(t, string(rawOrder.Symbol), orderData.Symbol)
-	assert.Equal(t, pkgStructs.OrderTypeSell, orderData.Type)
+	assert.Equal(t, consts.OrderSideSell, orderData.Side)
 	assert.Equal(t, int64(12345), orderData.OrderID)
 	assert.Equal(t, float64(0.35), orderData.AwaitQty)
 	assert.Equal(t, float64(80.156), orderData.Price)
@@ -219,7 +220,7 @@ func TestConvertOrderData(t *testing.T) {
 
 func TestConvertOrderSideToBybit(t *testing.T) {
 	// given
-	side := "buy"
+	side := consts.OrderSideBuy
 	sideExpected := bybit.Side("Buy")
 
 	// when

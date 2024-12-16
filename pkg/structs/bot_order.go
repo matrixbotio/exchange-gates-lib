@@ -1,15 +1,19 @@
 package structs
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+)
 
 // BotOrder - structure containing information about the order calculated by the bot
 type BotOrder struct {
 	// required
-	PairSymbol string  `json:"pair"`
-	Type       string  `json:"type"`
-	Qty        float64 `json:"qty"`
-	Price      float64 `json:"price"`
-	Deposit    float64 `json:"deposit"`
+	PairSymbol string           `json:"pair"`
+	Type       consts.OrderSide `json:"type"`
+	Qty        float64          `json:"qty"`
+	Price      float64          `json:"price"`
+	Deposit    float64          `json:"deposit"`
 
 	// optional
 	ClientOrderID string `json:"clientOrderID"`

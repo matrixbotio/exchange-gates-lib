@@ -3,6 +3,7 @@ package adapters
 import (
 	"context"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -41,7 +42,7 @@ type Adapter interface {
 	GetOrderExecFee(
 		baseAssetTicker string,
 		quoteAssetTicker string,
-		orderSide string,
+		orderSide consts.OrderSide,
 		orderID int64,
 	) (structs.OrderFees, error)
 

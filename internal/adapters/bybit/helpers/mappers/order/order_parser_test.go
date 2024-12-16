@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/hirokisan/bybit/v2"
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -12,7 +12,7 @@ import (
 
 func TestParseBuyOrderExecFee(t *testing.T) {
 	// given
-	orderSide := pkgStructs.OrderTypeBuy
+	orderSide := consts.OrderSideBuy
 	orderExecData := bybit.V5GetExecutionListResult{
 		List: []bybit.V5GetExecutionListItem{
 			{
@@ -36,7 +36,7 @@ func TestParseBuyOrderExecFee(t *testing.T) {
 
 func TestParseSellOrderExecFee(t *testing.T) {
 	// given
-	orderSide := pkgStructs.OrderTypeSell
+	orderSide := consts.OrderSideSell
 	orderExecData := bybit.V5GetExecutionListResult{
 		List: []bybit.V5GetExecutionListItem{
 			{
@@ -60,7 +60,7 @@ func TestParseSellOrderExecFee(t *testing.T) {
 
 func TestParseOrderExecFeeZero(t *testing.T) {
 	// given
-	orderSide := pkgStructs.OrderTypeBuy
+	orderSide := consts.OrderSideBuy
 	orderExecData := bybit.V5GetExecutionListResult{
 		List: []bybit.V5GetExecutionListItem{
 			{

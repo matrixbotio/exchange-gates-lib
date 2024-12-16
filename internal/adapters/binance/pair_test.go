@@ -13,7 +13,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 )
 
 func TestGetPairLastPriceSuccess(t *testing.T) {
@@ -220,10 +220,10 @@ func TestGetPairOpenOrdersSucess(t *testing.T) {
 	require.Len(t, orders, 2)
 	assert.Equal(t, float64(65.418), orders[0].Price)
 	assert.Equal(t, float64(0.1205), orders[0].AwaitQty)
-	assert.Equal(t, structs.OrderTypeSell, orders[0].Type)
+	assert.Equal(t, consts.OrderSideSell, orders[0].Side)
 	assert.Equal(t, float64(66.918), orders[1].Price)
 	assert.Equal(t, float64(0.1425), orders[1].AwaitQty)
-	assert.Equal(t, structs.OrderTypeSell, orders[1].Type)
+	assert.Equal(t, consts.OrderSideSell, orders[1].Side)
 }
 
 func TestGetPairOpenOrdersError(t *testing.T) {

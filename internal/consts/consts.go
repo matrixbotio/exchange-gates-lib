@@ -17,19 +17,21 @@ const (
 	PairDefaultAsset      = PairDefaultBaseAsset + PairDefaultQuoteAsset
 )
 
+type OrderStatus string
+
 const (
-	OrderStatusNew                      = "NEW"
-	OrderStatusPartiallyFilled          = "PARTIALLY_FILLED"
-	OrderStatusPartiallyFilledCancelled = "PARTIALLY_FILLED_CANCELLED"
-	OrderStatusFilled                   = "FILLED"
-	OrderStatusCancelled                = "CANCELED"
-	OrderStatusPendingCancel            = "PENDING_CANCEL"
-	OrderStatusRejected                 = "REJECTED"
-	OrderStatusExpired                  = "EXPIRED"
-	OrderStatusUnknown                  = "UNKNOWN"
-	OrderStatusUntriggered              = "UNTRIGGERED"
-	OrderStatusTriggered                = "TRIGGERED"
-	OrderStatusDeactivated              = "DEACTIVATED"
+	OrderStatusNew                      OrderStatus = "NEW"
+	OrderStatusPartiallyFilled          OrderStatus = "PARTIALLY_FILLED"
+	OrderStatusPartiallyFilledCancelled OrderStatus = "PARTIALLY_FILLED_CANCELLED"
+	OrderStatusFilled                   OrderStatus = "FILLED"
+	OrderStatusCancelled                OrderStatus = "CANCELED"
+	OrderStatusPendingCancel            OrderStatus = "PENDING_CANCEL"
+	OrderStatusRejected                 OrderStatus = "REJECTED"
+	OrderStatusExpired                  OrderStatus = "EXPIRED"
+	OrderStatusUnknown                  OrderStatus = "UNKNOWN"
+	OrderStatusUntriggered              OrderStatus = "UNTRIGGERED"
+	OrderStatusTriggered                OrderStatus = "TRIGGERED"
+	OrderStatusDeactivated              OrderStatus = "DEACTIVATED"
 )
 
 const (
@@ -51,4 +53,11 @@ const (
 const (
 	CheckOrdersTimeoutBinance = time.Second * 30
 	CheckOrdersTimeoutBybit   = time.Second * 15
+)
+
+type OrderSide string
+
+const (
+	OrderSideBuy  OrderSide = "buy"
+	OrderSideSell OrderSide = "sell"
 )

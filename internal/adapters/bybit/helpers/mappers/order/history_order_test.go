@@ -6,7 +6,7 @@ import (
 
 	"github.com/bmizerany/assert"
 	"github.com/hirokisan/bybit/v2"
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/stretchr/testify/require"
 )
 
@@ -39,8 +39,8 @@ func TestParseHistoryOrder(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, orderID, orderData.OrderID)
 	assert.Equal(t, pairSymbol, orderData.Symbol)
-	assert.Equal(t, pkgStructs.OrderTypeSell, orderData.Type)
-	assert.Equal(t, pkgStructs.OrderStatusNew, orderData.Status)
+	assert.Equal(t, consts.OrderSideSell, orderData.Side)
+	assert.Equal(t, consts.OrderStatusNew, orderData.Status)
 	assert.Equal(t, float64(0.5), orderData.AwaitQty)
 	assert.Equal(t, float64(0.1), orderData.FilledQty)
 	assert.Equal(t, float64(82), orderData.Price)

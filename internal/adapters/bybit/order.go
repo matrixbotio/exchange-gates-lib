@@ -11,6 +11,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/errs"
 	order_mappers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers/order"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	pkgErrs "github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
@@ -189,7 +190,7 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 func (a *adapter) GetOrderExecFee(
 	baseAssetTicker string,
 	quoteAssetTicker string,
-	orderSide string,
+	orderSide consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
 	if baseAssetTicker == "" {

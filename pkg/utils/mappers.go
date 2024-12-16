@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -27,7 +28,7 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 		ExchangeTag: task.ExchangeTag,
 	}
 
-	if task.Order.Type == pkgStructs.OrderTypeBuy {
+	if task.Order.Side == consts.OrderSideBuy {
 		e.BuyerOrderID = task.Order.OrderID
 	} else {
 		e.SellerOrderID = task.Order.OrderID
@@ -40,7 +41,7 @@ func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
 func OrderDataToBotOrder(order structs.OrderData) pkgStructs.BotOrder {
 	return pkgStructs.BotOrder{
 		PairSymbol:    order.Symbol,
-		Type:          order.Type,
+		Type:          order.Side,
 		Qty:           order.AwaitQty,
 		Price:         order.Price,
 		Deposit:       order.AwaitQty * order.Price,
@@ -70,7 +71,7 @@ func OrderDataToCreateOrderResponse(
 		OrigQuantity:  data.AwaitQty,
 		Price:         data.Price,
 		Symbol:        data.Symbol,
-		Type:          data.Type,
+		Type:          data.Side,
 		CreatedTime:   data.CreatedTime,
 		Status:        data.Status,
 	}

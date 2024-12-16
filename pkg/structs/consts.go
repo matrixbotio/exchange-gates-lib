@@ -2,6 +2,8 @@ package structs
 
 import "github.com/matrixbotio/exchange-gates-lib/internal/consts"
 
+type OrderStatus = consts.OrderStatus
+
 const (
 	OrderStatusNew                      = consts.OrderStatusNew
 	OrderStatusPartiallyFilled          = consts.OrderStatusPartiallyFilled
@@ -17,10 +19,7 @@ const (
 	OrderStatusDeactivated              = consts.OrderStatusDeactivated
 )
 
-const (
-	OrderTypeBuy  = "buy"
-	OrderTypeSell = "sell"
-)
+type OrderSide = consts.OrderSide
 
 const (
 	BotStrategyLong  BotStrategy = "long"
