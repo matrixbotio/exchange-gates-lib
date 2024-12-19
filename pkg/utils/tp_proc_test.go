@@ -279,6 +279,10 @@ func TestCalcTPOrderShortRemains(t *testing.T) {
 	accBase := decimal.NewFromFloat(0)
 	accQuote := decimal.NewFromFloat(0.05853762067)
 
+	zeroProfitPrice := depoSpent.Add(accQuote).
+		Sub(fees.QuoteAsset).Div(decimal.NewFromFloat(coinsQty)).
+		InexactFloat64()
+
 	// when
 	order, err := NewCalcTPOrderProcessor().CoinsQty(coinsQty).
 		Profit(profit).
@@ -291,9 +295,14 @@ func TestCalcTPOrderShortRemains(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(58752.97), order.Price)
+	assert.Equal(t, float64(58872.47), order.Price)
 	assert.Equal(t, float64(0.000489), order.Qty)
 	assert.Equal(t, consts.OrderSideBuy, order.Type)
+	assert.LessOrEqual(t, order.Price, zeroProfitPrice)
+	assert.LessOrEqual(
+		t, order.Deposit,
+		depoSpent.Add(accQuote).Sub(fees.QuoteAsset).InexactFloat64(),
+	)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 
@@ -330,7 +339,7 @@ func TestCalcTPOrderShortRemainsBigQtyStep(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(1.3043), order.Price)
+	assert.Equal(t, float64(1.3072), order.Price)
 	assert.Equal(t, float64(2), order.Qty)
 	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
@@ -380,7 +389,7 @@ func TestCalcTPOrderShortRemainsBigQtyStep2(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(1.8962), order.Price)
+	assert.Equal(t, float64(1.902), order.Price)
 	assert.Equal(t, float64(1), order.Qty)
 	assert.Equal(t, consts.OrderSideBuy, order.Type)
 	assert.NotEmpty(t, order.ClientOrderID)
@@ -501,7 +510,7 @@ func TestCalcTPOrderShortFeesInBaseAsset(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(590.3), order.Price)
+	assert.Equal(t, float64(590.5), order.Price)
 	assert.Equal(t, float64(0.009), order.Qty)
 	assert.Less(t, order.Price, gridOrderPrice.InexactFloat64())
 	assert.Equal(t, consts.OrderSideBuy, order.Type)
@@ -531,6 +540,9 @@ func TestCalcTPShort(t *testing.T) {
 	accBase := decimal.Zero
 	accQuote := decimal.NewFromFloat(0.39016245)
 
+	zeroProfitPrice := depoSpent.Add(accQuote).
+		Sub(fees.QuoteAsset).Div(lapCoinsQty).InexactFloat64()
+
 	proc := NewCalcTPOrderProcessor().
 		CoinsQty(lapCoinsQty.InexactFloat64()).
 		Profit(profit).
@@ -545,9 +557,61 @@ func TestCalcTPShort(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
-	assert.Equal(t, float64(0.2516), order.Price)
+	assert.Equal(t, float64(0.253), order.Price)
 	assert.Equal(t, float64(293.9), order.Qty)
-	assert.Equal(t, pkgStructs.OrderTypeBuy, order.Type)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
+	assert.LessOrEqual(t, order.Price, zeroProfitPrice)
+	assert.LessOrEqual(
+		t, order.Deposit,
+		depoSpent.Add(accQuote).Sub(fees.QuoteAsset).InexactFloat64(),
+	)
+	assert.NotEmpty(t, order.ClientOrderID)
+}
+
+func TestCalcTPShort2(t *testing.T) {
+	// given
+	pairData := structs.ExchangePairData{
+		Symbol:     "INJUSDT",
+		QtyStep:    0.01,
+		PriceStep:  0.001,
+		MinQty:     0.03,
+		MinDeposit: 1,
+	}
+
+	strategy := pkgStructs.BotStrategyShort
+	profit := float64(0.89)
+	lapCoinsQty := decimal.NewFromFloat(0.15)
+	depoSpent := decimal.NewFromFloat(3.7865)
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.NewFromFloat(0),
+		QuoteAsset: decimal.NewFromFloat(0.0037865),
+	}
+
+	accBase := decimal.Zero
+	accQuote := decimal.NewFromFloat(0.59157425)
+
+	proc := NewCalcTPOrderProcessor().
+		CoinsQty(lapCoinsQty.InexactFloat64()).
+		Profit(profit).
+		DepositSpent(depoSpent).
+		Strategy(strategy).
+		PairData(pairData).
+		Fees(fees).
+		Remains(accBase, accQuote)
+
+	// when
+	order, err := proc.Do()
+
+	// then
+	require.NoError(t, err)
+	assert.Equal(t, float64(24.995), order.Price)
+	assert.Equal(t, float64(0.17), order.Qty)
+	assert.Equal(t, consts.OrderSideBuy, order.Type)
+	assert.LessOrEqual(
+		t, order.Deposit,
+		depoSpent.Add(accQuote).Sub(fees.QuoteAsset).InexactFloat64(),
+	)
 	assert.NotEmpty(t, order.ClientOrderID)
 }
 

@@ -219,7 +219,7 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	}
 
 	// price = depositSpent / tpQty
-	tpPrice := amountAvailable.Div(tpQtyRaw)
+	tpPrice := amountAvailable.Add(s.accQuote).Div(tpQtyRaw)
 
 	// check price
 	if tpPrice.LessThan(decimal.NewFromFloat(s.pairData.MinPrice)) {
