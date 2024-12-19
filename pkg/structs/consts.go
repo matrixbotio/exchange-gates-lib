@@ -22,6 +22,11 @@ const (
 type OrderSide = consts.OrderSide
 
 const (
+	OrderSideBuy  = consts.OrderSideBuy
+	OrderSideSell = consts.OrderSideSell
+)
+
+const (
 	BotStrategyLong  BotStrategy = "long"
 	BotStrategyShort BotStrategy = "short"
 )
