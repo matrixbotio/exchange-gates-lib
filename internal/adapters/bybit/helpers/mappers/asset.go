@@ -34,20 +34,25 @@ func convertCoinData(
 	var tickerLocked float64
 	var err error
 
-	if coinData.Free != "" {
-		tickerFree, err = strconv.ParseFloat(coinData.Free, 64)
-	} else if coinData.Equity != "" {
-		tickerFree, err = strconv.ParseFloat(coinData.Equity, 64)
-	}
-	if err != nil {
-		return structs.AssetBalance{}, fmt.Errorf("parse free balance: %w", err)
-	}
-
 	if coinData.Locked != "" {
 		tickerLocked, err = strconv.ParseFloat(coinData.Locked, 64)
 		if err != nil {
 			return structs.AssetBalance{}, fmt.Errorf("parse locked balance: %w", err)
 		}
+	}
+
+	if coinData.Free != "" {
+		tickerFree, err = strconv.ParseFloat(coinData.Free, 64)
+	} else if coinData.Equity != "" {
+		equity, err := strconv.ParseFloat(coinData.Equity, 64)
+		if err != nil {
+			return structs.AssetBalance{}, fmt.Errorf("parse equity: %w", err)
+		}
+
+		tickerFree = equity - tickerLocked
+	}
+	if err != nil {
+		return structs.AssetBalance{}, fmt.Errorf("parse free balance: %w", err)
 	}
 
 	return structs.AssetBalance{
