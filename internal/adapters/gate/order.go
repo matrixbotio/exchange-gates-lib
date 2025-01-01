@@ -25,14 +25,17 @@ func (a *adapter) GetOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
 ) (structs.OrderData, error) {
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
 	data, _, err := a.client.SpotApi.GetOrder(
-		a.auth,
+		ctx,
 		clientOrderID,
 		pairSymbol,
 		&gateapi.GetOrderOpts{},
 	)
 	if err != nil {
-		return structs.OrderData{}, fmt.Errorf("get order: %w", err)
+		return structs.OrderData{}, fmt.Errorf("get order data: %w", err)
 	}
 
 	orderID, err := strconv.ParseInt(data.Id, 10, 64)
@@ -65,6 +68,7 @@ func (a *adapter) GetOrderByClientOrderID(
 	}
 
 	orderData.Status = mappers.ConvertOrderStatus(data.Status)
+
 	if orderData.FilledQty > 0 {
 		orderData.Status = consts.OrderStatusPartiallyFilled
 	}
@@ -125,6 +129,19 @@ func (a *adapter) GetOrderExecFee(
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.SpotApi.GetOrder(
+		ctx,
+		strconv.FormatInt(orderID, 10),
+		a.GetPairSymbol(baseAssetTicker, quoteAssetTicker),
+		&gateapi.GetOrderOpts{},
+	)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("get order data: %w", err)
+	}
+
 	// TODO
 	return structs.OrderFees{}, nil
 }
