@@ -226,6 +226,51 @@ func (_c *MockAdapter_Connect_Call) RunAndReturn(run func(structs.APICredentials
 	return _c
 }
 
+// GenClientOrderID provides a mock function with given fields:
+func (_m *MockAdapter) GenClientOrderID() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenClientOrderID")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// MockAdapter_GenClientOrderID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenClientOrderID'
+type MockAdapter_GenClientOrderID_Call struct {
+	*mock.Call
+}
+
+// GenClientOrderID is a helper method to define mock.On call
+func (_e *MockAdapter_Expecter) GenClientOrderID() *MockAdapter_GenClientOrderID_Call {
+	return &MockAdapter_GenClientOrderID_Call{Call: _e.mock.On("GenClientOrderID")}
+}
+
+func (_c *MockAdapter_GenClientOrderID_Call) Run(run func()) *MockAdapter_GenClientOrderID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAdapter_GenClientOrderID_Call) Return(_a0 string) *MockAdapter_GenClientOrderID_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdapter_GenClientOrderID_Call) RunAndReturn(run func() string) *MockAdapter_GenClientOrderID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetAccountBalance provides a mock function with given fields:
 func (_m *MockAdapter) GetAccountBalance() ([]internalstructs.Balance, error) {
 	ret := _m.Called()
@@ -920,6 +965,53 @@ func (_c *MockAdapter_GetPairOpenOrders_Call) Return(_a0 []internalstructs.Order
 }
 
 func (_c *MockAdapter_GetPairOpenOrders_Call) RunAndReturn(run func(string) ([]internalstructs.OrderData, error)) *MockAdapter_GetPairOpenOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPairSymbol provides a mock function with given fields: baseTicker, quoteTicker
+func (_m *MockAdapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
+	ret := _m.Called(baseTicker, quoteTicker)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPairSymbol")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(baseTicker, quoteTicker)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// MockAdapter_GetPairSymbol_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairSymbol'
+type MockAdapter_GetPairSymbol_Call struct {
+	*mock.Call
+}
+
+// GetPairSymbol is a helper method to define mock.On call
+//   - baseTicker string
+//   - quoteTicker string
+func (_e *MockAdapter_Expecter) GetPairSymbol(baseTicker interface{}, quoteTicker interface{}) *MockAdapter_GetPairSymbol_Call {
+	return &MockAdapter_GetPairSymbol_Call{Call: _e.mock.On("GetPairSymbol", baseTicker, quoteTicker)}
+}
+
+func (_c *MockAdapter_GetPairSymbol_Call) Run(run func(baseTicker string, quoteTicker string)) *MockAdapter_GetPairSymbol_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdapter_GetPairSymbol_Call) Return(_a0 string) *MockAdapter_GetPairSymbol_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdapter_GetPairSymbol_Call) RunAndReturn(run func(string, string) string) *MockAdapter_GetPairSymbol_Call {
 	_c.Call.Return(run)
 	return _c
 }

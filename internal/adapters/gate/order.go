@@ -43,11 +43,16 @@ func (a *adapter) GetOrderByClientOrderID(
 		return structs.OrderData{}, fmt.Errorf("parse orderID: %w", err)
 	}
 
+	orderSide, err := mappers.ConvertOrderSide(data.Side)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("convert: %w", err)
+	}
+
 	orderData := structs.OrderData{
 		OrderID:       orderID,
 		ClientOrderID: data.Text,
 		Symbol:        pairSymbol,
-		Type:          data.Side,
+		Side:          orderSide,
 		CreatedTime:   data.CreateTimeMs,
 		UpdatedTime:   data.UpdateTimeMs,
 	}
@@ -88,7 +93,7 @@ func (a *adapter) PlaceOrder(
 		CurrencyPair: order.PairSymbol,
 		Type:         orderTypeLimit,
 		Account:      spotAccountType,
-		Side:         order.Type,
+		Side:         string(order.Type),
 		Amount:       order.Qty,
 		Price:        order.Price,
 	})
@@ -126,7 +131,7 @@ func (a *adapter) PlaceOrder(
 func (a *adapter) GetOrderExecFee(
 	baseAssetTicker string,
 	quoteAssetTicker string,
-	orderSide string,
+	orderSide consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
 	/*ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)

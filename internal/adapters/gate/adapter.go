@@ -132,3 +132,10 @@ func (a *adapter) GetCandles(
 	// TODO
 	return nil, nil
 }
+
+func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
+	return pkgStructs.ExchangeLimits{
+		MaxConnectionsPerBatch:   50,
+		MaxConnectionsInDuration: time.Second,
+	}
+}
