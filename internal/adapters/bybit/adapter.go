@@ -52,6 +52,10 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 	}
 }
 
+func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
+	return fmt.Sprintf("%s%s", baseTicker, quoteTicker)
+}
+
 func (a *adapter) GenClientOrderID() string {
 	return utils.GenClientOrderID()
 }

@@ -50,6 +50,10 @@ func (a *adapter) GetName() string {
 	return a.Name
 }
 
+func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
+	return fmt.Sprintf("%s_%s", baseTicker, quoteTicker)
+}
+
 func (a *adapter) GenClientOrderID() string {
 	return fmt.Sprintf(clientOrderIDFormat, utils.GenClientOrderID())
 }

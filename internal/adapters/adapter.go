@@ -14,6 +14,7 @@ type Adapter interface {
 	GetName() string
 	GetTag() string
 	GetID() int
+	GetPairSymbol(baseTicker string, quoteTicker string) string
 
 	// BASIC
 	// TBD: call Connect on adapter init:
