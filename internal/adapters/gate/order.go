@@ -129,7 +129,7 @@ func (a *adapter) GetOrderExecFee(
 	orderSide string,
 	orderID int64,
 ) (structs.OrderFees, error) {
-	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	/*ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
 	data, _, err := a.client.SpotApi.GetOrder(
@@ -142,6 +142,6 @@ func (a *adapter) GetOrderExecFee(
 		return structs.OrderFees{}, fmt.Errorf("get order data: %w", err)
 	}
 
-	// TODO
+	// TODO*/
 	return structs.OrderFees{}, nil
 }
