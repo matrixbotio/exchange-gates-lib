@@ -14,6 +14,7 @@ type Adapter interface {
 	GetName() string
 	GetTag() string
 	GetID() int
+	GetPairSymbol(baseTicker string, quoteTicker string) string
 
 	// BASIC
 	// TBD: call Connect on adapter init:
@@ -45,6 +46,7 @@ type Adapter interface {
 		orderSide consts.OrderSide,
 		orderID int64,
 	) (structs.OrderFees, error)
+	GenClientOrderID() string
 
 	// PAIR
 	// GetPairData - get pair data & limits

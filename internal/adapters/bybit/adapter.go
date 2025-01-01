@@ -9,6 +9,7 @@ import (
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 type adapter struct {
@@ -49,6 +50,14 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 		MaxConnectionsPerBatch:   499,
 		MaxConnectionsInDuration: 5 * time.Minute,
 	}
+}
+
+func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
+	return fmt.Sprintf("%s%s", baseTicker, quoteTicker)
+}
+
+func (a *adapter) GenClientOrderID() string {
+	return utils.GenClientOrderID()
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
