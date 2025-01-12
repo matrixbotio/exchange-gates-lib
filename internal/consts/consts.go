@@ -63,3 +63,10 @@ const (
 	OrderSideBuy  OrderSide = "buy"
 	OrderSideSell OrderSide = "sell"
 )
+
+type AccountType string
+
+const (
+	AccountTypeStandart AccountType = "standart"
+	AccountTypeUnified  AccountType = "unified"
+)

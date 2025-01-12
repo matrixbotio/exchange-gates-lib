@@ -20,6 +20,7 @@ type adapter struct {
 	client   *bybit.Client
 	wsClient *bybit.WebSocketClient
 
+	accountType  consts.AccountType
 	marginStatus bybit.UnifiedMarginStatus
 }
 
@@ -114,4 +115,8 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 
 	_, err := a.CanTrade()
 	return err
+}
+
+func (a *adapter) SetAccountType(accountType consts.AccountType) {
+	a.accountType = accountType
 }

@@ -25,7 +25,8 @@ type adapter struct {
 	Name       string
 	Tag        string
 
-	binanceAPI wrapper.BinanceAPIWrapper
+	accountType consts.AccountType
+	binanceAPI  wrapper.BinanceAPIWrapper
 }
 
 func New(wrapper wrapper.BinanceAPIWrapper) adp.Adapter {
@@ -94,4 +95,8 @@ func (a *adapter) GetTradeEventsWorker() iWorkers.ITradeEventWorker {
 		a.GetTag(),
 		a.binanceAPI,
 	)
+}
+
+func (a *adapter) SetAccountType(accountType consts.AccountType) {
+	a.accountType = accountType
 }

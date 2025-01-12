@@ -24,9 +24,10 @@ type adapter struct {
 	Name       string
 	Tag        string
 
-	keyPublic string
-	client    *gateapi.APIClient
-	auth      context.Context
+	accountType consts.AccountType
+	keyPublic   string
+	client      *gateapi.APIClient
+	auth        context.Context
 }
 
 func New() adp.Adapter {
@@ -138,4 +139,8 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 		MaxConnectionsPerBatch:   50,
 		MaxConnectionsInDuration: time.Second,
 	}
+}
+
+func (a *adapter) SetAccountType(accountType consts.AccountType) {
+	a.accountType = accountType
 }
