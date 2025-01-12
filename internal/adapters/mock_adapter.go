@@ -1270,22 +1270,65 @@ func (_c *MockAdapter_PlaceOrder_Call) RunAndReturn(run func(context.Context, in
 	return _c
 }
 
+// SetAccountType provides a mock function with given fields: _a0
+func (_m *MockAdapter) SetAccountType(_a0 consts.AccountType) {
+	_m.Called(_a0)
+}
+
+// MockAdapter_SetAccountType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetAccountType'
+type MockAdapter_SetAccountType_Call struct {
+	*mock.Call
+}
+
+// SetAccountType is a helper method to define mock.On call
+//   - _a0 consts.AccountType
+func (_e *MockAdapter_Expecter) SetAccountType(_a0 interface{}) *MockAdapter_SetAccountType_Call {
+	return &MockAdapter_SetAccountType_Call{Call: _e.mock.On("SetAccountType", _a0)}
+}
+
+func (_c *MockAdapter_SetAccountType_Call) Run(run func(_a0 consts.AccountType)) *MockAdapter_SetAccountType_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(consts.AccountType))
+	})
+	return _c
+}
+
+func (_c *MockAdapter_SetAccountType_Call) Return() *MockAdapter_SetAccountType_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockAdapter_SetAccountType_Call) RunAndReturn(run func(consts.AccountType)) *MockAdapter_SetAccountType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // VerifyAPIKeys provides a mock function with given fields: keyPublic, keySecret
-func (_m *MockAdapter) VerifyAPIKeys(keyPublic string, keySecret string) error {
+func (_m *MockAdapter) VerifyAPIKeys(keyPublic string, keySecret string) (structs.VerifyKeyStatus, error) {
 	ret := _m.Called(keyPublic, keySecret)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VerifyAPIKeys")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+	var r0 structs.VerifyKeyStatus
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (structs.VerifyKeyStatus, error)); ok {
+		return rf(keyPublic, keySecret)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) structs.VerifyKeyStatus); ok {
 		r0 = rf(keyPublic, keySecret)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(structs.VerifyKeyStatus)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(keyPublic, keySecret)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockAdapter_VerifyAPIKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VerifyAPIKeys'
@@ -1307,12 +1350,12 @@ func (_c *MockAdapter_VerifyAPIKeys_Call) Run(run func(keyPublic string, keySecr
 	return _c
 }
 
-func (_c *MockAdapter_VerifyAPIKeys_Call) Return(_a0 error) *MockAdapter_VerifyAPIKeys_Call {
-	_c.Call.Return(_a0)
+func (_c *MockAdapter_VerifyAPIKeys_Call) Return(_a0 structs.VerifyKeyStatus, _a1 error) *MockAdapter_VerifyAPIKeys_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAdapter_VerifyAPIKeys_Call) RunAndReturn(run func(string, string) error) *MockAdapter_VerifyAPIKeys_Call {
+func (_c *MockAdapter_VerifyAPIKeys_Call) RunAndReturn(run func(string, string) (structs.VerifyKeyStatus, error)) *MockAdapter_VerifyAPIKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
