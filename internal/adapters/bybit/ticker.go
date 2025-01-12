@@ -12,7 +12,7 @@ import (
 
 func (a *adapter) getTickersBalance(tickers []bybit.Coin) ([]bybit.V5WalletBalanceList, error) {
 	balanceData, err := a.client.V5().Account().
-		GetWalletBalance(a.getAccountType(), tickers)
+		GetWalletBalance(a.getBybitAccountType(), tickers)
 	if err != nil {
 		return nil, fmt.Errorf("get ticker balance: %w", err)
 	}

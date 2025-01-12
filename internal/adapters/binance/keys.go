@@ -5,10 +5,14 @@ import (
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
-func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
+func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) (
+	structs.VerifyKeyStatus,
+	error,
+) {
 	if err := a.Connect(structs.APICredentials{
 		Type: structs.APICredentialsTypeKeypair,
 		Keypair: structs.APIKeypair{
@@ -16,16 +20,19 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 			Secret: keySecret,
 		},
 	}); err != nil {
-		return fmt.Errorf("binance connect: %w", err)
+		return structs.VerifyKeyStatus{}, fmt.Errorf("binance connect: %w", err)
 	}
 
 	accountData, err := a.binanceAPI.GetAccountData(context.Background())
 	if err != nil {
-		return fmt.Errorf("invalid api key: %w", err)
+		return structs.VerifyKeyStatus{}, fmt.Errorf("invalid api key: %w", err)
 	}
 
 	if !accountData.CanTrade {
-		return errs.ErrTradingNotAllowed
+		return structs.VerifyKeyStatus{}, errs.ErrTradingNotAllowed
 	}
-	return nil
+	return structs.VerifyKeyStatus{
+		Active:      true,
+		AccountType: consts.AccountTypeStandart,
+	}, nil
 }

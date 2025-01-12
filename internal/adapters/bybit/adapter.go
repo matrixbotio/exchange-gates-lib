@@ -20,8 +20,7 @@ type adapter struct {
 	client   *bybit.Client
 	wsClient *bybit.WebSocketClient
 
-	accountType  consts.AccountType
-	marginStatus bybit.UnifiedMarginStatus
+	accountType consts.AccountType
 }
 
 func New() adp.Adapter {
@@ -68,20 +67,11 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	if err := a.client.SyncServerTime(); err != nil {
 		return fmt.Errorf("sync time: %w", err)
 	}
-
-	if credentials.Keypair.Public != "" && credentials.Keypair.Secret != "" {
-		accountInfo, err := a.client.V5().Account().GetAccountInfo()
-		if err != nil {
-			return fmt.Errorf("get account info: %w", err)
-		}
-
-		a.marginStatus = accountInfo.Result.UnifiedMarginStatus
-	}
 	return nil
 }
 
-func (a *adapter) getAccountType() bybit.AccountTypeV5 {
-	if a.marginStatus == bybit.UnifiedMarginStatusRegular {
+func (a *adapter) getBybitAccountType() bybit.AccountTypeV5 {
+	if a.accountType == consts.AccountTypeStandart {
 		return bybit.AccountTypeV5SPOT
 	}
 
@@ -102,7 +92,27 @@ func (a *adapter) CanTrade() (bool, error) {
 	return false, nil
 }
 
-func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
+func (a *adapter) loadAccountType() (consts.AccountType, error) {
+	accountInfo, err := a.client.V5().Account().GetAccountInfo()
+	if err != nil {
+		return "", fmt.Errorf("get account info: %w", err)
+	}
+
+	var accountType consts.AccountType
+	marginStatus := accountInfo.Result.UnifiedMarginStatus
+
+	if marginStatus == bybit.UnifiedMarginStatusRegular {
+		accountType = consts.AccountTypeStandart
+	} else {
+		accountType = consts.AccountTypeUnified
+	}
+	return accountType, nil
+}
+
+func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) (
+	pkgStructs.VerifyKeyStatus,
+	error,
+) {
 	if err := a.Connect(pkgStructs.APICredentials{
 		Type: pkgStructs.APICredentialsTypeKeypair,
 		Keypair: pkgStructs.APIKeypair{
@@ -110,11 +120,23 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 			Secret: keySecret,
 		},
 	}); err != nil {
-		return fmt.Errorf("connect: %w", err)
+		return pkgStructs.VerifyKeyStatus{}, fmt.Errorf("connect: %w", err)
 	}
 
 	_, err := a.CanTrade()
-	return err
+	if err != nil {
+		return pkgStructs.VerifyKeyStatus{}, err
+	}
+
+	accountType, err := a.loadAccountType()
+	if err != nil {
+		return pkgStructs.VerifyKeyStatus{}, err
+	}
+
+	return pkgStructs.VerifyKeyStatus{
+		Active:      true,
+		AccountType: accountType,
+	}, nil
 }
 
 func (a *adapter) SetAccountType(accountType consts.AccountType) {

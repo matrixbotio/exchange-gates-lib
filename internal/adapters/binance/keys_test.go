@@ -6,6 +6,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -27,10 +28,11 @@ func TestVerifyAPIKeysSuccess(t *testing.T) {
 	)
 
 	// when
-	err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
+	result, err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
 
 	// then
 	require.NoError(t, err)
+	assert.True(t, result.Active)
 }
 
 func TestVerifyAPIKeysError(t *testing.T) {
@@ -45,10 +47,11 @@ func TestVerifyAPIKeysError(t *testing.T) {
 	)
 
 	// when
-	err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
+	result, err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
 
 	// then
 	require.ErrorIs(t, err, errTestException)
+	assert.False(t, result.Active)
 }
 
 func TestVerifyAPIKeysTradingNotAllowed(t *testing.T) {
@@ -63,7 +66,7 @@ func TestVerifyAPIKeysTradingNotAllowed(t *testing.T) {
 	)
 
 	// when
-	err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
+	_, err := a.VerifyAPIKeys(testAPIPubkey, testAPISecret)
 
 	// then
 	require.ErrorIs(t, err, errs.ErrTradingNotAllowed)

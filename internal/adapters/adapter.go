@@ -24,7 +24,7 @@ type Adapter interface {
 	// CanTrade - check the permission of the API key for trading
 	CanTrade() (bool, error)
 	// VerifyAPIKeys - Check if the API key has expired
-	VerifyAPIKeys(keyPublic, keySecret string) error
+	VerifyAPIKeys(keyPublic, keySecret string) (pkgStructs.VerifyKeyStatus, error)
 	// GetAccountBalance - get account balances for individual tickers
 	GetAccountBalance() ([]structs.Balance, error)
 	GetLimits() pkgStructs.ExchangeLimits

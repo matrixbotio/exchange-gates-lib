@@ -3,6 +3,7 @@ package structs
 import (
 	"time"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
@@ -46,4 +47,9 @@ type ExchangeLimits struct {
 	// For example, no more than 500 connections in 5 minutes
 	MaxConnectionsPerBatch   int           `json:"maxConnPerBatch"`
 	MaxConnectionsInDuration time.Duration `json:"maxConnInDuration"`
+}
+
+type VerifyKeyStatus struct {
+	Active      bool
+	AccountType consts.AccountType
 }
