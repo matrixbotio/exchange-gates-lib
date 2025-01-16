@@ -1,11 +1,9 @@
 package workers
 
-import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-
 // TradeEventWorker - a worker interface based on pair trade events
 type TradeEventWorker struct {
+	workerBase
 	ExchangeTag string
-	WsChannels  *structs.WorkerChannels
 }
 
 type TradeEventCallback func(event TradeEvent)
@@ -40,13 +38,6 @@ func (w *TradeEventWorker) SubscribeToTradeEvents(
 // GetExchangeTag - get worker exchange tag from exchange adapter
 func (w *TradeEventWorker) GetExchangeTag() string {
 	return w.ExchangeTag
-}
-
-// Stop listening ws events
-func (w *TradeEventWorker) Stop() {
-	go func() {
-		w.WsChannels.WsStop <- struct{}{}
-	}()
 }
 
 // TradeEvent - data on a executed order in a trading pair

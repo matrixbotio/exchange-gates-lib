@@ -1,7 +1,5 @@
 package workers
 
-import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
 	Symbol     string     `json:"symbol"`
@@ -56,8 +54,8 @@ type ICandleWorker interface {
 
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
+	workerBase
 	ExchangeTag string
-	WsChannels  *structs.WorkerChannels
 }
 
 func (w *CandleWorker) SubscribeToCandle(
@@ -78,10 +76,4 @@ func (w *CandleWorker) SubscribeToCandlesList(
 
 func (w *CandleWorker) GetExchangeTag() string {
 	return w.ExchangeTag
-}
-
-func (w *CandleWorker) Stop() {
-	go func() {
-		w.WsChannels.WsStop <- struct{}{}
-	}()
 }
