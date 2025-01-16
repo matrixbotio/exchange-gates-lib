@@ -7,8 +7,8 @@ type PriceEventCallback func(event PriceEvent)
 
 // PriceWorker - a worker interface based on data from a specific market, such as quotes
 type PriceWorker struct {
+	workerBase
 	ExchangeTag         string
-	WsChannels          *structs.WorkerChannels
 	HandleEventCallback PriceEventCallback
 }
 
@@ -36,13 +36,6 @@ func (w *PriceWorker) SubscribeToPriceEvents(
 // GetExchangeTag - get worker exchange tag from exchange adapter
 func (w *PriceWorker) GetExchangeTag() string {
 	return w.ExchangeTag
-}
-
-// Stop listening ws events
-func (w *PriceWorker) Stop() {
-	go func() {
-		w.WsChannels.WsStop <- struct{}{}
-	}()
 }
 
 // PriceEvent - data on changes in trade data in the market

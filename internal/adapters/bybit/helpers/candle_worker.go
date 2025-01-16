@@ -63,8 +63,6 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 			_ = wsSrv.Close()
 		}
 
-		w.WsChannels.WsDone <- struct{}{}
-
 		errorHandler(fmt.Errorf("bybit candles subscription: %w", err))
 	}
 
