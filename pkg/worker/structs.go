@@ -9,3 +9,9 @@ type (
 	MockTradeWorker  = workers.MockITradeEventWorker
 	MockPriceWorker  = workers.MockIPriceWorker
 )
+
+var (
+	NewMockCandleWorker = workers.NewMockICandleWorker
+	NewMockTradeWorker  = workers.NewMockITradeEventWorker
+	NewMockPriceWorker  = workers.NewMockIPriceWorker
+)
