@@ -6,6 +6,6 @@ unit-tests:
 integration-tests:
 	go test -race -run TestIntegration_ -v --count 1 ./...
 
-.PHONY: generate-mocks
-generate-mocks:
-	mockery --inpackage --case snake --all --with-expecter
+.PHONY: generate
+generate:
+	GOFLAGS=-mod=mod go generate ./...

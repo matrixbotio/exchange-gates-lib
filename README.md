@@ -1,9 +1,11 @@
-# exchange-gates
+# exchange-gates-lib
 
-## Mocks
+### How to first setup dev version
 
-https://github.com/vektra/mockery  
+First of all, install mockgen with generics support:
 
-Something like `go install github.com/vektra/mockery/v2.46.0`: install binary locally  
+```
+go install go.uber.org/mock/mockgen@latest
+```
 
-Every time when you have new/changed interfaces run `make generate-mocks`  
+Every time when you have new/changed interfaces run `make generate`  
