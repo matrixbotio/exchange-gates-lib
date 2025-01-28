@@ -8,6 +8,9 @@ import (
 )
 
 type Adapter = adapters.Adapter
+type MockAdapter = adapters.MockAdapter
+
+var NewMockAdapter = adapters.NewMockAdapter
 
 type (
 	AccountData          = structs.AccountData
