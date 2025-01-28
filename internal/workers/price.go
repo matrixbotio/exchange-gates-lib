@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package workers
 
 import "github.com/matrixbotio/exchange-gates-lib/pkg/structs"

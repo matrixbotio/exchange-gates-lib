@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package workers
 
 // TradeEventWorker - a worker interface based on pair trade events
