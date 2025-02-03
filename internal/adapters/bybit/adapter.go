@@ -47,6 +47,7 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 	return pkgStructs.ExchangeLimits{
 		MaxConnectionsPerBatch:   499,
 		MaxConnectionsInDuration: 5 * time.Minute,
+		MaxTopicsPerWebsocket:    10,
 	}
 }
 
