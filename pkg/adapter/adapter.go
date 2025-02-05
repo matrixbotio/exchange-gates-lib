@@ -39,6 +39,7 @@ type (
 	PriceEvent        = workers.PriceEvent
 	TradeEvent        = workers.TradeEvent
 	TradeEventPrivate = workers.TradeEventPrivate
+	OrderEvent        = workers.OrderEvent
 	CandleEvent       = workers.CandleEvent
 )
 

@@ -63,3 +63,12 @@ type TradeEventPrivate struct {
 	Price         float64 `json:"price,omitempty"`
 	Quantity      float64 `json:"quantity,omitempty"`
 }
+
+type OrderEvent struct {
+	// required
+	APIKeyID string            `json:"apiKeyID"`
+	Data     TradeEventPrivate `json:"data"`
+
+	// optional
+	BotID string `json:"botID"`
+}
