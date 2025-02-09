@@ -2,6 +2,7 @@ package bingx
 
 import (
 	"context"
+	"time"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
@@ -50,7 +51,10 @@ func (a *adapter) GetPairSymbol(
 }
 
 func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
-	return pkgStructs.ExchangeLimits{} // TODO
+	return pkgStructs.ExchangeLimits{
+		MaxConnectionsPerBatch:   100,
+		MaxConnectionsInDuration: time.Second * 10,
+	}
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
