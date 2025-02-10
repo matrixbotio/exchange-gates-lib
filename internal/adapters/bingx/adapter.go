@@ -7,6 +7,7 @@ import (
 	"time"
 
 	bingxgo "github.com/Sagleft/go-bingx"
+	"github.com/shopspring/decimal"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
@@ -150,8 +151,31 @@ func (a *adapter) GetOrderExecFee(
 	orderSide consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
-	// TODO
-	return structs.OrderFees{}, nil
+	pairSymbol := a.GetPairSymbol(baseAssetTicker, quoteAssetTicker)
+
+	data, err := a.client.GetOrder(
+		pairSymbol,
+		strconv.FormatInt(orderID, 10),
+	)
+	if err != nil {
+		return structs.OrderFees{},
+			fmt.Errorf("get order data: %w", err)
+	}
+
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.Zero,
+		QuoteAsset: decimal.Zero,
+	}
+
+	feeVal := decimal.NewFromFloat(data.Fee)
+	if data.FeeAsset == baseAssetTicker {
+		fees.BaseAsset = feeVal
+	}
+	if data.FeeAsset == quoteAssetTicker {
+		fees.QuoteAsset = feeVal
+	}
+
+	return fees, nil
 }
 
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
