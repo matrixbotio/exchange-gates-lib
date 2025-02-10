@@ -23,9 +23,9 @@ type adapter struct {
 
 func New() adp.Adapter {
 	return &adapter{
-		ExchangeID: 0,
-		Name:       "Template Spot",
-		Tag:        "template-spot",
+		ExchangeID: consts.ExchangeIDbingx,
+		Name:       "BingX Spot",
+		Tag:        "bingx-spot",
 	}
 }
 
