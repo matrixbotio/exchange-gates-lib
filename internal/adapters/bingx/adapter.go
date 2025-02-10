@@ -9,6 +9,7 @@ import (
 	bingxgo "github.com/Sagleft/go-bingx"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -87,12 +88,12 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 
 	var result []structs.Balance
 	for _, balanceData := range balances {
-		assetFree, err := strconv.ParseFloat(balanceData.Free, 10)
+		assetFree, err := strconv.ParseFloat(balanceData.Free, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parse %q free: %w", err)
 		}
 
-		assetLocked, err := strconv.ParseFloat(balanceData.Locked, 10)
+		assetLocked, err := strconv.ParseFloat(balanceData.Locked, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parse %q locked: %w", err)
 		}
@@ -106,17 +107,33 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	return result, nil
 }
 
-func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
-	// TODO
-	return structs.OrderData{}, nil
+func (a *adapter) GetOrderData(
+	pairSymbol string,
+	orderID int64,
+) (structs.OrderData, error) {
+	data, err := a.client.GetOrder(
+		pairSymbol,
+		strconv.FormatInt(orderID, 10),
+	)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("get: %w", err)
+	}
+
+	return mappers.ConvertBingXOrderData(data)
 }
 
 func (a *adapter) GetOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
 ) (structs.OrderData, error) {
-	// TODO
-	return structs.OrderData{}, nil
+	data, err := a.client.GetOrderByClientOrderID(
+		pairSymbol, clientOrderID,
+	)
+	if err != nil {
+		return structs.OrderData{}, fmt.Errorf("get: %w", err)
+	}
+
+	return mappers.ConvertBingXOrderData(data)
 }
 
 func (a *adapter) PlaceOrder(
