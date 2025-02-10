@@ -10,6 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
@@ -17,32 +18,25 @@ import (
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
+const (
+	adapterName = "BingX Spot"
+	adapterTag  = "bingx-spot"
+)
+
 type adapter struct {
-	ExchangeID int
-	Name       string
-	Tag        string
+	baseadp.AdapterBase
 
 	client bingxgo.SpotClient
 }
 
 func New() adp.Adapter {
 	return &adapter{
-		ExchangeID: consts.ExchangeIDbingx,
-		Name:       "BingX Spot",
-		Tag:        "bingx-spot",
+		AdapterBase: baseadp.NewAdapterBase(
+			consts.ExchangeIDbingx,
+			adapterName,
+			adapterTag,
+		),
 	}
-}
-
-func (a *adapter) GetTag() string {
-	return a.Tag
-}
-
-func (a *adapter) GetID() int {
-	return a.ExchangeID
-}
-
-func (a *adapter) GetName() string {
-	return a.Name
 }
 
 func (a *adapter) GenClientOrderID() string {
