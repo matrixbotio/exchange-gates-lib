@@ -2,6 +2,8 @@ package bingx
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 	"time"
 
 	bingxgo "github.com/Sagleft/go-bingx"
@@ -78,8 +80,30 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
-	// TODO
-	return nil, nil
+	balances, err := a.client.GetBalance()
+	if err != nil {
+		return nil, fmt.Errorf("get balance: %w", err)
+	}
+
+	var result []structs.Balance
+	for _, balanceData := range balances {
+		assetFree, err := strconv.ParseFloat(balanceData.Free, 10)
+		if err != nil {
+			return nil, fmt.Errorf("parse %q free: %w", err)
+		}
+
+		assetLocked, err := strconv.ParseFloat(balanceData.Locked, 10)
+		if err != nil {
+			return nil, fmt.Errorf("parse %q locked: %w", err)
+		}
+
+		result = append(result, structs.Balance{
+			Asset:  balanceData.Asset,
+			Free:   assetFree,
+			Locked: assetLocked,
+		})
+	}
+	return result, nil
 }
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
