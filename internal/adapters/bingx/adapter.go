@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	bingxgo "github.com/Sagleft/go-bingx"
+
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
@@ -16,7 +18,7 @@ type adapter struct {
 	Name       string
 	Tag        string
 
-	//client *lib.client
+	client bingxgo.SpotClient
 }
 
 func New() adp.Adapter {
@@ -58,8 +60,10 @@ func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {
 }
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
-	// TODO: create exchange client & connect
-	// TODO: sync server time
+	a.client = bingxgo.NewSpotClient(bingxgo.NewClient(
+		credentials.Keypair.Public,
+		credentials.Keypair.Secret,
+	))
 	return nil
 }
 

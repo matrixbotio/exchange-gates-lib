@@ -1,10 +1,11 @@
 module github.com/matrixbotio/exchange-gates-lib
 
-go 1.22
+go 1.23.1
 
-toolchain go1.22.10
+toolchain go1.23.6
 
 require (
+	github.com/Sagleft/go-bingx v1.0.1
 	github.com/adshao/go-binance/v2 v2.4.2
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/gateio/gateapi-go/v6 v6.71.0
@@ -12,7 +13,7 @@ require (
 	github.com/hirokisan/bybit/v2 v2.34.6
 	github.com/matoous/go-nanoid v1.5.1
 	github.com/shopspring/decimal v1.3.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.5.0
 	golang.org/x/text v0.12.0
 )
