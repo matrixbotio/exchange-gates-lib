@@ -16,8 +16,8 @@ type CandleEventWorkerBybit struct {
 	WsClient *bybit.WebSocketClient
 }
 
-func (w *CandleEventWorkerBybit) SubscribeToCandle(
-	pairSymbol string,
+func (w *CandleEventWorkerBybit) subscribe(
+	intervalsPerPair map[string]string,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -31,19 +31,27 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 	}
 
 	eventHandler := CandleEventsHandler{
-		pairSymbol: pairSymbol,
-		callback:   eventCallback,
+		symbols:  make(symbolPerTopic),
+		callback: eventCallback,
 	}
 
-	bybitInterval, isExists := mappers.CandleIntervalsToBybit[string(defaultCandleInterval)]
-	if !isExists {
-		return fmt.Errorf("interval %q not available", defaultCandleInterval)
+	var keys []bybit.V5WebsocketPublicKlineParamKey
+	for pairSymbol, interval := range intervalsPerPair {
+		bybitInterval, isExists := mappers.CandleIntervalsToBybit[interval]
+		if !isExists {
+			return fmt.Errorf("interval %q not available", interval)
+		}
+
+		key := bybit.V5WebsocketPublicKlineParamKey{
+			Interval: bybit.Interval(bybitInterval.Code),
+			Symbol:   bybit.SymbolV5(pairSymbol),
+		}
+
+		eventHandler.symbols[key.Topic()] = pairSymbol
+		keys = append(keys, key)
 	}
 
-	unsubscribe, err := wsSrv.SubscribeKline(bybit.V5WebsocketPublicKlineParamKey{
-		Interval: bybit.Interval(bybitInterval.Code),
-		Symbol:   bybit.SymbolV5(pairSymbol),
-	}, eventHandler.handle)
+	unsubscribe, err := wsSrv.SubscribeKlines(keys, eventHandler.handle)
 	if err != nil {
 		return fmt.Errorf("open candle events subscription: %w", err)
 	}
@@ -71,8 +79,8 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 			w.WsChannels.WsDone <- struct{}{}
 
 			errorHandler(fmt.Errorf(
-				"start candle %q events subscription: %w",
-				pairSymbol, err,
+				"start candle events subscription: %w",
+				err,
 			))
 		}
 	}()
@@ -80,19 +88,20 @@ func (w *CandleEventWorkerBybit) SubscribeToCandle(
 	return nil
 }
 
+func (w *CandleEventWorkerBybit) SubscribeToCandle(
+	pairSymbol string,
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) error {
+	return w.subscribe(map[string]string{
+		pairSymbol: defaultCandleInterval,
+	}, eventCallback, errorHandler)
+}
+
 func (w *CandleEventWorkerBybit) SubscribeToCandlesList(
 	intervalsPerPair map[string]string,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	for pairSymbol := range intervalsPerPair {
-		if err := w.SubscribeToCandle(pairSymbol, eventCallback, errorHandler); err != nil {
-			return fmt.Errorf(
-				"subscribe to %q candle events: %w",
-				pairSymbol, err,
-			)
-		}
-	}
-
-	return nil
+	return w.subscribe(intervalsPerPair, eventCallback, errorHandler)
 }
