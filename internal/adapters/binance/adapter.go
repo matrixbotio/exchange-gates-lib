@@ -6,6 +6,7 @@ import (
 	"time"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/workers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
@@ -21,32 +22,20 @@ const (
 )
 
 type adapter struct {
-	ExchangeID int
-	Name       string
-	Tag        string
+	baseadp.AdapterBase
 
 	binanceAPI wrapper.BinanceAPIWrapper
 }
 
 func New(wrapper wrapper.BinanceAPIWrapper) adp.Adapter {
 	return &adapter{
-		ExchangeID: consts.ExchangeIDbinanceSpot,
-		Name:       adapterName,
-		Tag:        adapterTag,
+		AdapterBase: baseadp.NewAdapterBase(
+			consts.ExchangeIDbinanceSpot,
+			adapterName,
+			adapterTag,
+		),
 		binanceAPI: wrapper,
 	}
-}
-
-func (a *adapter) GetTag() string {
-	return a.Tag
-}
-
-func (a *adapter) GetID() int {
-	return a.ExchangeID
-}
-
-func (a *adapter) GetName() string {
-	return a.Name
 }
 
 func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {

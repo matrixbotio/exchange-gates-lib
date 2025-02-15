@@ -5,13 +5,15 @@ import "github.com/matrixbotio/exchange-gates-lib/internal/consts"
 
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
+	// required
 	Symbol     string     `json:"symbol"`
-	BaseAsset  string     `json:"baseAsset"`
-	QuoteAsset string     `json:"quoteAsset"`
 	Candle     CandleData `json:"candle"`
 	Time       int64      `json:"time"`
-
 	IsFinished bool
+
+	// optional
+	BaseAsset  string `json:"baseAsset"`
+	QuoteAsset string `json:"quoteAsset"`
 }
 
 // CandleData - trading candle

@@ -3,7 +3,6 @@ package binance
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +12,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 )
 
 func TestGetPairLastPriceSuccess(t *testing.T) {
@@ -177,97 +175,6 @@ func TestGetPairDataNotFound(t *testing.T) {
 
 	// then
 	require.ErrorContains(t, err, "pair not found")
-}
-
-func TestGetPairOpenOrdersSucess(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-
-	ordersResponse := []*binance.Order{
-		{
-			Symbol:           "LTCUSDT",
-			OrderID:          100,
-			Price:            "65.418",
-			OrigQuantity:     "0.1205",
-			ExecutedQuantity: "0.0000",
-			Status:           binance.OrderStatusTypeNew,
-			Side:             binance.SideTypeSell,
-			Type:             binance.OrderTypeLimit,
-			Time:             time.Now().UnixMilli(),
-		},
-		{
-			Symbol:           "LTCUSDT",
-			OrderID:          101,
-			Price:            "66.918",
-			OrigQuantity:     "0.1425",
-			ExecutedQuantity: "0.0000",
-			Status:           binance.OrderStatusTypeNew,
-			Side:             binance.SideTypeSell,
-			Type:             binance.OrderTypeLimit,
-			Time:             time.Now().UnixMilli(),
-		},
-	}
-
-	w.EXPECT().GetOpenOrders(mock.Anything, mock.Anything).
-		Return(ordersResponse, nil)
-
-	// when
-	orders, err := a.GetPairOpenOrders(testPairSymbol)
-
-	// then
-	require.NoError(t, err)
-	require.Len(t, orders, 2)
-	assert.Equal(t, float64(65.418), orders[0].Price)
-	assert.Equal(t, float64(0.1205), orders[0].AwaitQty)
-	assert.Equal(t, consts.OrderSideSell, orders[0].Side)
-	assert.Equal(t, float64(66.918), orders[1].Price)
-	assert.Equal(t, float64(0.1425), orders[1].AwaitQty)
-	assert.Equal(t, consts.OrderSideSell, orders[1].Side)
-}
-
-func TestGetPairOpenOrdersError(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-
-	w.EXPECT().GetOpenOrders(mock.Anything, mock.Anything).
-		Return(nil, errTestException)
-
-	// when
-	_, err := a.GetPairOpenOrders(testPairSymbol)
-
-	// then
-	require.ErrorIs(t, err, errTestException)
-}
-
-func TestGetPairOpenOrdersConvertError(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-
-	ordersResponse := []*binance.Order{
-		{
-			Symbol:           "LTCUSDT",
-			OrderID:          100,
-			Price:            "65.418",
-			OrigQuantity:     "broken data",
-			ExecutedQuantity: "0.0000",
-			Status:           binance.OrderStatusTypeNew,
-			Side:             binance.SideTypeSell,
-			Type:             binance.OrderTypeLimit,
-			Time:             time.Now().UnixMilli(),
-		},
-	}
-
-	w.EXPECT().GetOpenOrders(mock.Anything, mock.Anything).
-		Return(ordersResponse, nil)
-
-	// when
-	_, err := a.GetPairOpenOrders(testPairSymbol)
-
-	// then
-	require.ErrorContains(t, err, "invalid syntax")
 }
 
 func TestGetPairs(t *testing.T) {

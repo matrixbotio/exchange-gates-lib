@@ -8,6 +8,7 @@ import (
 	"github.com/gateio/gateapi-go/v6"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -15,14 +16,17 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
-const clientOrderIDFormat = "t-%s"
-const requestTimeout = time.Second * 10
-const spotAccountType = "spot"
+const (
+	adapterName = "Gate.io Spot (Beta)"
+	adapterTag  = "gate-spot"
+
+	clientOrderIDFormat = "t-%s"
+	spotAccountType     = "spot"
+	requestTimeout      = time.Second * 10
+)
 
 type adapter struct {
-	ExchangeID int
-	Name       string
-	Tag        string
+	baseadp.AdapterBase
 
 	keyPublic string
 	client    *gateapi.APIClient
@@ -31,23 +35,13 @@ type adapter struct {
 
 func New() adp.Adapter {
 	return &adapter{
-		ExchangeID: consts.ExchangeIDbybitSpot,
-		Name:       "Gate.io Spot (Beta)",
-		Tag:        "gate-spot",
-		client:     gateapi.NewAPIClient(gateapi.NewConfiguration()),
+		AdapterBase: baseadp.NewAdapterBase(
+			consts.ExchangeIDgateSpot,
+			adapterName,
+			adapterTag,
+		),
+		client: gateapi.NewAPIClient(gateapi.NewConfiguration()),
 	}
-}
-
-func (a *adapter) GetTag() string {
-	return a.Tag
-}
-
-func (a *adapter) GetID() int {
-	return a.ExchangeID
-}
-
-func (a *adapter) GetName() string {
-	return a.Name
 }
 
 func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
