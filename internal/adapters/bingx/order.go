@@ -3,7 +3,6 @@ package bingx
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	bingxgo "github.com/Sagleft/go-bingx"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
@@ -64,10 +63,7 @@ func (a *adapter) GetOrderExecFee(
 ) (structs.OrderFees, error) {
 	pairSymbol := a.GetPairSymbol(baseAssetTicker, quoteAssetTicker)
 
-	data, err := a.client.GetOrder(
-		pairSymbol,
-		strconv.FormatInt(orderID, 10),
-	)
+	data, err := a.client.GetOrder(pairSymbol, orderID)
 	if err != nil {
 		return structs.OrderFees{},
 			fmt.Errorf("get order data: %w", err)
@@ -93,10 +89,7 @@ func (a *adapter) GetOrderData(
 	pairSymbol string,
 	orderID int64,
 ) (structs.OrderData, error) {
-	data, err := a.client.GetOrder(
-		pairSymbol,
-		strconv.FormatInt(orderID, 10),
-	)
+	data, err := a.client.GetOrder(pairSymbol, orderID)
 	if err != nil {
 		return structs.OrderData{}, fmt.Errorf("get: %w", err)
 	}
