@@ -48,8 +48,8 @@ const (
 const (
 	ExchangeIDbinanceSpot = 1
 	ExchangeIDbybitSpot   = 2
-	ExchangeIDgateSpot    = 3
-	ExchangeIDbingx       = 4
+	ExchangeIDbingx       = 3
+	ExchangeIDgateSpot    = 4
 )
 
 const (
