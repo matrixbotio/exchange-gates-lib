@@ -96,7 +96,7 @@ func (a *adapter) PlaceOrder(
 		Side:         string(order.Type),
 		Amount:       order.Qty,
 		Price:        order.Price,
-	})
+	}, &gateapi.CreateOrderOpts{})
 	if err != nil {
 		return structs.CreateOrderResponse{}, fmt.Errorf("create order: %w", err)
 	}
