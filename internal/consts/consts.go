@@ -48,7 +48,8 @@ const (
 const (
 	ExchangeIDbinanceSpot = 1
 	ExchangeIDbybitSpot   = 2
-	ExchangeIDgateSpot    = 3
+	ExchangeIDbingx       = 3
+	ExchangeIDgateSpot    = 4
 )
 
 const (
@@ -63,3 +64,12 @@ const (
 	OrderSideBuy  OrderSide = "buy"
 	OrderSideSell OrderSide = "sell"
 )
+
+const (
+	PairStatusTrading   = "TRADING"
+	PairStatusOffline   = "OFFLINE"
+	PairStatusPreOpen   = "PRE-OPEN"
+	PairStatusSuspended = "SUSPENDED"
+)
+
+const BingXAdapterTag = "bingx-spot"
