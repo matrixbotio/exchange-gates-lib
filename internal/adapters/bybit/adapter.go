@@ -7,15 +7,19 @@ import (
 	"github.com/hirokisan/bybit/v2"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
+	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
+const (
+	adapterName = "ByBit Spot"
+	adapterTag  = "bybit-spot"
+)
+
 type adapter struct {
-	ExchangeID int
-	Name       string
-	Tag        string
+	baseadp.AdapterBase
 
 	client   *bybit.Client
 	wsClient *bybit.WebSocketClient
@@ -23,24 +27,14 @@ type adapter struct {
 
 func New() adp.Adapter {
 	return &adapter{
-		ExchangeID: consts.ExchangeIDbybitSpot,
-		Name:       "ByBit Spot",
-		Tag:        "bybit-spot",
-		client:     bybit.NewClient(),
-		wsClient:   bybit.NewWebsocketClient(),
+		AdapterBase: baseadp.NewAdapterBase(
+			consts.ExchangeIDbybitSpot,
+			adapterName,
+			adapterTag,
+		),
+		client:   bybit.NewClient(),
+		wsClient: bybit.NewWebsocketClient(),
 	}
-}
-
-func (a *adapter) GetTag() string {
-	return a.Tag
-}
-
-func (a *adapter) GetID() int {
-	return a.ExchangeID
-}
-
-func (a *adapter) GetName() string {
-	return a.Name
 }
 
 func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {

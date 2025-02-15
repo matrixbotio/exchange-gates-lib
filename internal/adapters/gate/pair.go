@@ -34,11 +34,6 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 	return nil
 }
 
-func (a *adapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
-	// TODO
-	return nil, nil
-}
-
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 	// TODO
 	return nil, nil
