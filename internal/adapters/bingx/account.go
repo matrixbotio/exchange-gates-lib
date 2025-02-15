@@ -25,12 +25,12 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 	for _, balanceData := range balances {
 		assetFree, err := strconv.ParseFloat(balanceData.Free, 64)
 		if err != nil {
-			return nil, fmt.Errorf("parse %q free: %w", err)
+			return nil, fmt.Errorf("parse %q free: %w", balanceData.Asset, err)
 		}
 
 		assetLocked, err := strconv.ParseFloat(balanceData.Locked, 64)
 		if err != nil {
-			return nil, fmt.Errorf("parse %q locked: %w", err)
+			return nil, fmt.Errorf("parse %q locked: %w", balanceData.Asset, err)
 		}
 
 		result = append(result, structs.Balance{
