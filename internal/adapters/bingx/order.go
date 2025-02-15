@@ -35,12 +35,13 @@ func (a *adapter) PlaceOrder(
 	}
 
 	response, err := a.client.CreateOrder(bingxgo.SpotOrderRequest{
-		Symbol:      order.PairSymbol,
-		Side:        orderSide,
-		Type:        limitOrder,
-		Quantity:    orderQty.InexactFloat64(),
-		Price:       orderPrice.InexactFloat64(),
-		TimeInForce: limitOrderTimeInForce,
+		Symbol:        order.PairSymbol,
+		Side:          orderSide,
+		Type:          limitOrder,
+		Quantity:      orderQty.InexactFloat64(),
+		Price:         orderPrice.InexactFloat64(),
+		TimeInForce:   limitOrderTimeInForce,
+		ClientOrderID: order.ClientOrderID,
 	})
 	if err != nil {
 		return structs.CreateOrderResponse{},
