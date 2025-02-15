@@ -9,16 +9,23 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
-const defaultCandleInterval = bybit.Interval("1m")
+const defaultCandleInterval = "1m"
 
 type CandleEventsHandler struct {
-	pairSymbol string
-	callback   func(event workers.CandleEvent)
+	symbols  symbolPerTopic
+	callback func(event workers.CandleEvent)
 }
+
+type symbolPerTopic map[string]string
 
 func (h *CandleEventsHandler) handle(e bybit.V5WebsocketPublicKlineResponse) error {
 	for _, eventData := range e.Data {
-		event, err := mappers.ConvertWsCandle(h.pairSymbol, eventData)
+		pairSymbol, isExists := h.symbols[e.Topic]
+		if !isExists {
+			return nil
+		}
+
+		event, err := mappers.ConvertWsCandle(pairSymbol, eventData)
 		if err != nil {
 			return fmt.Errorf("convert candle: %w", err)
 		}
