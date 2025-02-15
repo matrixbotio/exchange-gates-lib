@@ -291,21 +291,6 @@ func (mr *MockAdapterMockRecorder) GetPairLastPrice(pairSymbol any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPairLastPrice", reflect.TypeOf((*MockAdapter)(nil).GetPairLastPrice), pairSymbol)
 }
 
-// GetPairOpenOrders mocks base method.
-func (m *MockAdapter) GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPairOpenOrders", pairSymbol)
-	ret0, _ := ret[0].([]structs.OrderData)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPairOpenOrders indicates an expected call of GetPairOpenOrders.
-func (mr *MockAdapterMockRecorder) GetPairOpenOrders(pairSymbol any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPairOpenOrders", reflect.TypeOf((*MockAdapter)(nil).GetPairOpenOrders), pairSymbol)
-}
-
 // GetPairSymbol mocks base method.
 func (m *MockAdapter) GetPairSymbol(baseTicker, quoteTicker string) string {
 	m.ctrl.T.Helper()
