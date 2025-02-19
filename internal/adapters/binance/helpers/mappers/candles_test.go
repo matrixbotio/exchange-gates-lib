@@ -16,7 +16,7 @@ const testKlineInterval = consts.Interval1hour
 func TestConvertCandles(t *testing.T) {
 	// given
 	klines := GetTestKlines()
-	interval := "1h"
+	interval := consts.Interval1hour
 
 	// when
 	candles, err := ConvertCandles(klines, testKlineInterval)
