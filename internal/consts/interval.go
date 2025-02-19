@@ -23,14 +23,18 @@ const (
 	Interval1day   Interval = "1d"
 )
 
-var allIntervals = []Interval{
-	Interval1min,
-	Interval5min,
-	Interval15min,
-	Interval30min,
-	Interval1hour,
-	Interval6hour,
-	Interval1day,
+var allIntervals = GetIntervals()
+
+func GetIntervals() []Interval {
+	return []Interval{
+		Interval1min,
+		Interval5min,
+		Interval15min,
+		Interval30min,
+		Interval1hour,
+		Interval6hour,
+		Interval1day,
+	}
 }
 
 func ValidateInterval(interval string) error {

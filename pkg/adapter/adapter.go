@@ -36,6 +36,8 @@ type (
 
 type Interval = consts.Interval
 
+var GetIntervals = consts.GetIntervals
+
 // events
 type (
 	PriceEvent        = workers.PriceEvent
