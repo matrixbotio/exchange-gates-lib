@@ -7,6 +7,7 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
@@ -78,6 +79,7 @@ func (w *PriceEventWorkerBingX) SubscribeToPriceEvents(
 
 func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -95,5 +97,16 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	if err != nil {
 		return fmt.Errorf("subscribe: %w", err)
 	}
+	return nil
+}
+
+func (w *CandleEventWorkerBingX) SubscribeToCandlesList(
+	intervalsPerPair map[string]consts.Interval,
+	interval consts.Interval, // TODO: remove
+	eventCallback func(event workers.CandleEvent),
+	errorHandler func(err error),
+) error {
+	// TODO
+
 	return nil
 }
