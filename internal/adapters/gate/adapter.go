@@ -127,7 +127,7 @@ func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
 func (a *adapter) GetCandles(
 	limit int,
 	symbol string,
-	interval string,
+	interval consts.Interval,
 ) ([]workers.CandleData, error) {
 	// TODO
 	return nil, nil

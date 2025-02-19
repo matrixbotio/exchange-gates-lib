@@ -8,6 +8,7 @@ import (
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
@@ -17,7 +18,7 @@ type CandleEventWorkerBybit struct {
 }
 
 func (w *CandleEventWorkerBybit) subscribe(
-	intervalsPerPair map[string]string,
+	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -47,7 +48,10 @@ func (w *CandleEventWorkerBybit) subscribe(
 			Symbol:   bybit.SymbolV5(pairSymbol),
 		}
 
-		eventHandler.symbols[key.Topic()] = pairSymbol
+		eventHandler.symbols[key.Topic()] = symbolData{
+			Symbol:   pairSymbol,
+			Interval: interval,
+		}
 		keys = append(keys, key)
 	}
 
@@ -90,16 +94,17 @@ func (w *CandleEventWorkerBybit) subscribe(
 
 func (w *CandleEventWorkerBybit) SubscribeToCandle(
 	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	return w.subscribe(map[string]string{
-		pairSymbol: defaultCandleInterval,
+	return w.subscribe(map[string]consts.Interval{
+		pairSymbol: interval,
 	}, eventCallback, errorHandler)
 }
 
 func (w *CandleEventWorkerBybit) SubscribeToCandlesList(
-	intervalsPerPair map[string]string,
+	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {

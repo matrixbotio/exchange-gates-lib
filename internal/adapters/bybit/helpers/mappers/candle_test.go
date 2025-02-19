@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hirokisan/bybit/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -40,7 +41,7 @@ func TestConvertHistoricalCandle(t *testing.T) {
 		Volume:    "125061",
 	}
 	intervalDuration := time.Hour
-	intervalCode := "1h"
+	intervalCode := consts.Interval1hour
 
 	// when
 	candleData, err := ConvertHistoricalCandle(
@@ -69,9 +70,10 @@ func TestConvertWsCandle(t *testing.T) {
 		Volume:  "125061",
 		Confirm: true,
 	}
+	interval := consts.Interval1hour
 
 	// when
-	event, err := ConvertWsCandle(pairSymbol, eventData)
+	event, err := ConvertWsCandle(pairSymbol, interval, eventData)
 
 	// then
 	require.NoError(t, err)

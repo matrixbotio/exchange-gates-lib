@@ -6,13 +6,14 @@ import (
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
 func (a *adapter) GetCandles(
 	limit int,
 	symbol string,
-	interval string,
+	interval consts.Interval,
 ) ([]workers.CandleData, error) {
 	bybitInterval, isExists := mappers.CandleIntervalsToBybit[interval]
 	if !isExists {

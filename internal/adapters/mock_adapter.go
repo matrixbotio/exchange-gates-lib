@@ -145,7 +145,7 @@ func (mr *MockAdapterMockRecorder) GetCandleWorker() *gomock.Call {
 }
 
 // GetCandles mocks base method.
-func (m *MockAdapter) GetCandles(limit int, symbol, interval string) ([]workers.CandleData, error) {
+func (m *MockAdapter) GetCandles(limit int, symbol string, interval consts.Interval) ([]workers.CandleData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCandles", limit, symbol, interval)
 	ret0, _ := ret[0].([]workers.CandleData)

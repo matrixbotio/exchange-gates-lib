@@ -35,7 +35,6 @@ const (
 )
 
 const (
-	CandlesInterval          = "1m"
 	ExchangeSetupConnTimeout = 3500 // ms
 	ReadTimeout              = time.Second * 5
 )

@@ -78,5 +78,5 @@ type Adapter interface {
 	GetTradeEventsWorker() workers.ITradeEventWorker
 
 	// CANDLE
-	GetCandles(limit int, symbol string, interval string) ([]workers.CandleData, error)
+	GetCandles(limit int, symbol string, interval consts.Interval) ([]workers.CandleData, error)
 }

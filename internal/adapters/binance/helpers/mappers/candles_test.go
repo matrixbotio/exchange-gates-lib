@@ -4,11 +4,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/adshao/go-binance/v2"
 )
+
+const testKlineInterval = consts.Interval1hour
 
 func TestConvertCandles(t *testing.T) {
 	// given
@@ -16,7 +19,7 @@ func TestConvertCandles(t *testing.T) {
 	interval := "1h"
 
 	// when
-	candles, err := ConvertCandles(klines, interval)
+	candles, err := ConvertCandles(klines, testKlineInterval)
 
 	// then
 	require.NoError(t, err)
@@ -46,10 +49,9 @@ func TestConvertCandlesWithError(t *testing.T) {
 			Volume:    "10000",
 		},
 	}
-	interval := "1h"
 
 	// when
-	_, err := ConvertCandles(klines, interval)
+	_, err := ConvertCandles(klines, testKlineInterval)
 
 	// then
 	require.ErrorContains(t, err, "`open` value is empty")

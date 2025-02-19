@@ -34,6 +34,8 @@ type (
 	PriceEventCallback = workers.PriceEventCallback
 )
 
+type Interval = consts.Interval
+
 // events
 type (
 	PriceEvent        = workers.PriceEvent
