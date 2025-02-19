@@ -19,7 +19,6 @@ var CandleIntervalsToBybit = map[consts.Interval]IntervalData{
 	consts.Interval15min:  {"15", time.Minute * 15},
 	consts.Interval30min:  {"30", time.Minute * 30},
 	consts.Interval1hour:  {"60", time.Hour},
-	consts.Interval4hour:  {"240", time.Hour * 240},
 	consts.Interval6hour:  {"360", time.Hour * 6},
 	consts.Interval12hour: {"720", time.Hour * 12},
 	consts.Interval1day:   {"D", time.Hour * 24},

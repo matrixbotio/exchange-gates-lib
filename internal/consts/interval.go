@@ -18,7 +18,6 @@ const (
 	Interval15min  Interval = "15m"
 	Interval30min  Interval = "30m"
 	Interval1hour  Interval = "1h"
-	Interval4hour  Interval = "4h"
 	Interval6hour  Interval = "6h"
 	Interval12hour Interval = "12h"
 	Interval1day   Interval = "1d"
@@ -30,7 +29,6 @@ var allIntervals = []Interval{
 	Interval15min,
 	Interval30min,
 	Interval1hour,
-	Interval4hour,
 	Interval6hour,
 	Interval1day,
 }
