@@ -64,6 +64,7 @@ type CandleWorker struct {
 
 func (w *CandleWorker) SubscribeToCandle(
 	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -72,7 +73,6 @@ func (w *CandleWorker) SubscribeToCandle(
 
 func (w *CandleWorker) SubscribeToCandlesList(
 	intervalsPerPair map[string]consts.Interval,
-	interval consts.Interval,
 	eventCallback func(event CandleEvent),
 	errorHandler func(err error),
 ) error {
