@@ -16,11 +16,11 @@ func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IP
 }
 
 func (a *adapter) GetCandleWorker() workers.ICandleWorker {
-	w := helpers.CandleEventWorkerBybit{
+	w := &helpers.CandleEventWorkerBybit{
 		WsClient: a.wsClient,
 	}
 	w.CandleWorker.ExchangeTag = a.GetTag()
-	return &w
+	return w
 }
 
 func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {

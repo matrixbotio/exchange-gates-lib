@@ -6,26 +6,34 @@ import (
 	"github.com/hirokisan/bybit/v2"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
-
-const defaultCandleInterval = "1m"
 
 type CandleEventsHandler struct {
 	symbols  symbolPerTopic
 	callback func(event workers.CandleEvent)
 }
 
-type symbolPerTopic map[string]string
+type symbolPerTopic map[string]symbolData
+
+type symbolData struct {
+	Symbol   string
+	Interval consts.Interval
+}
 
 func (h *CandleEventsHandler) handle(e bybit.V5WebsocketPublicKlineResponse) error {
 	for _, eventData := range e.Data {
-		pairSymbol, isExists := h.symbols[e.Topic]
+		subData, isExists := h.symbols[e.Topic]
 		if !isExists {
 			return nil
 		}
 
-		event, err := mappers.ConvertWsCandle(pairSymbol, eventData)
+		event, err := mappers.ConvertWsCandle(
+			subData.Symbol,
+			subData.Interval,
+			eventData,
+		)
 		if err != nil {
 			return fmt.Errorf("convert candle: %w", err)
 		}

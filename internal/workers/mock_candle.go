@@ -12,6 +12,7 @@ package workers
 import (
 	reflect "reflect"
 
+	consts "github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -66,21 +67,21 @@ func (mr *MockICandleWorkerMockRecorder) Stop() *gomock.Call {
 }
 
 // SubscribeToCandle mocks base method.
-func (m *MockICandleWorker) SubscribeToCandle(pairSymbol string, eventCallback func(CandleEvent), errorHandler func(error)) error {
+func (m *MockICandleWorker) SubscribeToCandle(pairSymbol string, interval consts.Interval, eventCallback func(CandleEvent), errorHandler func(error)) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeToCandle", pairSymbol, eventCallback, errorHandler)
+	ret := m.ctrl.Call(m, "SubscribeToCandle", pairSymbol, interval, eventCallback, errorHandler)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SubscribeToCandle indicates an expected call of SubscribeToCandle.
-func (mr *MockICandleWorkerMockRecorder) SubscribeToCandle(pairSymbol, eventCallback, errorHandler any) *gomock.Call {
+func (mr *MockICandleWorkerMockRecorder) SubscribeToCandle(pairSymbol, interval, eventCallback, errorHandler any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeToCandle", reflect.TypeOf((*MockICandleWorker)(nil).SubscribeToCandle), pairSymbol, eventCallback, errorHandler)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeToCandle", reflect.TypeOf((*MockICandleWorker)(nil).SubscribeToCandle), pairSymbol, interval, eventCallback, errorHandler)
 }
 
 // SubscribeToCandlesList mocks base method.
-func (m *MockICandleWorker) SubscribeToCandlesList(intervalsPerPair map[string]string, eventCallback func(CandleEvent), errorHandler func(error)) error {
+func (m *MockICandleWorker) SubscribeToCandlesList(intervalsPerPair map[string]consts.Interval, eventCallback func(CandleEvent), errorHandler func(error)) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SubscribeToCandlesList", intervalsPerPair, eventCallback, errorHandler)
 	ret0, _ := ret[0].(error)

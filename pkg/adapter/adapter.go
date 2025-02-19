@@ -34,6 +34,22 @@ type (
 	PriceEventCallback = workers.PriceEventCallback
 )
 
+type Interval = consts.Interval
+
+const (
+	Interval1min   = consts.Interval1min
+	Interval5min   = consts.Interval5min
+	Interval15min  = consts.Interval15min
+	Interval30min  = consts.Interval30min
+	Interval1hour  = consts.Interval1hour
+	Interval4hour  = consts.Interval4hour
+	Interval6hour  = consts.Interval6hour
+	Interval12hour = consts.Interval12hour
+	Interval1day   = consts.Interval1day
+)
+
+var GetIntervals = consts.GetIntervals
+
 // events
 type (
 	PriceEvent        = workers.PriceEvent

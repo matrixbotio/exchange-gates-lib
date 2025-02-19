@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/adshao/go-binance/v2"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 )
 
@@ -41,13 +42,17 @@ func fixCandleEndTime(endTime int64) int64 {
 	return endTime
 }
 
+func convertBinanceInterval(interval string) consts.Interval {
+	return consts.Interval(interval)
+}
+
 func ConvertBinanceCandleEvent(event *binance.WsKlineEvent) (workers.CandleEvent, error) {
 	e := workers.CandleEvent{
 		Symbol: event.Symbol,
 		Candle: workers.CandleData{
 			StartTime: event.Kline.StartTime,
 			EndTime:   fixCandleEndTime(event.Kline.EndTime),
-			Interval:  event.Kline.Interval,
+			Interval:  convertBinanceInterval(event.Kline.Interval),
 		},
 		Time: event.Time,
 	}
@@ -91,7 +96,10 @@ func ConvertBinanceCandleEvent(event *binance.WsKlineEvent) (workers.CandleEvent
 	return e, nil
 }
 
-func ConvertCandles(klines []*binance.Kline, interval string) ([]workers.CandleData, error) {
+func ConvertCandles(
+	klines []*binance.Kline,
+	interval consts.Interval,
+) ([]workers.CandleData, error) {
 	var candles []workers.CandleData
 
 	for _, kline := range klines {

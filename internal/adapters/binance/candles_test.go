@@ -5,11 +5,14 @@ import (
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+const testInterval = consts.Interval15min
 
 func TestGetCandlesSuccess(t *testing.T) {
 	// given
@@ -17,7 +20,7 @@ func TestGetCandlesSuccess(t *testing.T) {
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
-	interval := "5m"
+	interval := testInterval
 
 	w.EXPECT().GetKlines(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(mappers.GetTestKlines(), nil)
@@ -42,7 +45,7 @@ func TestGetCandlesGetKlinesError(t *testing.T) {
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
-	interval := "5m"
+	interval := testInterval
 
 	w.EXPECT().GetKlines(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, errTestException)
@@ -60,7 +63,7 @@ func TestGetCandlesConvertError(t *testing.T) {
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
-	interval := "5m"
+	interval := testInterval
 
 	klines := mappers.GetTestKlines()
 	klines[0].Low = "strange data"
@@ -93,6 +96,7 @@ func TestSubscribeToCandleSuccess(t *testing.T) {
 	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := New(w)
 	worker := a.GetCandleWorker()
+	interval := testInterval
 
 	w.EXPECT().SubscribeToCandle(
 		mock.Anything, mock.Anything,
@@ -105,7 +109,7 @@ func TestSubscribeToCandleSuccess(t *testing.T) {
 
 	// when
 	err := worker.SubscribeToCandle(
-		testPairSymbol,
+		testPairSymbol, interval,
 		func(event workers.CandleEvent) {},
 		func(err error) {},
 	)
@@ -119,6 +123,7 @@ func TestSubscribeToCandleError(t *testing.T) {
 	w := wrapper.NewMockBinanceAPIWrapper(t)
 	a := New(w)
 	worker := a.GetCandleWorker()
+	interval := testInterval
 
 	w.EXPECT().SubscribeToCandle(
 		mock.Anything, mock.Anything,
@@ -131,7 +136,7 @@ func TestSubscribeToCandleError(t *testing.T) {
 
 	// when
 	err := worker.SubscribeToCandle(
-		testPairSymbol,
+		testPairSymbol, interval,
 		func(event workers.CandleEvent) {},
 		func(err error) {},
 	)
@@ -146,8 +151,8 @@ func TestSubscribeToCandlesListSuccess(t *testing.T) {
 	a := New(w)
 	worker := a.GetCandleWorker()
 
-	intervalsPerPair := map[string]string{
-		"LTCUSDT": "1m",
+	intervalsPerPair := map[string]consts.Interval{
+		"LTCUSDT": consts.Interval1hour,
 	}
 
 	w.EXPECT().SubscribeToCandlesList(
@@ -176,8 +181,8 @@ func TestSubscribeToCandlesListError(t *testing.T) {
 	a := New(w)
 	worker := a.GetCandleWorker()
 
-	intervalsPerPair := map[string]string{
-		"LTCUSDT": "1m",
+	intervalsPerPair := map[string]consts.Interval{
+		"LTCUSDT": consts.Interval15min,
 	}
 
 	w.EXPECT().SubscribeToCandlesList(

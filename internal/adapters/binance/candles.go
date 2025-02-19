@@ -18,14 +18,18 @@ type CandleWorkerBinance struct {
 	binanceAPI wrapper.BinanceAPIWrapper
 }
 
-func (a *adapter) GetCandles(limit int, pairSymbol string, interval string) (
+func (a *adapter) GetCandles(limit int, pairSymbol string, interval consts.Interval) (
 	[]workers.CandleData,
 	error,
 ) {
 	ctx, cancel := context.WithTimeout(context.Background(), consts.ReadTimeout)
 	defer cancel()
 
-	klines, err := a.binanceAPI.GetKlines(ctx, pairSymbol, interval, limit)
+	klines, err := a.binanceAPI.GetKlines(
+		ctx, pairSymbol,
+		convertInterval(interval),
+		limit,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("get klines: %w", err)
 	}
@@ -46,8 +50,13 @@ func (a *adapter) GetCandleWorker() workers.ICandleWorker {
 	return &w
 }
 
+func convertInterval(ourFormat consts.Interval) string {
+	return string(ourFormat)
+}
+
 func (w *CandleWorkerBinance) SubscribeToCandle(
 	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -55,7 +64,7 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandle(
 		pairSymbol,
-		consts.CandlesInterval,
+		convertInterval(interval),
 		eventCallback,
 		errorHandler,
 	)
@@ -63,14 +72,19 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 }
 
 func (w *CandleWorkerBinance) SubscribeToCandlesList(
-	intervalsPerPair map[string]string,
+	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
+	intervals := map[string]string{}
+	for symbol, interval := range intervalsPerPair {
+		intervals[symbol] = convertInterval(interval)
+	}
+
 	var openWsErr error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = w.binanceAPI.SubscribeToCandlesList(
-		intervalsPerPair,
+		intervals,
 		eventCallback,
 		errorHandler,
 	)
