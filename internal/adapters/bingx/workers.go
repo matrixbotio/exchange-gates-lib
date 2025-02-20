@@ -35,10 +35,11 @@ func (a *adapter) GetCandleWorker() workers.ICandleWorker {
 type TradeEventWorkerBingX struct {
 	workers.TradeEventWorker
 	client *bingxgo.SpotClient
+	creds  structs.APICredentials
 }
 
 func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	w := &TradeEventWorkerBingX{client: &a.client}
+	w := &TradeEventWorkerBingX{client: &a.client, creds: a.creds}
 	w.TradeEventWorker.ExchangeTag = a.GetTag()
 	w.TradeEventWorker.WsChannels = new(structs.WorkerChannels)
 	return w
@@ -50,7 +51,9 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 ) error {
 	var err error
 	w.WsChannels = new(structs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.client.WsOrderUpdateServe(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsOrderUpdateServe(
+		w.creds.Keypair.Public,
+		w.creds.Keypair.Secret,
 		func(o *bingxgo.WsOrder) {
 			event, err := mappers.ConvertOrderEvent(o)
 			if err != nil {
