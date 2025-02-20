@@ -9,7 +9,6 @@ import (
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
@@ -93,7 +92,7 @@ func (a *adapter) GetCandles(
 	symbol string,
 	interval consts.Interval,
 ) ([]workers.CandleData, error) {
-	bingxInterval, err := mappers.ConvertIntervalToBingX(interval)
+	bingxInterval, err := ConvertIntervalToBingX(interval)
 	if err != nil {
 		return nil, fmt.Errorf("convert interval: %w", err)
 	}
@@ -107,5 +106,5 @@ func (a *adapter) GetCandles(
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	return mappers.ConvertKlines(klines), nil
+	return ConvertKlines(klines)
 }

@@ -1,11 +1,10 @@
-package mappers
+package bingx
 
 import (
 	"fmt"
 	"time"
 
 	bingxgo "github.com/Sagleft/go-bingx"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/shopspring/decimal"
@@ -58,7 +57,7 @@ func ConvertKlines(klines []bingxgo.KlineData) ([]workers.CandleData, error) {
 	var result []workers.CandleData
 
 	for _, kline := range klines {
-		interval, err := mappers.ConvertBingXInterval(kline.Interval)
+		interval, err := ConvertBingXInterval(bingxgo.Interval(kline.Interval))
 		if err != nil {
 			return nil, fmt.Errorf("convert interval: %w", err)
 		}
@@ -66,7 +65,7 @@ func ConvertKlines(klines []bingxgo.KlineData) ([]workers.CandleData, error) {
 		result = append(result, workers.CandleData{
 			StartTime: kline.StartTime,
 			EndTime:   kline.EndTime,
-			Interval:  interval,
+			Interval:  interval.Interval,
 			Open:      kline.Open,
 			Close:     kline.Close,
 			High:      kline.High,
@@ -129,4 +128,19 @@ func ConvertWsKline(kline bingxgo.KlineEvent) (workers.CandleEvent, error) {
 		Time:       kline.EventTime,
 		IsFinished: kline.Completed,
 	}, nil
+}
+
+func GetBingXCandleEventsHandler(
+	eventCallback func(event workers.CandleEvent),
+	errorCallback func(error),
+) func(event bingxgo.KlineEvent) {
+	return func(event bingxgo.KlineEvent) {
+		candle, err := ConvertWsKline(event)
+		if err != nil {
+			errorCallback(err)
+			return
+		}
+
+		eventCallback(candle)
+	}
 }

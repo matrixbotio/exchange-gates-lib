@@ -5,7 +5,6 @@ import (
 
 	bingxgo "github.com/Sagleft/go-bingx"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -88,7 +87,7 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsKlineServe(
 		pairSymbol,
 		bingxgo.Interval1,
-		helpers.GetBingXCandleEventsHandler(
+		GetBingXCandleEventsHandler(
 			eventCallback,
 			errorHandler,
 		),
@@ -102,11 +101,16 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 
 func (w *CandleEventWorkerBingX) SubscribeToCandlesList(
 	intervalsPerPair map[string]consts.Interval,
-	interval consts.Interval, // TODO: remove
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	// TODO
-
+	for symbol, interval := range intervalsPerPair {
+		if err := w.SubscribeToCandle(
+			symbol, interval,
+			eventCallback, errorHandler,
+		); err != nil {
+			return fmt.Errorf("subscribe to %q: %w", symbol, err)
+		}
+	}
 	return nil
 }
