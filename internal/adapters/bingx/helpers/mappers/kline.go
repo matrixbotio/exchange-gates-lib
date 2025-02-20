@@ -5,39 +5,45 @@ import (
 	"time"
 
 	bingxgo "github.com/Sagleft/go-bingx"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/shopspring/decimal"
 )
 
-const intervalMinute = "1m"
-
 type IntervalData struct {
-	Code     string
+	Interval consts.Interval
 	Duration time.Duration
 }
 
 var intervalBingxToOur = map[bingxgo.Interval]IntervalData{
-	bingxgo.Interval1:  {intervalMinute, time.Minute},
-	bingxgo.Interval3:  {"3m", time.Minute * 3},
-	bingxgo.Interval5:  {"5m", time.Minute * 5},
-	bingxgo.Interval15: {"15m", time.Minute * 15},
-	bingxgo.Interval30: {"30m", time.Minute * 30},
-	bingxgo.Interval60: {"1h", time.Hour},
-	bingxgo.Interval2h: {"2h", time.Hour * 2},
-	bingxgo.Interval4h: {"4h", time.Hour * 4},
-	bingxgo.Interval6h: {"6h", time.Hour * 6},
-	bingxgo.Interval1d: {"D", time.Hour * 24},
-	bingxgo.Interval1w: {"W", time.Hour * 24 * 7},
-	bingxgo.Interval1M: {"M", time.Hour * 24 * 30},
+	bingxgo.Interval1:   {consts.Interval1min, time.Minute},
+	bingxgo.Interval5:   {consts.Interval5min, time.Minute * 5},
+	bingxgo.Interval15:  {consts.Interval15min, time.Minute * 15},
+	bingxgo.Interval30:  {consts.Interval30min, time.Minute * 30},
+	bingxgo.Interval60:  {consts.Interval1hour, time.Hour},
+	bingxgo.Interval4h:  {consts.Interval4hour, time.Hour * 4},
+	bingxgo.Interval6h:  {consts.Interval6hour, time.Hour * 6},
+	bingxgo.Interval12h: {consts.Interval12hour, time.Hour * 12},
+	bingxgo.Interval1d:  {consts.Interval1day, time.Hour * 24},
 }
 
-var ourIntervalToBingX = func() map[string]bingxgo.Interval {
-	r := map[string]bingxgo.Interval{}
+var ourIntervalToBingX = func() map[consts.Interval]bingxgo.Interval {
+	r := map[consts.Interval]bingxgo.Interval{}
 	for interval, data := range intervalBingxToOur {
-		r[data.Code] = interval
+		r[data.Interval] = interval
 	}
 	return r
 }()
+
+func ConvertIntervalToBingX(interval consts.Interval) (bingxgo.Interval, error) {
+	result, isExists := ourIntervalToBingX[interval]
+	if !isExists {
+		return "", fmt.Errorf("unknown interval: %q", interval)
+	}
+
+	return result, nil
+}
 
 func ConvertBingXInterval(interval bingxgo.Interval) (IntervalData, error) {
 	result, isExists := intervalBingxToOur[interval]
@@ -48,14 +54,19 @@ func ConvertBingXInterval(interval bingxgo.Interval) (IntervalData, error) {
 	return result, nil
 }
 
-func ConvertKlines(klines []bingxgo.KlineData) []workers.CandleData {
+func ConvertKlines(klines []bingxgo.KlineData) ([]workers.CandleData, error) {
 	var result []workers.CandleData
 
 	for _, kline := range klines {
+		interval, err := mappers.ConvertBingXInterval(kline.Interval)
+		if err != nil {
+			return nil, fmt.Errorf("convert interval: %w", err)
+		}
+
 		result = append(result, workers.CandleData{
 			StartTime: kline.StartTime,
 			EndTime:   kline.EndTime,
-			Interval:  kline.Interval,
+			Interval:  interval,
 			Open:      kline.Open,
 			Close:     kline.Close,
 			High:      kline.High,
@@ -64,13 +75,13 @@ func ConvertKlines(klines []bingxgo.KlineData) []workers.CandleData {
 		})
 	}
 
-	return result
+	return result, nil
 }
 
 func ConvertWsKline(kline bingxgo.KlineEvent) (workers.CandleEvent, error) {
 	intervalData, err := ConvertBingXInterval(kline.Interval)
 	if err != nil {
-		intervalData.Code = intervalMinute
+		return workers.CandleEvent{}, fmt.Errorf("convert interval: %w", err)
 	}
 
 	klineOpen, err := decimal.NewFromString(kline.Open)
@@ -108,7 +119,7 @@ func ConvertWsKline(kline bingxgo.KlineEvent) (workers.CandleEvent, error) {
 		Candle: workers.CandleData{
 			StartTime: kline.StartTime,
 			EndTime:   kline.EndTime,
-			Interval:  intervalData.Code,
+			Interval:  intervalData.Interval,
 			Open:      klineOpen.InexactFloat64(),
 			Close:     klineClose.InexactFloat64(),
 			High:      klineHigh.InexactFloat64(),

@@ -91,9 +91,18 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 func (a *adapter) GetCandles(
 	limit int,
 	symbol string,
-	interval string,
+	interval consts.Interval,
 ) ([]workers.CandleData, error) {
-	klines, err := a.client.GetHistoricalKlines(symbol, interval, int64(limit))
+	bingxInterval, err := mappers.ConvertIntervalToBingX(interval)
+	if err != nil {
+		return nil, fmt.Errorf("convert interval: %w", err)
+	}
+
+	klines, err := a.client.GetHistoricalKlines(
+		symbol,
+		string(bingxInterval),
+		int64(limit),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("get: %w", err)
 	}
