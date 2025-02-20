@@ -62,8 +62,6 @@ type Adapter interface {
 		clientOrderID string,
 		ctx context.Context,
 	) error
-	// GetPairOpenOrders - get open orders array
-	GetPairOpenOrders(pairSymbol string) ([]structs.OrderData, error)
 	// GetPairs get all Binance pairs
 	GetPairs() ([]structs.ExchangePairData, error)
 	// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
