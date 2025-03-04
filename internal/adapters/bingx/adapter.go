@@ -11,7 +11,6 @@ import (
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/go-common-lib/pkg/nano"
 )
@@ -31,7 +30,7 @@ type adapter struct {
 	baseadp.AdapterBase
 
 	client bingxgo.SpotClient
-	creds  structs.APICredentials
+	creds  pkgStructs.APICredentials
 }
 
 func New() adp.Adapter {
