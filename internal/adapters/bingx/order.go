@@ -82,25 +82,31 @@ func (a *adapter) GetOrderExecFee(
 		return structs.OrderFees{}, errors.New("order data not set")
 	}
 
-	return getFeesFromOrderData(orderSide, data.Fee), nil
+	feeValue, err := decimal.NewFromString(data.Fee)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("parse fee: %w", err)
+	}
+
+	return getFeesFromOrderData(
+		orderSide,
+		feeValue.Abs(),
+	), nil
 }
 
 func getFeesFromOrderData(
 	orderSide consts.OrderSide,
-	fee float64,
+	fee decimal.Decimal,
 ) structs.OrderFees {
 	fees := structs.OrderFees{
 		BaseAsset:  decimal.Zero,
 		QuoteAsset: decimal.Zero,
 	}
 
-	feeVal := decimal.NewFromFloat(fee).Abs()
-
 	if orderSide == consts.OrderSideBuy {
-		fees.BaseAsset = feeVal
+		fees.BaseAsset = fee
 	}
 	if orderSide == consts.OrderSideSell {
-		fees.QuoteAsset = feeVal
+		fees.QuoteAsset = fee
 	}
 	return fees
 }
@@ -130,14 +136,17 @@ func (a *adapter) GetHistoryOrder(
 		return structs.OrderHistory{}, fmt.Errorf("get: %w", err)
 	}
 
-	orderData, err := mappers.ConvertBingXOrderData(&order)
+	orderData, err := mappers.ConvertBingXHistoryOrder(order)
 	if err != nil {
 		return structs.OrderHistory{}, fmt.Errorf("convert: %w", err)
 	}
 
 	return structs.OrderHistory{
 		OrderData: orderData,
-		Fees:      getFeesFromOrderData(orderData.Side, order.Fee),
+		Fees: getFeesFromOrderData(
+			orderData.Side,
+			decimal.NewFromFloat(order.Fee),
+		),
 	}, nil
 }
 
