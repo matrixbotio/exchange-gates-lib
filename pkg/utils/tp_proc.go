@@ -313,7 +313,7 @@ func (s *CalcTPProcessor) calcLongOrder() (pkgStructs.BotOrder, error) {
 		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
-		ClientOrderID: GenerateUUID(),
+		ClientOrderID: s.genClientOrderID(),
 	}
 
 	// let's check that the TP order will not close in the minus
