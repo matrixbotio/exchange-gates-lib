@@ -152,8 +152,7 @@ func (a *adapter) GetOrderExecFee(
 }
 
 func (a *adapter) GetHistoryOrder(
-	baseAssetTicker string,
-	quoteAssetTicker string,
+	pairSymbol string,
 	orderID int64,
 ) (structs.OrderHistory, error) {
 	// not emplemented yet

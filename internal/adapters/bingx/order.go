@@ -122,12 +122,9 @@ func (a *adapter) GetOrderData(
 }
 
 func (a *adapter) GetHistoryOrder(
-	baseAssetTicker string,
-	quoteAssetTicker string,
+	pairSymbol string,
 	orderID int64,
 ) (structs.OrderHistory, error) {
-	pairSymbol := a.GetPairSymbol(baseAssetTicker, quoteAssetTicker)
-
 	order, err := a.client.GetHistoryOrder(pairSymbol, orderID)
 	if err != nil {
 		return structs.OrderHistory{}, fmt.Errorf("get: %w", err)

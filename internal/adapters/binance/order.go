@@ -119,8 +119,7 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 }
 
 func (a *adapter) GetHistoryOrder(
-	baseAssetTicker string,
-	quoteAssetTicker string,
+	pairSymbol string,
 	orderID int64,
 ) (structs.OrderHistory, error) {
 	// not emplemented yet
