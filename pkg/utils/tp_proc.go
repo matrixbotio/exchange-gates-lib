@@ -11,12 +11,13 @@ import (
 )
 
 type CalcTPProcessor struct {
-	strategy     pkgStructs.BotStrategy
-	coinsQty     float64
-	profit       float64
-	depositSpent decimal.Decimal
-	fees         structs.OrderFees
-	pairData     structs.ExchangePairData
+	strategy      pkgStructs.BotStrategy
+	coinsQty      float64
+	profit        float64
+	depositSpent  decimal.Decimal
+	fees          structs.OrderFees
+	pairData      structs.ExchangePairData
+	clientOrderID string
 
 	accBase  decimal.Decimal
 	accQuote decimal.Decimal
@@ -62,6 +63,11 @@ func (s *CalcTPProcessor) PairData(pairData structs.ExchangePairData) *CalcTPPro
 
 func (s *CalcTPProcessor) Fees(fees structs.OrderFees) *CalcTPProcessor {
 	s.fees = fees
+	return s
+}
+
+func (s *CalcTPProcessor) ClientOrderID(id string) *CalcTPProcessor {
+	s.clientOrderID = id
 	return s
 }
 
@@ -200,6 +206,14 @@ func (s *CalcTPProcessor) roundAmount(amount decimal.Decimal) decimal.Decimal {
 	)
 }
 
+func (s *CalcTPProcessor) genClientOrderID() string {
+	if s.clientOrderID == "" {
+		return GenerateUUID()
+	}
+
+	return s.clientOrderID
+}
+
 func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 	// coins qty - fees
 	coinsQtyDec := decimal.NewFromFloat(s.coinsQty).
@@ -242,7 +256,7 @@ func (s *CalcTPProcessor) calcShortTPOrder() (pkgStructs.BotOrder, error) {
 		Qty:           tpQty.InexactFloat64(),
 		Price:         tpPrice.InexactFloat64(),
 		Deposit:       tpAmount.InexactFloat64(),
-		ClientOrderID: GenerateUUID(),
+		ClientOrderID: s.genClientOrderID(),
 	}
 
 	// let's check that the TP order will not close in the minus

@@ -1,5 +1,3 @@
-github.com/Sagleft/go-bingx v1.14.1 h1:kNmE+oTTd2UMWtMrZrYMp1cb1xzwv/O0j+8SITv7z0E=
-github.com/Sagleft/go-bingx v1.14.1/go.mod h1:svelGo2iIRyCGOoWUKHWTwcjabF56jVEMGafx5vwQq4=
 github.com/Sagleft/go-bingx v1.14.2-0.20250219175130-bb7d108867e1 h1:9fpP/tFkMbmDgD/5Gz9SNL7Q/FKPuMUfc6oMzixFhpA=
 github.com/Sagleft/go-bingx v1.14.2-0.20250219175130-bb7d108867e1/go.mod h1:svelGo2iIRyCGOoWUKHWTwcjabF56jVEMGafx5vwQq4=
 github.com/adshao/go-binance/v2 v2.8.0 h1:+Pb6h1Ke6YfFGANrlOaY3w+rrccWl02BEAbqrKnCv00=
