@@ -246,6 +246,21 @@ func (mr *MockAdapterMockRecorder) GetOrderExecFee(baseAssetTicker, quoteAssetTi
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderExecFee", reflect.TypeOf((*MockAdapter)(nil).GetOrderExecFee), baseAssetTicker, quoteAssetTicker, orderSide, orderID)
 }
 
+// GetOrdersHistory mocks base method.
+func (m *MockAdapter) GetOrdersHistory(pairSymbol string, orderID, timeFrom, timeTo int64) (structs.OrderData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrdersHistory", pairSymbol, orderID, timeFrom, timeTo)
+	ret0, _ := ret[0].(structs.OrderData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrdersHistory indicates an expected call of GetOrdersHistory.
+func (mr *MockAdapterMockRecorder) GetOrdersHistory(pairSymbol, orderID, timeFrom, timeTo any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersHistory", reflect.TypeOf((*MockAdapter)(nil).GetOrdersHistory), pairSymbol, orderID, timeFrom, timeTo)
+}
+
 // GetPairBalance mocks base method.
 func (m *MockAdapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
 	m.ctrl.T.Helper()

@@ -109,6 +109,16 @@ func (a *adapter) GetOrderData(
 	return mappers.ConvertBingXOrderData(data)
 }
 
+func (a *adapter) GetOrdersHistory(
+	pairSymbol string,
+	orderID int64,
+	timeFrom int64,
+	timeTo int64,
+) (structs.OrderData, error) {
+	// not emplemented yet
+	return structs.OrderData{}, nil
+}
+
 func (a *adapter) GetOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
