@@ -159,6 +159,21 @@ func (mr *MockAdapterMockRecorder) GetCandles(limit, symbol, interval any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCandles", reflect.TypeOf((*MockAdapter)(nil).GetCandles), limit, symbol, interval)
 }
 
+// GetHistoryOrder mocks base method.
+func (m *MockAdapter) GetHistoryOrder(baseAssetTicker, quoteAssetTicker string, orderID int64) (structs.OrderHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistoryOrder", baseAssetTicker, quoteAssetTicker, orderID)
+	ret0, _ := ret[0].(structs.OrderHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistoryOrder indicates an expected call of GetHistoryOrder.
+func (mr *MockAdapterMockRecorder) GetHistoryOrder(baseAssetTicker, quoteAssetTicker, orderID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistoryOrder", reflect.TypeOf((*MockAdapter)(nil).GetHistoryOrder), baseAssetTicker, quoteAssetTicker, orderID)
+}
+
 // GetID mocks base method.
 func (m *MockAdapter) GetID() int {
 	m.ctrl.T.Helper()

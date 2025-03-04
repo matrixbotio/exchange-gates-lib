@@ -224,3 +224,12 @@ func (a *adapter) GetOrderExecFee(
 	}
 	return fees, nil
 }
+
+func (a *adapter) GetHistoryOrder(
+	baseAssetTicker string,
+	quoteAssetTicker string,
+	orderID int64,
+) (structs.OrderHistory, error) {
+	// not emplemented yet
+	return structs.OrderHistory{}, nil
+}

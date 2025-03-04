@@ -150,3 +150,12 @@ func (a *adapter) GetOrderExecFee(
 	// TODO*/
 	return structs.OrderFees{}, nil
 }
+
+func (a *adapter) GetHistoryOrder(
+	baseAssetTicker string,
+	quoteAssetTicker string,
+	orderID int64,
+) (structs.OrderHistory, error) {
+	// not emplemented yet
+	return structs.OrderHistory{}, nil
+}

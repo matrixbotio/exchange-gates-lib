@@ -49,6 +49,18 @@ type Adapter interface {
 	) (structs.OrderFees, error)
 	GenClientOrderID() string
 
+	/*
+		GetOrdersHistory - get orders history.
+
+		NOTE: orderID is optional.
+		Time in unix timestamp ms.
+	*/
+	GetHistoryOrder(
+		baseAssetTicker string,
+		quoteAssetTicker string,
+		orderID int64,
+	) (structs.OrderHistory, error)
+
 	// PAIR
 	// GetPairData - get pair data & limits
 	GetPairData(pairSymbol string) (structs.ExchangePairData, error)

@@ -118,6 +118,15 @@ func (a *adapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdjusted
 	return orderConverted, nil
 }
 
+func (a *adapter) GetHistoryOrder(
+	baseAssetTicker string,
+	quoteAssetTicker string,
+	orderID int64,
+) (structs.OrderHistory, error) {
+	// not emplemented yet
+	return structs.OrderHistory{}, nil
+}
+
 func (a *adapter) GetOrderExecFee(
 	baseAssetTicker string,
 	quoteAssetTicker string,
