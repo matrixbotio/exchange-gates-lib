@@ -159,6 +159,21 @@ func (mr *MockAdapterMockRecorder) GetCandles(limit, symbol, interval any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCandles", reflect.TypeOf((*MockAdapter)(nil).GetCandles), limit, symbol, interval)
 }
 
+// GetHistoryOrder mocks base method.
+func (m *MockAdapter) GetHistoryOrder(baseAssetTicker, quoteAssetTicker string, orderID int64) (structs.OrderHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistoryOrder", baseAssetTicker, quoteAssetTicker, orderID)
+	ret0, _ := ret[0].(structs.OrderHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistoryOrder indicates an expected call of GetHistoryOrder.
+func (mr *MockAdapterMockRecorder) GetHistoryOrder(baseAssetTicker, quoteAssetTicker, orderID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistoryOrder", reflect.TypeOf((*MockAdapter)(nil).GetHistoryOrder), baseAssetTicker, quoteAssetTicker, orderID)
+}
+
 // GetID mocks base method.
 func (m *MockAdapter) GetID() int {
 	m.ctrl.T.Helper()
@@ -244,21 +259,6 @@ func (m *MockAdapter) GetOrderExecFee(baseAssetTicker, quoteAssetTicker string, 
 func (mr *MockAdapterMockRecorder) GetOrderExecFee(baseAssetTicker, quoteAssetTicker, orderSide, orderID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderExecFee", reflect.TypeOf((*MockAdapter)(nil).GetOrderExecFee), baseAssetTicker, quoteAssetTicker, orderSide, orderID)
-}
-
-// GetOrdersHistory mocks base method.
-func (m *MockAdapter) GetOrdersHistory(pairSymbol string, orderID, timeFrom, timeTo int64) (structs.OrderData, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOrdersHistory", pairSymbol, orderID, timeFrom, timeTo)
-	ret0, _ := ret[0].(structs.OrderData)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetOrdersHistory indicates an expected call of GetOrdersHistory.
-func (mr *MockAdapterMockRecorder) GetOrdersHistory(pairSymbol, orderID, timeFrom, timeTo any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersHistory", reflect.TypeOf((*MockAdapter)(nil).GetOrdersHistory), pairSymbol, orderID, timeFrom, timeTo)
 }
 
 // GetPairBalance mocks base method.

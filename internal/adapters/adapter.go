@@ -55,12 +55,11 @@ type Adapter interface {
 		NOTE: orderID is optional.
 		Time in unix timestamp ms.
 	*/
-	GetOrdersHistory(
-		pairSymbol string,
+	GetHistoryOrder(
+		baseAssetTicker string,
+		quoteAssetTicker string,
 		orderID int64,
-		timeFrom int64,
-		timeTo int64,
-	) (structs.OrderData, error)
+	) (structs.OrderHistory, error)
 
 	// PAIR
 	// GetPairData - get pair data & limits

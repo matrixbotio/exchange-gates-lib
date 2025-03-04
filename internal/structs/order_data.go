@@ -16,6 +16,11 @@ type OrderData struct {
 	UpdatedTime   int64              `json:"updatedTime"` // unix ms
 }
 
+type OrderHistory struct {
+	OrderData
+	Fees OrderFees `json:"fees"`
+}
+
 func (data OrderData) IsPendingCancel() bool {
 	return data.Status == consts.OrderStatusPendingCancel
 }

@@ -2,6 +2,7 @@ package bingx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -69,28 +70,39 @@ func (a *adapter) GetOrderExecFee(
 
 	data, err := a.client.GetOrder(pairSymbol, orderID)
 	if err != nil {
+		if strings.Contains(err.Error(), errOrderNotActualMessage) {
+			return structs.OrderFees{}, errs.ErrOrderDataNotActual
+		}
+
 		return structs.OrderFees{},
 			fmt.Errorf("get order data: %w", err)
 	}
 
+	if data == nil {
+		return structs.OrderFees{}, errors.New("order data not set")
+	}
+
+	return getFeesFromOrderData(orderSide, data.Fee), nil
+}
+
+func getFeesFromOrderData(
+	orderSide consts.OrderSide,
+	fee float64,
+) structs.OrderFees {
 	fees := structs.OrderFees{
 		BaseAsset:  decimal.Zero,
 		QuoteAsset: decimal.Zero,
 	}
 
-	feeVal, err := decimal.NewFromString(data.Fee)
-	if err != nil {
-		return fees, fmt.Errorf("parse: %w", err)
-	}
+	feeVal := decimal.NewFromFloat(fee).Abs()
 
-	if data.FeeAsset == baseAssetTicker {
+	if orderSide == consts.OrderSideBuy {
 		fees.BaseAsset = feeVal
 	}
-	if data.FeeAsset == quoteAssetTicker {
+	if orderSide == consts.OrderSideSell {
 		fees.QuoteAsset = feeVal
 	}
-
-	return fees, nil
+	return fees
 }
 
 func (a *adapter) GetOrderData(
@@ -109,14 +121,27 @@ func (a *adapter) GetOrderData(
 	return mappers.ConvertBingXOrderData(data)
 }
 
-func (a *adapter) GetOrdersHistory(
-	pairSymbol string,
+func (a *adapter) GetHistoryOrder(
+	baseAssetTicker string,
+	quoteAssetTicker string,
 	orderID int64,
-	timeFrom int64,
-	timeTo int64,
-) (structs.OrderData, error) {
-	// not emplemented yet
-	return structs.OrderData{}, nil
+) (structs.OrderHistory, error) {
+	pairSymbol := a.GetPairSymbol(baseAssetTicker, quoteAssetTicker)
+
+	order, err := a.client.GetHistoryOrder(pairSymbol, orderID)
+	if err != nil {
+		return structs.OrderHistory{}, fmt.Errorf("get: %w", err)
+	}
+
+	orderData, err := mappers.ConvertBingXOrderData(&order)
+	if err != nil {
+		return structs.OrderHistory{}, fmt.Errorf("convert: %w", err)
+	}
+
+	return structs.OrderHistory{
+		OrderData: orderData,
+		Fees:      getFeesFromOrderData(orderData.Side, order.Fee),
+	}, nil
 }
 
 func (a *adapter) GetOrderByClientOrderID(
@@ -127,6 +152,10 @@ func (a *adapter) GetOrderByClientOrderID(
 		pairSymbol, clientOrderID,
 	)
 	if err != nil {
+		if strings.Contains(err.Error(), errOrderNotActualMessage) {
+			return structs.OrderData{}, errs.ErrOrderDataNotActual
+		}
+
 		return structs.OrderData{}, fmt.Errorf("get: %w", err)
 	}
 

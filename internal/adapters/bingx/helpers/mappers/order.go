@@ -92,7 +92,7 @@ func ConvertBingXOrderData(data *bingxgo.SpotOrder) (structs.OrderData, error) {
 	}
 
 	return structs.OrderData{
-		OrderID:       int64(data.OrderID),
+		OrderID:       data.OrderID,
 		ClientOrderID: data.ClientOrderID,
 		Status:        orderStatus,
 		AwaitQty:      orderQty,
