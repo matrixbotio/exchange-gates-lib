@@ -3,13 +3,17 @@ package bingx
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	bingxgo "github.com/Sagleft/go-bingx"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	"github.com/shopspring/decimal"
 )
+
+const errOrderNotActualMessage = "the order is FILLED or CANCELLED already before"
 
 func (a *adapter) PlaceOrder(
 	ctx context.Context,
@@ -95,6 +99,10 @@ func (a *adapter) GetOrderData(
 ) (structs.OrderData, error) {
 	data, err := a.client.GetOrder(pairSymbol, orderID)
 	if err != nil {
+		if strings.Contains(err.Error(), errOrderNotActualMessage) {
+			return structs.OrderData{}, errs.ErrOrderDataNotActual
+		}
+
 		return structs.OrderData{}, fmt.Errorf("get: %w", err)
 	}
 
