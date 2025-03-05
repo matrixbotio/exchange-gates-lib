@@ -56,8 +56,7 @@ type Adapter interface {
 		Time in unix timestamp ms.
 	*/
 	GetHistoryOrder(
-		baseAssetTicker string,
-		quoteAssetTicker string,
+		pairSymbol string,
 		orderID int64,
 	) (structs.OrderHistory, error)
 
