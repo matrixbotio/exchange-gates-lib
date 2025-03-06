@@ -94,7 +94,7 @@ func (a *adapter) GetCandles(
 	symbol string,
 	interval consts.Interval,
 ) ([]workers.CandleData, error) {
-	bingxInterval, err := ConvertIntervalToBingX(interval)
+	bingxInterval, err := ConvertIntervalToBingXRest(interval)
 	if err != nil {
 		return nil, fmt.Errorf("convert interval: %w", err)
 	}
@@ -108,5 +108,5 @@ func (a *adapter) GetCandles(
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	return ConvertKlines(klines)
+	return ConvertKlinesRest(klines)
 }

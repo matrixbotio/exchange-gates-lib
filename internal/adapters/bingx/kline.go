@@ -15,7 +15,7 @@ type IntervalData struct {
 	Duration time.Duration
 }
 
-var intervalBingxToOur = map[bingxgo.Interval]IntervalData{
+var intervalBingxWsToOur = map[bingxgo.Interval]IntervalData{
 	bingxgo.Interval1:   {consts.Interval1min, time.Minute},
 	bingxgo.Interval5:   {consts.Interval5min, time.Minute * 5},
 	bingxgo.Interval15:  {consts.Interval15min, time.Minute * 15},
@@ -27,16 +27,47 @@ var intervalBingxToOur = map[bingxgo.Interval]IntervalData{
 	bingxgo.Interval1d:  {consts.Interval1day, time.Hour * 24},
 }
 
-var ourIntervalToBingX = func() map[consts.Interval]bingxgo.Interval {
+var intervalBingxRestToOur = map[bingxgo.Interval]IntervalData{
+	"1m":  {consts.Interval1min, time.Minute},
+	"5m":  {consts.Interval5min, time.Minute * 5},
+	"15m": {consts.Interval15min, time.Minute * 15},
+	"30m": {consts.Interval30min, time.Minute * 30},
+	"1h":  {consts.Interval1hour, time.Hour},
+	"4h":  {consts.Interval4hour, time.Hour * 4},
+	"6h":  {consts.Interval6hour, time.Hour * 6},
+	"12h": {consts.Interval12hour, time.Hour * 12},
+	"1d":  {consts.Interval1day, time.Hour * 24},
+}
+
+var ourIntervalToBingXWs = func() map[consts.Interval]bingxgo.Interval {
 	r := map[consts.Interval]bingxgo.Interval{}
-	for interval, data := range intervalBingxToOur {
+	for interval, data := range intervalBingxWsToOur {
 		r[data.Interval] = interval
 	}
 	return r
 }()
 
-func ConvertIntervalToBingX(interval consts.Interval) (bingxgo.Interval, error) {
-	result, isExists := ourIntervalToBingX[interval]
+var ourIntervalToBingXRest = func() map[consts.Interval]bingxgo.Interval {
+	r := map[consts.Interval]bingxgo.Interval{}
+	for interval, data := range intervalBingxRestToOur {
+		r[data.Interval] = interval
+	}
+	return r
+}()
+
+// Convert inteval in websocket format
+func ConvertIntervalToBingXWs(interval consts.Interval) (bingxgo.Interval, error) {
+	result, isExists := ourIntervalToBingXWs[interval]
+	if !isExists {
+		return "", fmt.Errorf("unknown interval: %q", interval)
+	}
+
+	return result, nil
+}
+
+// Convert inteval in REST format
+func ConvertIntervalToBingXRest(interval consts.Interval) (bingxgo.Interval, error) {
+	result, isExists := ourIntervalToBingXRest[interval]
 	if !isExists {
 		return "", fmt.Errorf("unknown interval: %q", interval)
 	}
@@ -45,7 +76,7 @@ func ConvertIntervalToBingX(interval consts.Interval) (bingxgo.Interval, error) 
 }
 
 func ConvertBingXInterval(interval bingxgo.Interval) (IntervalData, error) {
-	result, isExists := intervalBingxToOur[interval]
+	result, isExists := intervalBingxWsToOur[interval]
 	if !isExists {
 		return IntervalData{}, fmt.Errorf("unknown interval: %q", interval)
 	}
@@ -53,7 +84,7 @@ func ConvertBingXInterval(interval bingxgo.Interval) (IntervalData, error) {
 	return result, nil
 }
 
-func ConvertKlines(klines []bingxgo.KlineData) ([]workers.CandleData, error) {
+func ConvertKlinesRest(klines []bingxgo.KlineData) ([]workers.CandleData, error) {
 	var result []workers.CandleData
 
 	for _, kline := range klines {
