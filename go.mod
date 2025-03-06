@@ -5,7 +5,7 @@ go 1.23.1
 toolchain go1.23.6
 
 require (
-	github.com/Sagleft/go-bingx v1.17.0
+	github.com/Sagleft/go-bingx v1.18.3
 	github.com/adshao/go-binance/v2 v2.8.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/gateio/gateapi-go/v6 v6.91.0
