@@ -75,8 +75,17 @@ func ConvertIntervalToBingXRest(interval consts.Interval) (bingxgo.Interval, err
 	return result, nil
 }
 
-func ConvertBingXInterval(interval bingxgo.Interval) (IntervalData, error) {
+func ConvertBingXWsInterval(interval bingxgo.Interval) (IntervalData, error) {
 	result, isExists := intervalBingxWsToOur[interval]
+	if !isExists {
+		return IntervalData{}, fmt.Errorf("unknown interval: %q", interval)
+	}
+
+	return result, nil
+}
+
+func ConvertBingXRestInterval(interval bingxgo.Interval) (IntervalData, error) {
+	result, isExists := intervalBingxRestToOur[interval]
 	if !isExists {
 		return IntervalData{}, fmt.Errorf("unknown interval: %q", interval)
 	}
@@ -88,7 +97,7 @@ func ConvertKlinesRest(klines []bingxgo.KlineData) ([]workers.CandleData, error)
 	var result []workers.CandleData
 
 	for _, kline := range klines {
-		interval, err := ConvertBingXInterval(bingxgo.Interval(kline.Interval))
+		interval, err := ConvertBingXRestInterval(bingxgo.Interval(kline.Interval))
 		if err != nil {
 			return nil, fmt.Errorf("convert interval: %w", err)
 		}
@@ -109,7 +118,7 @@ func ConvertKlinesRest(klines []bingxgo.KlineData) ([]workers.CandleData, error)
 }
 
 func ConvertWsKline(kline bingxgo.KlineEvent) (workers.CandleEvent, error) {
-	intervalData, err := ConvertBingXInterval(kline.Interval)
+	intervalData, err := ConvertBingXWsInterval(kline.Interval)
 	if err != nil {
 		return workers.CandleEvent{}, fmt.Errorf("convert interval: %w", err)
 	}
