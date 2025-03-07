@@ -2,7 +2,9 @@ package gate
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
@@ -35,8 +37,19 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 }
 
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
-	// TODO
-	return nil, nil
+	ctx, ctxCancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer ctxCancel()
+
+	pairs, _, err := a.client.SpotApi.ListCurrencyPairs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertPairData(pairs)
+	if err != nil {
+		return nil, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {

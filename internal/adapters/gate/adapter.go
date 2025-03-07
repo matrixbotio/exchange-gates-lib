@@ -45,8 +45,8 @@ func New() adp.Adapter {
 	}
 }
 
-func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
-	return fmt.Sprintf("%s_%s", baseTicker, quoteTicker)
+func (a *adapter) GetPairSymbol(baseTicker, quoteTicker string) string {
+	return mappers.GetPairSymbol(baseTicker, quoteTicker)
 }
 
 func (a *adapter) GenClientOrderID() string {
