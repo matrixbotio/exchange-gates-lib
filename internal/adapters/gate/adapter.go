@@ -23,7 +23,7 @@ const (
 
 	clientOrderIDFormat = "t-%s"
 	spotAccountType     = "spot"
-	requestTimeout      = time.Second * 10
+	requestTimeout      = time.Second * 15
 )
 
 type adapter struct {
@@ -68,7 +68,10 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 }
 
 func (a *adapter) getUID() (int64, error) {
-	data, _, err := a.client.AccountApi.GetAccountDetail(a.auth)
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.AccountApi.GetAccountDetail(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("get account data: %w", err)
 	}
@@ -113,7 +116,10 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
-	data, _, err := a.client.SpotApi.ListSpotAccounts(a.auth, nil)
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.SpotApi.ListSpotAccounts(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("list accounts: %w", err)
 	}
