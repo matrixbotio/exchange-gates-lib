@@ -69,6 +69,7 @@ const (
 	PairStatusOffline   = "OFFLINE"
 	PairStatusPreOpen   = "PRE-OPEN"
 	PairStatusSuspended = "SUSPENDED"
+	PairStatusUnknown   = "UNKNOWN"
 )
 
 const BingXAdapterTag = "bingx-spot"
