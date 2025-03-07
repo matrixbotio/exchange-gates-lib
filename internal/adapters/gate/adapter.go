@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/antihax/optional"
 	"github.com/gateio/gateapi-go/v6"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -22,7 +24,7 @@ const (
 
 	clientOrderIDFormat = "t-%s"
 	spotAccountType     = "spot"
-	requestTimeout      = time.Second * 10
+	requestTimeout      = time.Second * 15
 )
 
 type adapter struct {
@@ -44,8 +46,8 @@ func New() adp.Adapter {
 	}
 }
 
-func (a *adapter) GetPairSymbol(baseTicker string, quoteTicker string) string {
-	return fmt.Sprintf("%s_%s", baseTicker, quoteTicker)
+func (a *adapter) GetPairSymbol(baseTicker, quoteTicker string) string {
+	return mappers.GetPairSymbol(baseTicker, quoteTicker)
 }
 
 func (a *adapter) GenClientOrderID() string {
@@ -67,7 +69,10 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 }
 
 func (a *adapter) getUID() (int64, error) {
-	data, _, err := a.client.AccountApi.GetAccountDetail(a.auth)
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.AccountApi.GetAccountDetail(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("get account data: %w", err)
 	}
@@ -112,10 +117,19 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
-	//a.client.SpotApi.ListSpotAccounts(a.auth, &gateapi.ListSpotAccountsOpts{})
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
 
-	// TODO
-	return nil, nil
+	data, _, err := a.client.SpotApi.ListSpotAccounts(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("list accounts: %w", err)
+	}
+
+	result, err := mappers.ConvertBalances(data)
+	if err != nil {
+		return nil, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetCandles(
@@ -123,8 +137,26 @@ func (a *adapter) GetCandles(
 	symbol string,
 	interval consts.Interval,
 ) ([]workers.CandleData, error) {
-	// TODO
-	return nil, nil
+	intervalGate, err := mappers.ConvertIntervalToGate(interval)
+	if err != nil {
+		return nil, fmt.Errorf("convert interval: %w", err)
+	}
+
+	data, _, err := a.client.SpotApi.ListCandlesticks(
+		a.auth, symbol, &gateapi.ListCandlesticksOpts{
+			Limit:    optional.NewInt32(int32(limit)),
+			Interval: optional.NewString(intervalGate),
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertCandles(data)
+	if err != nil {
+		return nil, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetLimits() pkgStructs.ExchangeLimits {

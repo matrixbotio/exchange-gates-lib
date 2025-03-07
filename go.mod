@@ -6,6 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/adshao/go-binance/v2 v2.8.0
+	github.com/antihax/optional v1.0.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/gateio/gateapi-go/v6 v6.91.0
 	github.com/google/uuid v1.6.0
@@ -20,7 +21,6 @@ require (
 )
 
 require (
-	github.com/antihax/optional v1.0.0 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect

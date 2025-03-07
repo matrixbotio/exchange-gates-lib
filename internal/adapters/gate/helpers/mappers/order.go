@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gateio/gateapi-go/v6"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/shopspring/decimal"
 )
 
 func ConvertOrderStatus(gateOrderStatus string) consts.OrderStatus {
@@ -29,4 +32,28 @@ func ConvertOrderSide(gateOrderSide string) (consts.OrderSide, error) {
 	case "sell":
 		return consts.OrderSideSell, nil
 	}
+}
+
+func GetOrderFees(
+	order gateapi.Order,
+	baseTicker string,
+	quoteTicker string,
+) (structs.OrderFees, error) {
+	fees := structs.OrderFees{
+		BaseAsset:  decimal.Zero,
+		QuoteAsset: decimal.Zero,
+	}
+
+	feeValue, err := decimal.NewFromString(order.Fee)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("parse: %w", err)
+	}
+
+	if order.FeeCurrency == baseTicker {
+		fees.BaseAsset = feeValue
+	}
+	if order.FeeCurrency == quoteTicker {
+		fees.QuoteAsset = feeValue
+	}
+	return fees, nil
 }
