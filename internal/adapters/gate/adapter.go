@@ -9,6 +9,7 @@ import (
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
@@ -112,10 +113,16 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
-	//a.client.SpotApi.ListSpotAccounts(a.auth, &gateapi.ListSpotAccountsOpts{})
+	data, _, err := a.client.SpotApi.ListSpotAccounts(a.auth, nil)
+	if err != nil {
+		return nil, fmt.Errorf("list accounts: %w", err)
+	}
 
-	// TODO
-	return nil, nil
+	result, err := mappers.ConvertBalances(data)
+	if err != nil {
+		return nil, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetCandles(
