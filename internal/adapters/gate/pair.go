@@ -9,8 +9,21 @@ import (
 )
 
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
-	// TODO
-	return structs.ExchangePairData{}, nil
+	ctx, ctxCancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.SpotApi.GetCurrencyPair(ctx, pairSymbol)
+	if err != nil {
+		return structs.ExchangePairData{},
+			fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertPair(data)
+	if err != nil {
+		return structs.ExchangePairData{},
+			fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
@@ -45,7 +58,7 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	result, err := mappers.ConvertPairData(pairs)
+	result, err := mappers.ConvertPairs(pairs)
 	if err != nil {
 		return nil, fmt.Errorf("convert: %w", err)
 	}

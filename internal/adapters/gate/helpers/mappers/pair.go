@@ -16,13 +16,13 @@ func GetPairSymbol(baseTicker, quoteTicker string) string {
 	return fmt.Sprintf(pairSymbolFormat, baseTicker, quoteTicker)
 }
 
-func ConvertPairData(
+func ConvertPairs(
 	data []gateapi.CurrencyPair,
 ) ([]structs.ExchangePairData, error) {
 	r := []structs.ExchangePairData{}
 
 	for _, pairData := range data {
-		pairParsed, err := parsePairData(pairData)
+		pairParsed, err := ConvertPair(pairData)
 		if err != nil {
 			return nil, fmt.Errorf("parse: %w", err)
 		}
@@ -33,7 +33,7 @@ func ConvertPairData(
 	return r, nil
 }
 
-func parsePairData(
+func ConvertPair(
 	data gateapi.CurrencyPair,
 ) (structs.ExchangePairData, error) {
 	r := structs.ExchangePairData{
