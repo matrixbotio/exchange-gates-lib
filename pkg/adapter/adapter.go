@@ -59,4 +59,6 @@ type (
 	CandleEvent       = workers.CandleEvent
 )
 
+type CandleData = workers.CandleData
+
 const PairStatusTrading = consts.PairDefaultStatus
