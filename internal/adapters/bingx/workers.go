@@ -3,7 +3,7 @@ package bingx
 import (
 	"fmt"
 
-	bingxgo "github.com/Sagleft/go-bingx"
+	bingxgo "github.com/matrixbotio/go-bingx"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"

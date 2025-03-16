@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	bingxgo "github.com/Sagleft/go-bingx"
+	bingxgo "github.com/matrixbotio/go-bingx"
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
