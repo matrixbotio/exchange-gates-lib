@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	bingxgo "github.com/Sagleft/go-bingx"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	bingxgo "github.com/matrixbotio/go-bingx"
 	"github.com/shopspring/decimal"
 )
 

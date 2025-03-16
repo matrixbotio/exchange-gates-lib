@@ -5,13 +5,13 @@ go 1.23.1
 toolchain go1.23.6
 
 require (
-	github.com/Sagleft/go-bingx v1.19.0
 	github.com/adshao/go-binance/v2 v2.8.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/gateio/gateapi-go/v6 v6.91.0
 	github.com/google/uuid v1.6.0
 	github.com/hirokisan/bybit/v2 v2.37.0
 	github.com/matoous/go-nanoid v1.5.1
+	github.com/matrixbotio/go-bingx v1.21.0
 	github.com/matrixbotio/go-common-lib v1.12.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.10.0

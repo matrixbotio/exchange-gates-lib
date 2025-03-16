@@ -3,7 +3,7 @@ package mappers
 import (
 	"strings"
 
-	bingxgo "github.com/Sagleft/go-bingx"
+	bingxgo "github.com/matrixbotio/go-bingx"
 	"github.com/shopspring/decimal"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"

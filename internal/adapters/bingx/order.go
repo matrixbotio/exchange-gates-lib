@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	bingxgo "github.com/Sagleft/go-bingx"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
+	bingxgo "github.com/matrixbotio/go-bingx"
 	"github.com/shopspring/decimal"
 )
 

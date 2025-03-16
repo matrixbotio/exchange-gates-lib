@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	bingxgo "github.com/Sagleft/go-bingx"
+	bingxgo "github.com/matrixbotio/go-bingx"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
