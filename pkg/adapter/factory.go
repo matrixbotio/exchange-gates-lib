@@ -7,6 +7,7 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 )
 
@@ -20,6 +21,8 @@ func CreateAdapter(exchangeID int) (Adapter, error) {
 		return bybit.New(), nil
 	case consts.ExchangeIDbingx:
 		return bingx.New(), nil
+	case consts.ExchangeIDgateSpot:
+		return gate.New(), nil
 	}
 }
 
@@ -28,5 +31,6 @@ func CreateAdapters() map[int]Adapter {
 		consts.ExchangeIDbinanceSpot: binance.New(wrapper.NewWrapper()),
 		consts.ExchangeIDbybitSpot:   bybit.New(),
 		consts.ExchangeIDbingx:       bingx.New(),
+		consts.ExchangeIDgateSpot:    gate.New(),
 	}
 }

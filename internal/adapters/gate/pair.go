@@ -2,13 +2,28 @@ package gate
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 )
 
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
-	// TODO
-	return structs.ExchangePairData{}, nil
+	ctx, ctxCancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer ctxCancel()
+
+	data, _, err := a.client.SpotApi.GetCurrencyPair(ctx, pairSymbol)
+	if err != nil {
+		return structs.ExchangePairData{},
+			fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertPair(data)
+	if err != nil {
+		return structs.ExchangePairData{},
+			fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
@@ -35,8 +50,19 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 }
 
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
-	// TODO
-	return nil, nil
+	ctx, ctxCancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer ctxCancel()
+
+	pairs, _, err := a.client.SpotApi.ListCurrencyPairs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertPairs(pairs)
+	if err != nil {
+		return nil, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil
 }
 
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
