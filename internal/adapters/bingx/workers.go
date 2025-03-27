@@ -85,11 +85,15 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	var err error
+	bingxInterval, err := ConvertIntervalToBingXWs(interval)
+	if err != nil {
+		return fmt.Errorf("convert interval: %w", err)
+	}
+
 	w.WsChannels = new(structs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsKlineServe(
 		pairSymbol,
-		bingxgo.Interval1,
+		bingxInterval,
 		GetBingXCandleEventsHandler(
 			eventCallback,
 			errorHandler,
