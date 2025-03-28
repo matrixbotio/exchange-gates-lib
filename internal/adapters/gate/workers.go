@@ -32,12 +32,6 @@ type GateCandleWorker struct {
 	errHandler func(error)
 }
 
-type subscriptionData struct {
-	Service    *gate.WsService
-	Interval   string // gate format
-	PairSymbol string
-}
-
 type GateTradeWorker struct {
 	workers.TradeEventWorker
 }
@@ -116,15 +110,24 @@ func (w *GateCandleWorker) getCandleCallback(
 func (w *GateCandleWorker) Stop() {
 	w.CandleWorker.Stop()
 
-	// TODO: check subscription exists?
+	w.srvs.Range(func(iSymbol, iSub any) bool {
+		if iSub == nil || iSymbol == nil {
+			return true
+		}
 
-	w.srvs.Range(func(_, iSub any) bool {
-		if iSub == nil {
+		pairSymbol, isConvertable := iSymbol.(string)
+		if !isConvertable {
+			if w.errHandler != nil {
+				w.errHandler(fmt.Errorf(
+					"unsubscribe: get symbol: unknown format: %s",
+					reflect.ValueOf(iSymbol).String(),
+				))
+			}
 			return true
 		}
 
 		// get subscription data
-		subsData, isConvertable := iSub.(subscriptionData)
+		subsData, isConvertable := iSub.(workers.SubscriptionData)
 		if !isConvertable {
 			if w.errHandler != nil {
 				w.errHandler(fmt.Errorf(
@@ -135,19 +138,16 @@ func (w *GateCandleWorker) Stop() {
 			return true
 		}
 
-		subsPayload := getCandleSubsPayload(subsData.Interval, subsData.PairSymbol)
-
 		// stop service
-		if err := subsData.Service.UnSubscribe(
-			subsPayload.Channel,
-			subsPayload.Payload,
-		); err != nil && w.errHandler != nil {
+		if err := subsData.Service.Unsubscribe(); err != nil && w.errHandler != nil {
 			w.errHandler(fmt.Errorf(
 				"unsubscribe %q: %w",
-				subsData.PairSymbol, err,
+				pairSymbol, err,
 			))
 		}
 
+		// remove subscription data
+		w.srvs.Delete(pairSymbol)
 		return true
 	})
 }
@@ -163,6 +163,7 @@ func (w *GateCandleWorker) SubscribeToCandle(
 	}
 
 	// TODO: check subscription exists?
+	w.srvs.Load(pairSymbol) // TODO: use interval + symbol
 
 	srv, err := gate.NewWsService(context.Background(), nil, nil)
 	if err != nil {
@@ -174,13 +175,11 @@ func (w *GateCandleWorker) SubscribeToCandle(
 		return fmt.Errorf("convert interval: %w", err)
 	}
 
-	w.srvs.Store(pairSymbol, subscriptionData{
-		Service:    srv,
-		Interval:   gateInterval,
-		PairSymbol: pairSymbol,
-	})
-
 	reqPayload := getCandleSubsPayload(gateInterval, pairSymbol)
+
+	w.srvs.Store(pairSymbol, workers.SubscriptionData{
+		Service: getUnsubscriber(srv, reqPayload),
+	})
 
 	srv.SetCallBack(
 		reqPayload.Channel,

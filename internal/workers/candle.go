@@ -64,6 +64,14 @@ type CandleWorker struct {
 	ExchangeTag string
 }
 
+type SubscriptionData struct {
+	Service Unsubscriber
+}
+
+type Unsubscriber interface {
+	Unsubscribe() error
+}
+
 func (w *CandleWorker) SubscribeToCandle(
 	pairSymbol string,
 	interval consts.Interval,
