@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/accessors"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bingx/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 func (a *adapter) GetPairData(pairSymbol string) (structs.ExchangePairData, error) {
@@ -93,5 +93,5 @@ func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (
 		return structs.PairBalance{}, fmt.Errorf("get: %w", err)
 	}
 
-	return accessors.FindPairBalance(balances, pair), nil
+	return utils.FindPairBalance(balances, pair), nil
 }

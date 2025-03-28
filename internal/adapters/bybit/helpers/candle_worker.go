@@ -22,15 +22,6 @@ func (w *CandleEventWorkerBybit) subscribe(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsStop = make(chan struct{}, 1)
-	w.WsChannels.WsDone = make(chan struct{}, 1)
-
-	wsSrv, err := w.WsClient.V5().Public(bybit.CategoryV5Spot)
-	if err != nil {
-		return fmt.Errorf("create candle events subscription service: %w", err)
-	}
-
 	eventHandler := CandleEventsHandler{
 		symbols:  make(symbolPerTopic),
 		callback: eventCallback,
@@ -43,6 +34,10 @@ func (w *CandleEventWorkerBybit) subscribe(
 			return fmt.Errorf("interval %q not available", interval)
 		}
 
+		if w.CandleWorker.IsSubscriptionExists(pairSymbol, bybitInterval.Code) {
+			continue
+		}
+
 		key := bybit.V5WebsocketPublicKlineParamKey{
 			Interval: bybit.Interval(bybitInterval.Code),
 			Symbol:   bybit.SymbolV5(pairSymbol),
@@ -53,6 +48,20 @@ func (w *CandleEventWorkerBybit) subscribe(
 			Interval: interval,
 		}
 		keys = append(keys, key)
+
+		w.CandleWorker.Save(
+			nil, errorHandler,
+			pairSymbol, bybitInterval.Code,
+		)
+	}
+
+	w.WsChannels = new(pkgStructs.WorkerChannels)
+	w.WsChannels.WsStop = make(chan struct{}, 1)
+	w.WsChannels.WsDone = make(chan struct{}, 1)
+
+	wsSrv, err := w.WsClient.V5().Public(bybit.CategoryV5Spot)
+	if err != nil {
+		return fmt.Errorf("create candle events subscription service: %w", err)
 	}
 
 	unsubscribe, err := wsSrv.SubscribeKlines(keys, eventHandler.handle)

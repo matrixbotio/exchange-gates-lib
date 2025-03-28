@@ -10,8 +10,12 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/deckarep/golang-set v1.7.1 h1:SCQV0S6gTtp6itiFrTqI+pfmJ4LN85S1YzhDf9rTHJQ=
+github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14yDtF28KmMOgQ=
 github.com/gateio/gateapi-go/v6 v6.91.0 h1:BqIyYI6pGhgogqIemOpoa5fcMtHpiMvjc9euzR3//80=
 github.com/gateio/gateapi-go/v6 v6.91.0/go.mod h1:racCcjrdyOUbRDO5eCUGUiyDPrF/ZmwBj/bupPZTVLY=
+github.com/gateio/gatews/go v0.0.0-20240814073539-a32621851e21 h1:GT8+z2S+xeUKzSACtFIFdTF0Zfw/jsXlGw9QzUgx4M8=
+github.com/gateio/gatews/go v0.0.0-20240814073539-a32621851e21/go.mod h1:WIfuSKYItKnmiuCWA1dcZmQEfBNC36/M5El+R8NjIDQ=
 github.com/golang/mock v1.6.0 h1:ErTB+efbowRARo13NNdxyJji2egdxLGQhRaY+DUumQc=
 github.com/golang/mock v1.6.0/go.mod h1:p6yTPP+5HYm5mzsMV8JkE6ZKdX+/wYM6Hr+LicevLPs=
 github.com/google/go-cmp v0.5.2 h1:X2ev0eStA3AbceY54o37/0PQ/UWqKEiiO2dKL5OPaFM=

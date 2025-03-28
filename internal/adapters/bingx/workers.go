@@ -11,6 +11,8 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
+const tradeSubscriptionKey = "subscription"
+
 type PriceEventWorkerBingX struct {
 	workers.PriceWorker
 }
@@ -49,6 +51,10 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 	eventCallback workers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
+	if w.TradeEventWorker.IsSubscriptionExists(tradeSubscriptionKey) {
+		return nil
+	}
+
 	var err error
 	w.WsChannels = new(structs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsOrderUpdateServe(
@@ -68,9 +74,16 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 	if err != nil {
 		return fmt.Errorf("subscribe: %w", err)
 	}
+
+	w.TradeEventWorker.Save(
+		nil, // control via worker channels instead of "unsubscriber"
+		errorHandler,
+		tradeSubscriptionKey,
+	)
 	return nil
 }
 
+// DEPRECATED
 func (w *PriceEventWorkerBingX) SubscribeToPriceEvents(
 	pairSymbols []string,
 	errorHandler func(err error),
@@ -90,6 +103,10 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 		return fmt.Errorf("convert interval: %w", err)
 	}
 
+	if w.CandleWorker.IsSubscriptionExists(pairSymbol, string(bingxInterval)) {
+		return nil
+	}
+
 	w.WsChannels = new(structs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsKlineServe(
 		pairSymbol,
@@ -103,9 +120,16 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	if err != nil {
 		return fmt.Errorf("subscribe: %w", err)
 	}
+
+	w.CandleWorker.Save(
+		nil, // control via worker channels instead of "unsubscriber"
+		errorHandler,
+		pairSymbol, string(bingxInterval),
+	)
 	return nil
 }
 
+// DEPRECATED
 func (w *CandleEventWorkerBingX) SubscribeToCandlesList(
 	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event workers.CandleEvent),

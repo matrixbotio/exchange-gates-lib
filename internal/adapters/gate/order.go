@@ -32,7 +32,7 @@ func (a *adapter) GetOrderByClientOrderID(
 		ctx,
 		clientOrderID,
 		pairSymbol,
-		&gateapi.GetOrderOpts{},
+		nil,
 	)
 	if err != nil {
 		return structs.OrderData{}, fmt.Errorf("get order data: %w", err)
@@ -134,21 +134,26 @@ func (a *adapter) GetOrderExecFee(
 	orderSide consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
-	/*ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
+
+	pairSymbol := a.GetPairSymbol(baseAssetTicker, quoteAssetTicker)
 
 	data, _, err := a.client.SpotApi.GetOrder(
 		ctx,
 		strconv.FormatInt(orderID, 10),
-		a.GetPairSymbol(baseAssetTicker, quoteAssetTicker),
-		&gateapi.GetOrderOpts{},
+		pairSymbol,
+		nil,
 	)
 	if err != nil {
-		return structs.OrderFees{}, fmt.Errorf("get order data: %w", err)
+		return structs.OrderFees{}, fmt.Errorf("get: %w", err)
 	}
 
-	// TODO*/
-	return structs.OrderFees{}, nil
+	fees, err := mappers.GetOrderFees(data, baseAssetTicker, quoteAssetTicker)
+	if err != nil {
+		return structs.OrderFees{}, fmt.Errorf("convert: %w", err)
+	}
+	return fees, nil
 }
 
 func (a *adapter) GetHistoryOrder(

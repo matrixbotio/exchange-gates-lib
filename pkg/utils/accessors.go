@@ -1,4 +1,4 @@
-package accessors
+package utils
 
 import "github.com/matrixbotio/exchange-gates-lib/internal/structs"
 
