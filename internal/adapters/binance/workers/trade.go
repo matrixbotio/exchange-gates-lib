@@ -53,6 +53,10 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEventsPrivate(
 	eventCallback iWorkers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
+	if w.TradeEventWorker.IsSubscriptionExists(tradeSubscriptionKey) {
+		return nil
+	}
+
 	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 

@@ -40,6 +40,10 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 	eventCallback workers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
+	if w.TradeEventWorker.IsSubscriptionExists(tradeSubscriptionKey) {
+		return nil
+	}
+
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsStop = make(chan struct{}, 1)
 	w.WsChannels.WsDone = make(chan struct{}, 1)

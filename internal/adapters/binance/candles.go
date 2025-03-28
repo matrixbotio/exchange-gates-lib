@@ -60,6 +60,10 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
+	if w.CandleWorker.IsSubscriptionExists(pairSymbol, convertInterval(interval)) {
+		return nil
+	}
+
 	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandle(
@@ -76,7 +80,7 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 	w.CandleWorker.Save(
 		nil, // control via worker channels instead of "unsibscriber"
 		errorHandler,
-		pairSymbol, string(interval),
+		pairSymbol, convertInterval(interval),
 	)
 	return nil
 }

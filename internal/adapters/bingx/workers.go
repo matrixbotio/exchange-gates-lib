@@ -51,6 +51,10 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 	eventCallback workers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
+	if w.TradeEventWorker.IsSubscriptionExists(tradeSubscriptionKey) {
+		return nil
+	}
+
 	var err error
 	w.WsChannels = new(structs.WorkerChannels)
 	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsOrderUpdateServe(
@@ -97,6 +101,10 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	bingxInterval, err := ConvertIntervalToBingXWs(interval)
 	if err != nil {
 		return fmt.Errorf("convert interval: %w", err)
+	}
+
+	if w.CandleWorker.IsSubscriptionExists(pairSymbol, string(bingxInterval)) {
+		return nil
 	}
 
 	w.WsChannels = new(structs.WorkerChannels)
