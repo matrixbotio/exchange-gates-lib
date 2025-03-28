@@ -84,11 +84,13 @@ func (w *workerBase) Unsubscribe(args ...string) {
 	}
 
 	// stop service
-	if err := subsData.Service.Unsubscribe(); err != nil && subsData.ErrorHandler != nil {
-		subsData.ErrorHandler(fmt.Errorf(
-			"unsubscribe %q: %w",
-			key, err,
-		))
+	if subsData.Service != nil {
+		if err := subsData.Service.Unsubscribe(); err != nil && subsData.ErrorHandler != nil {
+			subsData.ErrorHandler(fmt.Errorf(
+				"unsubscribe %q: %w",
+				key, err,
+			))
+		}
 	}
 
 	// remove subscription data

@@ -68,9 +68,20 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 		eventCallback,
 		errorHandler,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
+
+	// save subscription
+	w.CandleWorker.Save(
+		nil, // control via worker channels instead of "unsibscriber"
+		errorHandler,
+		pairSymbol, string(interval),
+	)
+	return nil
 }
 
+// DEPRECATED
 func (w *CandleWorkerBinance) SubscribeToCandlesList(
 	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event workers.CandleEvent),
@@ -81,12 +92,15 @@ func (w *CandleWorkerBinance) SubscribeToCandlesList(
 		intervals[symbol] = convertInterval(interval)
 	}
 
-	var openWsErr error
+	var err error
 	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, openWsErr = w.binanceAPI.SubscribeToCandlesList(
+	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandlesList(
 		intervals,
 		eventCallback,
 		errorHandler,
 	)
-	return openWsErr
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
+	return nil
 }

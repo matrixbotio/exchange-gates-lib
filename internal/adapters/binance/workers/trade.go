@@ -8,6 +8,8 @@ import (
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
+const tradeSubscriptionKey = "subsctiption"
+
 // TradeEventWorkerBinance - TradeEventWorker for binance
 type TradeEventWorkerBinance struct {
 	iWorkers.TradeEventWorker
@@ -25,6 +27,7 @@ func NewTradeEventsWorker(
 	return &w
 }
 
+// DEPRECATED
 // SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
 func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
 	pairSymbol string,
@@ -62,5 +65,10 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEventsPrivate(
 		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
 
+	w.TradeEventWorker.Save(
+		nil, // control via worker channels instead of "unsibscriber"
+		errorHandler,
+		tradeSubscriptionKey,
+	)
 	return nil
 }

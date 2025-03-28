@@ -7,22 +7,27 @@ type TradeEventWorker struct {
 	ExchangeTag string
 }
 
+// DEPRECATED
 type TradeEventCallback func(event TradeEvent)
 
 type TradeEventPrivateCallback func(event TradeEventPrivate)
 
 // ITradeEventWorker - interface for PriceWorker
 type ITradeEventWorker interface {
+	// DEPRECATED
 	SubscribeToTradeEvents(
 		symbol string,
 		eventCallback TradeEventCallback,
 		errorHandler func(err error),
 	) error
+
 	SubscribeToTradeEventsPrivate(
 		eventCallback TradeEventPrivateCallback,
 		errorHandler func(err error),
 	) error
+
 	GetExchangeTag() string
+
 	Stop()
 }
 

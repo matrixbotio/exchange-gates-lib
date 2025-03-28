@@ -44,6 +44,8 @@ type ICandleWorker interface {
 	) error
 
 	/*
+		DEPRECATED.
+
 		SubscribeToCandlesList - websocket subscription to change trade candles
 		on the exchange per specific pairs
 	*/
