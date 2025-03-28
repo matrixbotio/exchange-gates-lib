@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-
 	"github.com/hirokisan/bybit/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
@@ -17,8 +15,9 @@ type CandleEventWorkerBybit struct {
 	WsClient *bybit.WebSocketClient
 }
 
-func (w *CandleEventWorkerBybit) subscribe(
-	intervalsPerPair map[string]consts.Interval,
+func (w *CandleEventWorkerBybit) SubscribeToCandle(
+	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
@@ -27,55 +26,51 @@ func (w *CandleEventWorkerBybit) subscribe(
 		callback: eventCallback,
 	}
 
-	var keys []bybit.V5WebsocketPublicKlineParamKey
-	for pairSymbol, interval := range intervalsPerPair {
-		bybitInterval, isExists := mappers.CandleIntervalsToBybit[interval]
-		if !isExists {
-			return fmt.Errorf("interval %q not available", interval)
-		}
+	wsStop := make(chan struct{}, 1)
+	wsDone := make(chan struct{}, 1)
 
-		if w.CandleWorker.IsSubscriptionExists(pairSymbol, bybitInterval.Code) {
-			continue
-		}
-
-		key := bybit.V5WebsocketPublicKlineParamKey{
-			Interval: bybit.Interval(bybitInterval.Code),
-			Symbol:   bybit.SymbolV5(pairSymbol),
-		}
-
-		eventHandler.symbols[key.Topic()] = symbolData{
-			Symbol:   pairSymbol,
-			Interval: interval,
-		}
-		keys = append(keys, key)
-
-		w.CandleWorker.Save(
-			nil, errorHandler,
-			pairSymbol, bybitInterval.Code,
-		)
+	bybitInterval, isExists := mappers.CandleIntervalsToBybit[interval]
+	if !isExists {
+		return fmt.Errorf("interval %q not available", interval)
 	}
 
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsStop = make(chan struct{}, 1)
-	w.WsChannels.WsDone = make(chan struct{}, 1)
+	if w.CandleWorker.IsSubscriptionExists(pairSymbol, bybitInterval.Code) {
+		return nil // already subscribed
+	}
+
+	key := bybit.V5WebsocketPublicKlineParamKey{
+		Interval: bybit.Interval(bybitInterval.Code),
+		Symbol:   bybit.SymbolV5(pairSymbol),
+	}
+
+	eventHandler.symbols[key.Topic()] = symbolData{
+		Symbol:   pairSymbol,
+		Interval: interval,
+	}
+
+	w.CandleWorker.Save(
+		workers.CreateChannelsUnsubscriber(wsDone, wsStop),
+		errorHandler,
+		pairSymbol, bybitInterval.Code,
+	)
 
 	wsSrv, err := w.WsClient.V5().Public(bybit.CategoryV5Spot)
 	if err != nil {
 		return fmt.Errorf("create candle events subscription service: %w", err)
 	}
 
-	unsubscribe, err := wsSrv.SubscribeKlines(keys, eventHandler.handle)
+	unsubscribe, err := wsSrv.SubscribeKline(key, eventHandler.handle)
 	if err != nil {
 		return fmt.Errorf("open candle events subscription: %w", err)
 	}
 
 	go func() {
 		select {
-		case <-w.WsChannels.WsStop:
+		case <-wsStop:
 			if err := unsubscribe(); err != nil {
 				errorHandler(fmt.Errorf("unsubscribe from ticker events: %w", err))
 			}
-		case <-w.WsChannels.WsDone:
+		case <-wsDone:
 		}
 	}()
 
@@ -89,7 +84,7 @@ func (w *CandleEventWorkerBybit) subscribe(
 
 	go func() {
 		if err := wsSrv.Start(context.Background(), wsErrHandler); err != nil {
-			w.WsChannels.WsDone <- struct{}{}
+			wsDone <- struct{}{}
 
 			errorHandler(fmt.Errorf(
 				"start candle events subscription: %w",
@@ -99,23 +94,4 @@ func (w *CandleEventWorkerBybit) subscribe(
 	}()
 
 	return nil
-}
-
-func (w *CandleEventWorkerBybit) SubscribeToCandle(
-	pairSymbol string,
-	interval consts.Interval,
-	eventCallback func(event workers.CandleEvent),
-	errorHandler func(err error),
-) error {
-	return w.subscribe(map[string]consts.Interval{
-		pairSymbol: interval,
-	}, eventCallback, errorHandler)
-}
-
-func (w *CandleEventWorkerBybit) SubscribeToCandlesList(
-	intervalsPerPair map[string]consts.Interval,
-	eventCallback func(event workers.CandleEvent),
-	errorHandler func(err error),
-) error {
-	return w.subscribe(intervalsPerPair, eventCallback, errorHandler)
 }

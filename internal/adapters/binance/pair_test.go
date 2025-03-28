@@ -6,8 +6,8 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
@@ -16,10 +16,11 @@ import (
 
 func TestGetPairLastPriceSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).
+	w.EXPECT().GetPrices(gomock.Any(), testPairSymbol).
 		Return([]*binance.SymbolPrice{
 			{
 				Symbol: testPairSymbol,
@@ -41,10 +42,11 @@ func TestGetPairLastPriceSuccess(t *testing.T) {
 
 func TestGetPairLastPriceError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).
+	w.EXPECT().GetPrices(gomock.Any(), testPairSymbol).
 		Return(nil, errTestException)
 
 	// when
@@ -56,10 +58,11 @@ func TestGetPairLastPriceError(t *testing.T) {
 
 func TestGetPairLastPriceConvertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetPrices(mock.Anything, testPairSymbol).
+	w.EXPECT().GetPrices(gomock.Any(), testPairSymbol).
 		Return([]*binance.SymbolPrice{
 			{
 				Symbol: testPairSymbol,
@@ -76,10 +79,11 @@ func TestGetPairLastPriceConvertError(t *testing.T) {
 
 func TestCancelPairOrderSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().CancelOrderByID(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().CancelOrderByID(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
 	// when
@@ -91,11 +95,12 @@ func TestCancelPairOrderSuccess(t *testing.T) {
 
 func TestCancelPairOrderByClientOrderIDSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	w.EXPECT().CancelOrderByClientOrderID(
-		mock.Anything, mock.Anything, mock.Anything,
+		gomock.Any(), gomock.Any(), gomock.Any(),
 	).Return(nil)
 
 	// when
@@ -111,13 +116,14 @@ func TestCancelPairOrderByClientOrderIDSuccess(t *testing.T) {
 
 func TestGetPairDataSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	baseAsset := "MTXB"
 	quoteAsset := "USDC"
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(&binance.ExchangeInfo{
 			Symbols: []binance.Symbol{
 				{
@@ -144,10 +150,11 @@ func TestGetPairDataSuccess(t *testing.T) {
 
 func TestGetPairDataError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(nil, errTestException)
 
 	// when
@@ -159,10 +166,11 @@ func TestGetPairDataError(t *testing.T) {
 
 func TestGetPairDataNotFound(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(&binance.ExchangeInfo{
 			Symbols: []binance.Symbol{
 				{Symbol: "LTCBUSD", Filters: mappers.GetTestPairDataFilters()},
@@ -179,10 +187,11 @@ func TestGetPairDataNotFound(t *testing.T) {
 
 func TestGetPairs(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(&binance.ExchangeInfo{
 			Symbols: []binance.Symbol{
 				{
@@ -216,10 +225,11 @@ func TestGetPairs(t *testing.T) {
 
 func TestGetPairsError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(nil, errTestException)
 
 	// when
@@ -231,10 +241,11 @@ func TestGetPairsError(t *testing.T) {
 
 func TestGetPairsResponseEmpty(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetExchangeInfo(mock.Anything, mock.Anything).
+	w.EXPECT().GetExchangeInfo(gomock.Any(), gomock.Any()).
 		Return(nil, nil)
 
 	// when

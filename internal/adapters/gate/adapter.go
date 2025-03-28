@@ -33,6 +33,9 @@ type adapter struct {
 	creds  pkgStructs.APICredentials
 	client *gateapi.APIClient
 	auth   context.Context
+
+	candleWorker GateCandleWorker
+	tradeWorker  GateTradeWorker
 }
 
 func New() adp.Adapter {
@@ -56,6 +59,7 @@ func (a *adapter) GenClientOrderID() string {
 
 func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	a.creds = credentials
+	a.tradeWorker.creds = credentials
 
 	a.auth = context.WithValue(
 		context.Background(),

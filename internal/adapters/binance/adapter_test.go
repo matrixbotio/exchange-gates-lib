@@ -8,13 +8,14 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/structs"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestConnectSucess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsTypeKeypair,
@@ -22,7 +23,7 @@ func TestConnectSucess(t *testing.T) {
 
 	w.EXPECT().Sync(context.Background())
 
-	w.EXPECT().Connect(context.Background(), mock.Anything, mock.Anything).
+	w.EXPECT().Connect(context.Background(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
 	// when
@@ -34,7 +35,8 @@ func TestConnectSucess(t *testing.T) {
 
 func TestConnectErrorInvalidCredentials(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsType("wtf"),
@@ -49,13 +51,14 @@ func TestConnectErrorInvalidCredentials(t *testing.T) {
 
 func TestConnectErrorPingFailed(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	credentials := structs.APICredentials{
 		Type: structs.APICredentialsTypeKeypair,
 	}
 
-	w.EXPECT().Connect(context.Background(), mock.Anything, mock.Anything).
+	w.EXPECT().Connect(context.Background(), gomock.Any(), gomock.Any()).
 		Return(errors.New("ping: timeout"))
 
 	// when

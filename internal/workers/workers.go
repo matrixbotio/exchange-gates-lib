@@ -5,14 +5,11 @@ import (
 	reflect "reflect"
 	"strings"
 	"sync"
-
-	structs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 const subsKeyDelimiter = "."
 
 type workerBase struct {
-	WsChannels    *structs.WorkerChannels
 	subscriptions sync.Map // symbol -> SubscriptionData
 }
 
@@ -21,20 +18,7 @@ type SubscriptionData struct {
 	ErrorHandler func(error)
 }
 
-func (w *workerBase) closeChannels() {
-	if w.WsChannels == nil || w.WsChannels.WsStop == nil {
-		return
-	}
-
-	go func() {
-		if len(w.WsChannels.WsStop) == 0 {
-			w.WsChannels.WsStop <- struct{}{}
-		}
-	}()
-}
-
 func (w *workerBase) Stop() {
-	w.closeChannels()
 	w.UnsubscribeAll()
 }
 

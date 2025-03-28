@@ -6,8 +6,8 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 var testAPIPubkey = "test pubkey"
@@ -15,12 +15,13 @@ var testAPISecret = "test secret"
 
 func TestVerifyAPIKeysSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().Sync(mock.Anything)
-	w.EXPECT().Connect(mock.Anything, testAPIPubkey, testAPISecret).Return(nil)
-	w.EXPECT().GetAccountData(mock.Anything).Return(
+	w.EXPECT().Sync(gomock.Any())
+	w.EXPECT().Connect(gomock.Any(), testAPIPubkey, testAPISecret).Return(nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(
 		&binance.Account{
 			CanTrade: true,
 		}, nil,
@@ -35,12 +36,13 @@ func TestVerifyAPIKeysSuccess(t *testing.T) {
 
 func TestVerifyAPIKeysError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().Sync(mock.Anything)
-	w.EXPECT().Connect(mock.Anything, testAPIPubkey, testAPISecret).Return(nil)
-	w.EXPECT().GetAccountData(mock.Anything).Return(
+	w.EXPECT().Sync(gomock.Any())
+	w.EXPECT().Connect(gomock.Any(), testAPIPubkey, testAPISecret).Return(nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(
 		nil, errTestException,
 	)
 
@@ -53,12 +55,13 @@ func TestVerifyAPIKeysError(t *testing.T) {
 
 func TestVerifyAPIKeysTradingNotAllowed(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().Sync(mock.Anything)
-	w.EXPECT().Connect(mock.Anything, testAPIPubkey, testAPISecret).Return(nil)
-	w.EXPECT().GetAccountData(mock.Anything).Return(
+	w.EXPECT().Sync(gomock.Any())
+	w.EXPECT().Connect(gomock.Any(), testAPIPubkey, testAPISecret).Return(nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(
 		&binance.Account{}, nil,
 	)
 

@@ -31,6 +31,9 @@ type adapter struct {
 
 	client bingxgo.SpotClient
 	creds  pkgStructs.APICredentials
+
+	candleWorker *CandleEventWorkerBingX
+	tradeWorker  *TradeEventWorkerBingX
 }
 
 func New() adp.Adapter {
@@ -71,6 +74,9 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 		credentials.Keypair.Public,
 		credentials.Keypair.Secret,
 	).SetBrokerSourceKey(brokerSourceKey))
+
+	a.candleWorker = a.CreateCandleWorker()
+	a.tradeWorker = a.CreateTradeEventsWorker()
 	return nil
 }
 

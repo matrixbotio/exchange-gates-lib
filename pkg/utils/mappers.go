@@ -5,9 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
@@ -15,26 +13,6 @@ import (
 type TradeOrderConvertTask struct {
 	Order       structs.OrderData
 	ExchangeTag string
-}
-
-// OrderDataToTradeEvent - convert order data into a trade event.
-func OrderDataToTradeEvent(task TradeOrderConvertTask) workers.TradeEvent {
-	e := workers.TradeEvent{
-		ID:          0,
-		Time:        task.Order.UpdatedTime,
-		Symbol:      task.Order.Symbol,
-		Price:       task.Order.Price,
-		Quantity:    task.Order.FilledQty,
-		ExchangeTag: task.ExchangeTag,
-	}
-
-	if task.Order.Side == consts.OrderSideBuy {
-		e.BuyerOrderID = task.Order.OrderID
-	} else {
-		e.SellerOrderID = task.Order.OrderID
-	}
-
-	return e
 }
 
 // OrderDataToBotOrder - convert order data to bot order

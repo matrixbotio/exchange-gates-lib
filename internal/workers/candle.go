@@ -30,59 +30,15 @@ type CandleData struct {
 	Volume    float64         `json:"volume"`
 }
 
-// ICandleWorker - interface for CandleWorker
-type ICandleWorker interface {
-	/*
-		SubscribeToCandle - websocket subscription to change trade candles
-		on the exchange per one pair
-	*/
-	SubscribeToCandle(
-		pairSymbol string,
-		interval consts.Interval,
-		eventCallback func(event CandleEvent),
-		errorHandler func(err error),
-	) error
-
-	/*
-		DEPRECATED.
-
-		SubscribeToCandlesList - websocket subscription to change trade candles
-		on the exchange per specific pairs
-	*/
-	SubscribeToCandlesList(
-		intervalsPerPair map[string]consts.Interval,
-		eventCallback func(event CandleEvent),
-		errorHandler func(err error),
-	) error
-
-	// GetExchangeTag - get worker exchange tag from exchange adapter
-	GetExchangeTag() string
-
-	// Stop listening ws events
-	Stop()
-}
-
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
 	workerBase
 	ExchangeTag string
 }
 
-type Unsubscriber interface {
-	Unsubscribe() error
-}
-
 func (w *CandleWorker) SubscribeToCandle(
 	pairSymbol string,
 	interval consts.Interval,
-	eventCallback func(event CandleEvent),
-	errorHandler func(err error),
-) error {
-	return nil
-}
-
-func (w *CandleWorker) SubscribeToCandlesList(
-	intervalsPerPair map[string]consts.Interval,
 	eventCallback func(event CandleEvent),
 	errorHandler func(err error),
 ) error {

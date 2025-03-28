@@ -7,18 +7,19 @@ import (
 	"github.com/adshao/go-binance/v2"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 var errTestException = errors.New("test exception")
 
 func TestCanTradeSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(
+	w.EXPECT().GetAccountData(gomock.Any()).Return(
 		&binance.Account{
 			CanTrade: true,
 		}, nil,
@@ -34,10 +35,11 @@ func TestCanTradeSuccess(t *testing.T) {
 
 func TestCanTradeNotAllowed(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(
+	w.EXPECT().GetAccountData(gomock.Any()).Return(
 		&binance.Account{
 			CanTrade: false,
 		}, nil,
@@ -53,10 +55,11 @@ func TestCanTradeNotAllowed(t *testing.T) {
 
 func TestCanTradeError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(nil, errTestException)
 
 	// when
 	_, err := a.CanTrade()

@@ -12,84 +12,43 @@ package workers
 import (
 	reflect "reflect"
 
-	consts "github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockICandleWorker is a mock of ICandleWorker interface.
-type MockICandleWorker struct {
+// MockUnsubscriber is a mock of Unsubscriber interface.
+type MockUnsubscriber struct {
 	ctrl     *gomock.Controller
-	recorder *MockICandleWorkerMockRecorder
+	recorder *MockUnsubscriberMockRecorder
 	isgomock struct{}
 }
 
-// MockICandleWorkerMockRecorder is the mock recorder for MockICandleWorker.
-type MockICandleWorkerMockRecorder struct {
-	mock *MockICandleWorker
+// MockUnsubscriberMockRecorder is the mock recorder for MockUnsubscriber.
+type MockUnsubscriberMockRecorder struct {
+	mock *MockUnsubscriber
 }
 
-// NewMockICandleWorker creates a new mock instance.
-func NewMockICandleWorker(ctrl *gomock.Controller) *MockICandleWorker {
-	mock := &MockICandleWorker{ctrl: ctrl}
-	mock.recorder = &MockICandleWorkerMockRecorder{mock}
+// NewMockUnsubscriber creates a new mock instance.
+func NewMockUnsubscriber(ctrl *gomock.Controller) *MockUnsubscriber {
+	mock := &MockUnsubscriber{ctrl: ctrl}
+	mock.recorder = &MockUnsubscriberMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockICandleWorker) EXPECT() *MockICandleWorkerMockRecorder {
+func (m *MockUnsubscriber) EXPECT() *MockUnsubscriberMockRecorder {
 	return m.recorder
 }
 
-// GetExchangeTag mocks base method.
-func (m *MockICandleWorker) GetExchangeTag() string {
+// Unsubscribe mocks base method.
+func (m *MockUnsubscriber) Unsubscribe() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetExchangeTag")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// GetExchangeTag indicates an expected call of GetExchangeTag.
-func (mr *MockICandleWorkerMockRecorder) GetExchangeTag() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeTag", reflect.TypeOf((*MockICandleWorker)(nil).GetExchangeTag))
-}
-
-// Stop mocks base method.
-func (m *MockICandleWorker) Stop() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Stop")
-}
-
-// Stop indicates an expected call of Stop.
-func (mr *MockICandleWorkerMockRecorder) Stop() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockICandleWorker)(nil).Stop))
-}
-
-// SubscribeToCandle mocks base method.
-func (m *MockICandleWorker) SubscribeToCandle(pairSymbol string, interval consts.Interval, eventCallback func(CandleEvent), errorHandler func(error)) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeToCandle", pairSymbol, interval, eventCallback, errorHandler)
+	ret := m.ctrl.Call(m, "Unsubscribe")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SubscribeToCandle indicates an expected call of SubscribeToCandle.
-func (mr *MockICandleWorkerMockRecorder) SubscribeToCandle(pairSymbol, interval, eventCallback, errorHandler any) *gomock.Call {
+// Unsubscribe indicates an expected call of Unsubscribe.
+func (mr *MockUnsubscriberMockRecorder) Unsubscribe() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeToCandle", reflect.TypeOf((*MockICandleWorker)(nil).SubscribeToCandle), pairSymbol, interval, eventCallback, errorHandler)
-}
-
-// SubscribeToCandlesList mocks base method.
-func (m *MockICandleWorker) SubscribeToCandlesList(intervalsPerPair map[string]consts.Interval, eventCallback func(CandleEvent), errorHandler func(error)) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeToCandlesList", intervalsPerPair, eventCallback, errorHandler)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SubscribeToCandlesList indicates an expected call of SubscribeToCandlesList.
-func (mr *MockICandleWorkerMockRecorder) SubscribeToCandlesList(intervalsPerPair, eventCallback, errorHandler any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeToCandlesList", reflect.TypeOf((*MockICandleWorker)(nil).SubscribeToCandlesList), intervalsPerPair, eventCallback, errorHandler)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockUnsubscriber)(nil).Unsubscribe))
 }

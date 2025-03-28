@@ -27,35 +27,10 @@ func fixTradeEventEndTime(endTime int64) int64 {
 	return endTime
 }
 
-func ConvertTradeEvent(
-	event binance.WsTradeEvent,
+func ConvertTradeEventPrivate(
+	event binance.WsUserDataEvent,
 	exchangeTag string,
-) (workers.TradeEvent, error) {
-	wEvent := workers.TradeEvent{
-		ID:            event.TradeID,
-		Time:          fixTradeEventEndTime(event.Time),
-		Symbol:        event.Symbol,
-		ExchangeTag:   exchangeTag,
-		BuyerOrderID:  event.BuyerOrderID,
-		SellerOrderID: event.SellerOrderID,
-	}
-
-	var err error
-	wEvent.Price, err = strconv.ParseFloat(event.Price, 64)
-	if err != nil {
-		return workers.TradeEvent{},
-			fmt.Errorf("parse price: %w", err)
-	}
-
-	wEvent.Quantity, err = strconv.ParseFloat(event.Quantity, 64)
-	if err != nil {
-		return workers.TradeEvent{},
-			fmt.Errorf("parse qty: %w", err)
-	}
-	return wEvent, nil
-}
-
-func ConvertTradeEventPrivate(event binance.WsUserDataEvent, exchangeTag string) (workers.TradeEventPrivate, error) {
+) (workers.TradeEventPrivate, error) {
 	wEvent := workers.TradeEventPrivate{
 		ID:            strconv.FormatInt(event.OrderUpdate.TradeId, 10),
 		Time:          fixTradeEventEndTime(event.Time),

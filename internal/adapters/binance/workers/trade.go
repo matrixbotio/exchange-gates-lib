@@ -1,14 +1,14 @@
-package workers
+package binanceworkers
 
 import (
 	"fmt"
 
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	iWorkers "github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
-const tradeSubscriptionKey = "subsctiption"
+const TradeSubscriptionKey = "subsctiption"
 
 // TradeEventWorkerBinance - TradeEventWorker for binance
 type TradeEventWorkerBinance struct {
@@ -16,51 +16,23 @@ type TradeEventWorkerBinance struct {
 	binanceAPI wrapper.BinanceAPIWrapper
 }
 
-func NewTradeEventsWorker(
-	exchangeTag string,
-	binanceAPI wrapper.BinanceAPIWrapper,
-) iWorkers.ITradeEventWorker {
-	w := TradeEventWorkerBinance{
+func NewTradeEventsWorker(binanceAPI wrapper.BinanceAPIWrapper) *TradeEventWorkerBinance {
+	w := &TradeEventWorkerBinance{
 		binanceAPI: binanceAPI,
 	}
-	w.ExchangeTag = exchangeTag
-	return &w
-}
-
-// DEPRECATED
-// SubscribeToTradeEvents - websocket subscription to change trade candles on the exchange
-func (w *TradeEventWorkerBinance) SubscribeToTradeEvents(
-	pairSymbol string,
-	eventCallback iWorkers.TradeEventCallback,
-	errorHandler func(err error),
-) error {
-
-	var err error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToTradeEvents(
-		pairSymbol,
-		w.GetExchangeTag(),
-		eventCallback,
-		errorHandler,
-	)
-	if err != nil {
-		return fmt.Errorf("subscribe to trade events: %w", err)
-	}
-	return nil
+	w.ExchangeTag = consts.BinanceAdapterTag
+	return w
 }
 
 func (w *TradeEventWorkerBinance) SubscribeToTradeEventsPrivate(
 	eventCallback iWorkers.TradeEventPrivateCallback,
 	errorHandler func(err error),
 ) error {
-	if w.TradeEventWorker.IsSubscriptionExists(tradeSubscriptionKey) {
+	if w.TradeEventWorker.IsSubscriptionExists(TradeSubscriptionKey) {
 		return nil
 	}
 
-	var err error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToTradeEventsPrivate(
+	wsDone, wsStop, err := w.binanceAPI.SubscribeToTradeEventsPrivate(
 		w.ExchangeTag,
 		eventCallback,
 		errorHandler,
@@ -70,9 +42,9 @@ func (w *TradeEventWorkerBinance) SubscribeToTradeEventsPrivate(
 	}
 
 	w.TradeEventWorker.Save(
-		nil, // control via worker channels instead of "unsibscriber"
+		iWorkers.CreateChannelsUnsubscriber(wsDone, wsStop),
 		errorHandler,
-		tradeSubscriptionKey,
+		TradeSubscriptionKey,
 	)
 	return nil
 }
