@@ -12,6 +12,7 @@ import (
 )
 
 const pingTimeout = time.Second * 20
+const tradeSubscriptionKey = "subscription"
 
 // PriceEventWorkerBybit :
 type PriceEventWorkerBybit struct {
@@ -25,6 +26,7 @@ type TradeEventWorkerBybit struct {
 	wsClient *bybit.WebSocketClient
 }
 
+// DEPRECATED
 func (w *TradeEventWorkerBybit) SubscribeToTradeEvents(
 	_ string,
 	_ workers.TradeEventCallback,
@@ -71,6 +73,13 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 		return fmt.Errorf("subscribe to trade events: %w", err)
 	}
 
+	// set unsibscriber & save subscription data
+	w.TradeEventWorker.Save(
+		nil,
+		errorHandler,
+		tradeSubscriptionKey,
+	)
+
 	go func() {
 		for pingActive {
 			if err := service.Ping(); err != nil {
@@ -112,6 +121,7 @@ func (w *TradeEventWorkerBybit) SubscribeToTradeEventsPrivate(
 	return nil
 }
 
+// DEPRECATED
 func (w *PriceEventWorkerBybit) SubscribeToPriceEvents(
 	pairSymbols []string,
 	errorHandler func(err error),
