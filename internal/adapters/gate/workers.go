@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"sync"
 	"time"
 
 	gate "github.com/gateio/gatews/go"
@@ -28,7 +26,6 @@ type GateCandleWorker struct {
 	workers.CandleWorker
 
 	creds      pkgStructs.APICredentials
-	srvs       sync.Map // symbol -> subscriptionData
 	errHandler func(error)
 }
 
@@ -109,47 +106,6 @@ func (w *GateCandleWorker) getCandleCallback(
 
 func (w *GateCandleWorker) Stop() {
 	w.CandleWorker.Stop()
-
-	w.srvs.Range(func(iSymbol, iSub any) bool {
-		if iSub == nil || iSymbol == nil {
-			return true
-		}
-
-		pairSymbol, isConvertable := iSymbol.(string)
-		if !isConvertable {
-			if w.errHandler != nil {
-				w.errHandler(fmt.Errorf(
-					"unsubscribe: get symbol: unknown format: %s",
-					reflect.ValueOf(iSymbol).String(),
-				))
-			}
-			return true
-		}
-
-		// get subscription data
-		subsData, isConvertable := iSub.(workers.SubscriptionData)
-		if !isConvertable {
-			if w.errHandler != nil {
-				w.errHandler(fmt.Errorf(
-					"unsubscribe: get subs data: unknown format: %s",
-					reflect.ValueOf(iSub).String(),
-				))
-			}
-			return true
-		}
-
-		// stop service
-		if err := subsData.Service.Unsubscribe(); err != nil && w.errHandler != nil {
-			w.errHandler(fmt.Errorf(
-				"unsubscribe %q: %w",
-				pairSymbol, err,
-			))
-		}
-
-		// remove subscription data
-		w.srvs.Delete(pairSymbol)
-		return true
-	})
 }
 
 func (w *GateCandleWorker) SubscribeToCandle(
@@ -162,25 +118,30 @@ func (w *GateCandleWorker) SubscribeToCandle(
 		w.errHandler = errorHandler
 	}
 
-	// TODO: check subscription exists?
-	w.srvs.Load(pairSymbol) // TODO: use interval + symbol
+	gateInterval, err := mappers.ConvertIntervalToGate(interval)
+	if err != nil {
+		return fmt.Errorf("convert interval: %w", err)
+	}
+
+	if w.CandleWorker.IsSubscriptionExists(pairSymbol, gateInterval) {
+		return nil // already subscribed
+	}
 
 	srv, err := gate.NewWsService(context.Background(), nil, nil)
 	if err != nil {
 		return fmt.Errorf("conn: %w", err)
 	}
 
-	gateInterval, err := mappers.ConvertIntervalToGate(interval)
-	if err != nil {
-		return fmt.Errorf("convert interval: %w", err)
-	}
-
 	reqPayload := getCandleSubsPayload(gateInterval, pairSymbol)
 
-	w.srvs.Store(pairSymbol, workers.SubscriptionData{
-		Service: getUnsubscriber(srv, reqPayload),
-	})
+	// save subscription
+	w.CandleWorker.Save(
+		getUnsubscriber(srv, reqPayload),
+		errorHandler,
+		pairSymbol, gateInterval,
+	)
 
+	// set event handler
 	srv.SetCallBack(
 		reqPayload.Channel,
 		w.getCandleCallback(
@@ -191,6 +152,7 @@ func (w *GateCandleWorker) SubscribeToCandle(
 		),
 	)
 
+	// subscribe
 	go func() {
 		if err := srv.Subscribe(
 			reqPayload.Channel,

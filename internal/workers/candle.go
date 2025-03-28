@@ -1,7 +1,9 @@
 //go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package workers
 
-import "github.com/matrixbotio/exchange-gates-lib/internal/consts"
+import (
+	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
+)
 
 // CandleEvent - changes in trading candles for a specific pair
 type CandleEvent struct {
@@ -62,10 +64,6 @@ type ICandleWorker interface {
 type CandleWorker struct {
 	workerBase
 	ExchangeTag string
-}
-
-type SubscriptionData struct {
-	Service Unsubscriber
 }
 
 type Unsubscriber interface {
