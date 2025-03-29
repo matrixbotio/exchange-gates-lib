@@ -11,6 +11,7 @@ import (
 )
 
 const pairSymbolFormat = "%s_%s"
+const defaultMaxQty = 9999999999999
 
 func GetPairSymbol(baseTicker, quoteTicker string) string {
 	return fmt.Sprintf(pairSymbolFormat, baseTicker, quoteTicker)
@@ -56,7 +57,7 @@ func ConvertPair(
 	r.MinQty = minQty.InexactFloat64()
 
 	if data.MaxBaseAmount == "" {
-		r.MaxQty = 9999999999999
+		r.MaxQty = defaultMaxQty
 	} else {
 		maxQty, err := decimal.NewFromString(data.MaxBaseAmount)
 		if err != nil {
