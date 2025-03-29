@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/antihax/optional"
 	"github.com/gateio/gateapi-go/v6"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 	"github.com/shopspring/decimal"
 )
@@ -57,9 +59,13 @@ func (a *adapter) GetPairLastPrice(pairSymbol string) (float64, error) {
 func (a *adapter) CancelPairOrder(
 	pairSymbol string,
 	orderID int64,
-	ctx context.Context,
+	_ context.Context,
 ) error {
-	ctx, ctxCancel := context.WithTimeout(ctx, requestTimeout)
+	if !a.creds.Keypair.IsSet() {
+		return errs.ErrAPIKeyNotSet
+	}
+
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
 	_, _, err := a.client.SpotApi.CancelOrder(
@@ -68,15 +74,19 @@ func (a *adapter) CancelPairOrder(
 		pairSymbol,
 		nil,
 	)
-	return err
+	return mappers.MapCancelOrderErr(err)
 }
 
 func (a *adapter) CancelPairOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
-	ctx context.Context,
+	_ context.Context,
 ) error {
-	ctx, ctxCancel := context.WithTimeout(ctx, requestTimeout)
+	if !a.creds.Keypair.IsSet() {
+		return errs.ErrAPIKeyNotSet
+	}
+
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
 	_, _, err := a.client.SpotApi.CancelOrder(
@@ -85,7 +95,7 @@ func (a *adapter) CancelPairOrderByClientOrderID(
 		pairSymbol,
 		nil,
 	)
-	return err
+	return mappers.MapCancelOrderErr(err)
 }
 
 func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
@@ -105,8 +115,16 @@ func (a *adapter) GetPairs() ([]structs.ExchangePairData, error) {
 }
 
 func (a *adapter) GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error) {
+	if !a.creds.Keypair.IsSet() {
+		return structs.PairBalance{}, errs.ErrAPIKeyNotSet
+	}
+
 	balances, err := a.GetAccountBalance()
 	if err != nil {
+		if strings.Contains(err.Error(), "Invalid key provided") {
+			return structs.PairBalance{}, errs.ErrAPIKeyInvalid
+		}
+
 		return structs.PairBalance{}, fmt.Errorf("get: %w", err)
 	}
 

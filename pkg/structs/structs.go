@@ -39,6 +39,10 @@ type APIKeypair struct {
 	Secret string `json:"secret"`
 }
 
+func (k APIKeypair) IsSet() bool {
+	return k.Public != "" && k.Secret != ""
+}
+
 type BotStrategy string
 
 type ExchangeLimits struct {

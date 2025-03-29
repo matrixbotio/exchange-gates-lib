@@ -2,19 +2,26 @@ package gate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gateio/gateapi-go/v6"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/gate/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	"github.com/shopspring/decimal"
 )
 
 const orderTypeLimit = "limit"
 
 func (a *adapter) GetOrderData(pairSymbol string, orderID int64) (structs.OrderData, error) {
+	if !a.creds.Keypair.IsSet() {
+		return structs.OrderData{}, errs.ErrAPIKeyNotSet
+	}
+
 	return a.GetOrderByClientOrderID(
 		pairSymbol,
 		strconv.FormatInt(orderID, 10),
@@ -25,6 +32,10 @@ func (a *adapter) GetOrderByClientOrderID(
 	pairSymbol string,
 	clientOrderID string,
 ) (structs.OrderData, error) {
+	if !a.creds.Keypair.IsSet() {
+		return structs.OrderData{}, errs.ErrAPIKeyNotSet
+	}
+
 	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
@@ -35,6 +46,10 @@ func (a *adapter) GetOrderByClientOrderID(
 		nil,
 	)
 	if err != nil {
+		//if strings.Contains(err.Error(), mappers.ErrOrderNotActualMessage) {
+		//	return structs.OrderData{}, errs.ErrOrderDataNotActual
+		//}
+
 		return structs.OrderData{}, fmt.Errorf("get order data: %w", err)
 	}
 
@@ -74,7 +89,7 @@ func (a *adapter) GetOrderByClientOrderID(
 
 	orderData.Status = mappers.ConvertOrderStatus(data.Status)
 
-	if orderData.FilledQty > 0 {
+	if orderData.FilledQty > 0 && orderData.FilledQty < orderData.AwaitQty {
 		orderData.Status = consts.OrderStatusPartiallyFilled
 	}
 
@@ -85,6 +100,10 @@ func (a *adapter) PlaceOrder(
 	_ context.Context,
 	order structs.BotOrderAdjusted,
 ) (structs.CreateOrderResponse, error) {
+	if !a.creds.Keypair.IsSet() {
+		return structs.CreateOrderResponse{}, errs.ErrAPIKeyNotSet
+	}
+
 	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
@@ -134,6 +153,10 @@ func (a *adapter) GetOrderExecFee(
 	orderSide consts.OrderSide,
 	orderID int64,
 ) (structs.OrderFees, error) {
+	if !a.creds.Keypair.IsSet() {
+		return structs.OrderFees{}, errs.ErrAPIKeyNotSet
+	}
+
 	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
@@ -146,6 +169,10 @@ func (a *adapter) GetOrderExecFee(
 		nil,
 	)
 	if err != nil {
+		if strings.Contains(err.Error(), mappers.ErrOrderNotActualMessage) {
+			return structs.OrderFees{}, errs.ErrOrderDataNotActual
+		}
+
 		return structs.OrderFees{}, fmt.Errorf("get: %w", err)
 	}
 
@@ -160,6 +187,27 @@ func (a *adapter) GetHistoryOrder(
 	pairSymbol string,
 	orderID int64,
 ) (structs.OrderHistory, error) {
-	// not emplemented yet
-	return structs.OrderHistory{}, nil
+	/*if !a.creds.Keypair.IsSet() {
+		return structs.OrderHistory{}, errs.ErrAPIKeyNotSet
+	}
+
+	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
+	defer ctxCancel()
+
+	events, _, err := a.client.SpotApi.ListMyTrades(ctx, &gateapi.ListMyTradesOpts{
+		CurrencyPair: optional.NewString(pairSymbol),
+		OrderId:      optional.NewString(strconv.FormatInt(orderID, 10)),
+	})
+	if err != nil {
+		return structs.OrderHistory{}, fmt.Errorf("get: %w", err)
+	}
+
+	result, err := mappers.ConvertTradesToOrderHistory(events)
+	if err != nil {
+		return structs.OrderHistory{}, fmt.Errorf("convert: %w", err)
+	}
+	return result, nil*/
+
+	// not ready yet
+	return structs.OrderHistory{}, errors.New("not implemented")
 }
