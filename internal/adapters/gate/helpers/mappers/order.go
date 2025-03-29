@@ -60,7 +60,7 @@ func GetOrderFees(
 	return fees, nil
 }
 
-func ParseOrderEvent(event gate.SpotOrderMsg) (
+func ParseOrderEvent(event gate.SpotUserTradesMsg) (
 	workers.TradeEventPrivate,
 	error,
 ) {

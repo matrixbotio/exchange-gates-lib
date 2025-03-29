@@ -16,7 +16,7 @@ import (
 const (
 	wsConnTimeout        = time.Second * 15
 	gateCandleChannel    = gate.ChannelSpotCandleStick
-	gateTradeChannel     = gate.ChannelSpotOrder
+	gateTradeChannel     = "spot.usertrades_v2"
 	tradeSubscriptionTag = "subscription"
 )
 
@@ -173,7 +173,7 @@ func (w *GateTradeWorker) SubscribeToTradeEventsPrivate(
 
 	reqPayload := getOrderSubsPayload()
 
-	eventHandler := func(event gate.SpotOrderMsg) {
+	eventHandler := func(event gate.SpotUserTradesMsg) {
 		eventParsed, err := mappers.ParseOrderEvent(
 			event,
 		)
