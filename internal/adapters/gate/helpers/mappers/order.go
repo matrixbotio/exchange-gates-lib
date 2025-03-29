@@ -5,8 +5,10 @@ import (
 	"strings"
 
 	"github.com/gateio/gateapi-go/v6"
+	gate "github.com/gateio/gatews/go"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
+	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/shopspring/decimal"
 )
 
@@ -56,4 +58,12 @@ func GetOrderFees(
 		fees.QuoteAsset = feeValue
 	}
 	return fees, nil
+}
+
+func ParseOrderEvent(event gate.SpotOrderMsg) (
+	workers.TradeEventPrivate,
+	error,
+) {
+	// TODO
+	return workers.TradeEventPrivate{}, nil
 }
