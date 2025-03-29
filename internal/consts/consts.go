@@ -74,3 +74,4 @@ const (
 
 const BingXAdapterTag = "bingx-spot"
 const BinanceAdapterTag = "binance-spot"
+const GateAdapterTag = "gate-spot"

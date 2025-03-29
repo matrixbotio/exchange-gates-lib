@@ -19,9 +19,7 @@ import (
 )
 
 const (
-	adapterName = "Gate.io Spot (Beta)"
-	adapterTag  = "gate-spot"
-
+	adapterName         = "Gate.io Spot (Beta)"
 	clientOrderIDFormat = "t-%s"
 	spotAccountType     = "spot"
 	requestTimeout      = time.Second * 15
@@ -43,7 +41,7 @@ func New() adp.Adapter {
 		AdapterBase: baseadp.NewAdapterBase(
 			consts.ExchangeIDgateSpot,
 			adapterName,
-			adapterTag,
+			consts.GateAdapterTag,
 		),
 		client: gateapi.NewAPIClient(gateapi.NewConfiguration()),
 	}

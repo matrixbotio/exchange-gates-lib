@@ -2,7 +2,9 @@ package mappers
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gateio/gateapi-go/v6"
 	gate "github.com/gateio/gatews/go"
@@ -64,6 +66,29 @@ func ParseOrderEvent(event gate.SpotUserTradesMsg) (
 	workers.TradeEventPrivate,
 	error,
 ) {
-	// TODO
-	return workers.TradeEventPrivate{}, nil
+	timestamp, err := strconv.ParseInt(event.CreateTimeMs, 10, 64)
+	if err != nil {
+		fmt.Printf("timestamp: %s\n", err.Error())
+		timestamp = time.Now().UnixMilli()
+	}
+
+	price, err := decimal.NewFromString(event.Price)
+	if err != nil {
+		return workers.TradeEventPrivate{}, fmt.Errorf("price: %w", err)
+	}
+
+	qty, err := decimal.NewFromString(event.Amount)
+	if err != nil {
+		return workers.TradeEventPrivate{}, fmt.Errorf("qty: %w", err)
+	}
+
+	return workers.TradeEventPrivate{
+		Time:          timestamp,
+		ExchangeTag:   consts.GateAdapterTag,
+		Symbol:        event.CurrencyPair,
+		OrderID:       event.OrderId,
+		ClientOrderID: event.Text,
+		Price:         price.InexactFloat64(),
+		Quantity:      qty.InexactFloat64(),
+	}, nil
 }
