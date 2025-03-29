@@ -82,29 +82,10 @@ func (a *adapter) getUID() (int64, error) {
 }
 
 func (a *adapter) CanTrade() (bool, error) {
-	uid, err := a.getUID()
-	if err != nil {
+	if _, err := a.getUID(); err != nil {
 		return false, fmt.Errorf("uid: %w", err)
 	}
-
-	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
-	defer ctxCancel()
-
-	keyData, _, err := a.client.SubAccountApi.GetSubAccountKey(
-		ctx,
-		int32(uid),
-		a.creds.Keypair.Public,
-	)
-	if err != nil {
-		return false, fmt.Errorf("get key data: %w", err)
-	}
-
-	for _, permissions := range keyData.Perms {
-		if permissions.Name == spotAccountType {
-			return !permissions.ReadOnly, nil
-		}
-	}
-	return false, nil
+	return true, nil
 }
 
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
