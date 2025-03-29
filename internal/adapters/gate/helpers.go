@@ -18,6 +18,13 @@ func getCandleSubsPayload(interval, pairSymbol string) gateSubsPayload {
 	}
 }
 
+func getOrderSubsPayload() gateSubsPayload {
+	return gateSubsPayload{
+		Channel: gateTradeChannel,
+		Payload: []string{"!all"},
+	}
+}
+
 type gateUnsubscriber struct {
 	srv  *gate.WsService
 	data gateSubsPayload
