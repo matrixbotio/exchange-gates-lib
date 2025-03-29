@@ -130,20 +130,6 @@ func (mr *MockAdapterMockRecorder) GetAccountBalance() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountBalance", reflect.TypeOf((*MockAdapter)(nil).GetAccountBalance))
 }
 
-// GetCandleWorker mocks base method.
-func (m *MockAdapter) GetCandleWorker() workers.ICandleWorker {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCandleWorker")
-	ret0, _ := ret[0].(workers.ICandleWorker)
-	return ret0
-}
-
-// GetCandleWorker indicates an expected call of GetCandleWorker.
-func (mr *MockAdapterMockRecorder) GetCandleWorker() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCandleWorker", reflect.TypeOf((*MockAdapter)(nil).GetCandleWorker))
-}
-
 // GetCandles mocks base method.
 func (m *MockAdapter) GetCandles(limit int, symbol string, interval consts.Interval) ([]workers.CandleData, error) {
 	m.ctrl.T.Helper()
@@ -335,20 +321,6 @@ func (mr *MockAdapterMockRecorder) GetPairs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPairs", reflect.TypeOf((*MockAdapter)(nil).GetPairs))
 }
 
-// GetPriceWorker mocks base method.
-func (m *MockAdapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPriceWorker", callback)
-	ret0, _ := ret[0].(workers.IPriceWorker)
-	return ret0
-}
-
-// GetPriceWorker indicates an expected call of GetPriceWorker.
-func (mr *MockAdapterMockRecorder) GetPriceWorker(callback any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPriceWorker", reflect.TypeOf((*MockAdapter)(nil).GetPriceWorker), callback)
-}
-
 // GetTag mocks base method.
 func (m *MockAdapter) GetTag() string {
 	m.ctrl.T.Helper()
@@ -361,20 +333,6 @@ func (m *MockAdapter) GetTag() string {
 func (mr *MockAdapterMockRecorder) GetTag() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTag", reflect.TypeOf((*MockAdapter)(nil).GetTag))
-}
-
-// GetTradeEventsWorker mocks base method.
-func (m *MockAdapter) GetTradeEventsWorker() workers.ITradeEventWorker {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTradeEventsWorker")
-	ret0, _ := ret[0].(workers.ITradeEventWorker)
-	return ret0
-}
-
-// GetTradeEventsWorker indicates an expected call of GetTradeEventsWorker.
-func (mr *MockAdapterMockRecorder) GetTradeEventsWorker() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTradeEventsWorker", reflect.TypeOf((*MockAdapter)(nil).GetTradeEventsWorker))
 }
 
 // PlaceOrder mocks base method.
@@ -390,6 +348,58 @@ func (m *MockAdapter) PlaceOrder(ctx context.Context, order structs.BotOrderAdju
 func (mr *MockAdapterMockRecorder) PlaceOrder(ctx, order any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaceOrder", reflect.TypeOf((*MockAdapter)(nil).PlaceOrder), ctx, order)
+}
+
+// SubscribeAccountTrades mocks base method.
+func (m *MockAdapter) SubscribeAccountTrades(eventCallback workers.TradeEventPrivateCallback, errorHandler func(error)) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubscribeAccountTrades", eventCallback, errorHandler)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SubscribeAccountTrades indicates an expected call of SubscribeAccountTrades.
+func (mr *MockAdapterMockRecorder) SubscribeAccountTrades(eventCallback, errorHandler any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeAccountTrades", reflect.TypeOf((*MockAdapter)(nil).SubscribeAccountTrades), eventCallback, errorHandler)
+}
+
+// SubscribeCandle mocks base method.
+func (m *MockAdapter) SubscribeCandle(pairSymbol string, interval consts.Interval, eventCallback func(workers.CandleEvent), errorHandler func(error)) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubscribeCandle", pairSymbol, interval, eventCallback, errorHandler)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SubscribeCandle indicates an expected call of SubscribeCandle.
+func (mr *MockAdapterMockRecorder) SubscribeCandle(pairSymbol, interval, eventCallback, errorHandler any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeCandle", reflect.TypeOf((*MockAdapter)(nil).SubscribeCandle), pairSymbol, interval, eventCallback, errorHandler)
+}
+
+// UnsubscribeAccountTrades mocks base method.
+func (m *MockAdapter) UnsubscribeAccountTrades() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UnsubscribeAccountTrades")
+}
+
+// UnsubscribeAccountTrades indicates an expected call of UnsubscribeAccountTrades.
+func (mr *MockAdapterMockRecorder) UnsubscribeAccountTrades() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsubscribeAccountTrades", reflect.TypeOf((*MockAdapter)(nil).UnsubscribeAccountTrades))
+}
+
+// UnsubscribeCandle mocks base method.
+func (m *MockAdapter) UnsubscribeCandle(pairSymbol string, interval consts.Interval) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UnsubscribeCandle", pairSymbol, interval)
+}
+
+// UnsubscribeCandle indicates an expected call of UnsubscribeCandle.
+func (mr *MockAdapterMockRecorder) UnsubscribeCandle(pairSymbol, interval any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsubscribeCandle", reflect.TypeOf((*MockAdapter)(nil).UnsubscribeCandle), pairSymbol, interval)
 }
 
 // VerifyAPIKeys mocks base method.

@@ -15,8 +15,8 @@ import (
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 const (
@@ -53,7 +53,8 @@ func getTestBotOrder() structs.BotOrderAdjusted {
 
 func TestGetOrderDataErrorIDNotSet(t *testing.T) {
 	// given
-	a := New(wrapper.NewMockBinanceAPIWrapper(t))
+	ctrl := gomock.NewController(t)
+	a := New(wrapper.NewMockBinanceAPIWrapper(ctrl))
 
 	// when
 	_, err := a.GetOrderData(testPairSymbol, 0)
@@ -64,7 +65,8 @@ func TestGetOrderDataErrorIDNotSet(t *testing.T) {
 
 func TestGetOrderDataSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestOrderData()
 
@@ -91,10 +93,11 @@ func TestGetOrderDataSuccess(t *testing.T) {
 
 func TestGetOrderDataErrorOrderUnknown(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetOrderDataByOrderID(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderDataByOrderID(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, errors.New(errs.UnknownOrderMsg))
 
 	// when
@@ -106,11 +109,13 @@ func TestGetOrderDataErrorOrderUnknown(t *testing.T) {
 
 func TestGetOrderDataErrorUnknown(t *testing.T) {
 	// given
-	var w = wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
+
 	var a = New(w)
 	var testErr = errors.New("some exception")
 
-	w.EXPECT().GetOrderDataByOrderID(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderDataByOrderID(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, testErr)
 
 	// when
@@ -122,12 +127,13 @@ func TestGetOrderDataErrorUnknown(t *testing.T) {
 
 func TestGetOrderDataCovertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestOrderData()
 	order.Price = "strange data"
 
-	w.EXPECT().GetOrderDataByOrderID(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderDataByOrderID(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(&order, nil)
 
 	// when
@@ -139,7 +145,8 @@ func TestGetOrderDataCovertError(t *testing.T) {
 
 func TestGetOrderByClientOrderIDSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testOrderData := &binance.Order{
@@ -154,7 +161,7 @@ func TestGetOrderByClientOrderIDSuccess(t *testing.T) {
 	}
 
 	w.EXPECT().GetOrderDataByClientOrderID(
-		mock.Anything,
+		gomock.Any(),
 		testOrderData.Symbol,
 		testClientOrderID,
 	).Return(testOrderData, nil)
@@ -175,7 +182,8 @@ func TestGetOrderByClientOrderIDSuccess(t *testing.T) {
 
 func TestGetOrderByClientOrderIDNotSet(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	// when
@@ -187,13 +195,14 @@ func TestGetOrderByClientOrderIDNotSet(t *testing.T) {
 
 func TestGetOrderByClientOrderUnknown(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testOrderData := getTestOrderData()
 
 	w.EXPECT().GetOrderDataByClientOrderID(
-		mock.Anything,
+		gomock.Any(),
 		testOrderData.Symbol,
 		testClientOrderID,
 	).Return(nil, errors.New(errs.UnknownOrderMsg))
@@ -210,13 +219,14 @@ func TestGetOrderByClientOrderUnknown(t *testing.T) {
 
 func TestGetOrderByClientOrderError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testOrderData := getTestOrderData()
 
 	w.EXPECT().GetOrderDataByClientOrderID(
-		mock.Anything,
+		gomock.Any(),
 		testOrderData.Symbol,
 		testClientOrderID,
 	).Return(nil, errTestException)
@@ -233,14 +243,15 @@ func TestGetOrderByClientOrderError(t *testing.T) {
 
 func TestGetOrderByClientOrderConvertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testOrderData := getTestOrderData()
 	testOrderData.Price = "broken data"
 
 	w.EXPECT().GetOrderDataByClientOrderID(
-		mock.Anything,
+		gomock.Any(),
 		testOrderData.Symbol,
 		testClientOrderID,
 	).Return(&testOrderData, nil)
@@ -257,13 +268,14 @@ func TestGetOrderByClientOrderConvertError(t *testing.T) {
 
 func TestPlaceOrderSucess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestBotOrder()
 
 	w.EXPECT().PlaceLimitOrder(
-		mock.Anything, order.PairSymbol, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything,
+		gomock.Any(), order.PairSymbol, gomock.Any(),
+		gomock.Any(), gomock.Any(), gomock.Any(),
 	).Return(&binance.CreateOrderResponse{
 		Symbol:        order.PairSymbol,
 		OrderID:       testOrderID,
@@ -288,7 +300,8 @@ func TestPlaceOrderSucess(t *testing.T) {
 
 func TestPlaceOrderInvalidOrderSide(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestBotOrder()
 	order.Type = "strange data"
@@ -302,13 +315,14 @@ func TestPlaceOrderInvalidOrderSide(t *testing.T) {
 
 func TestPlaceCreateOrderError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestBotOrder()
 
 	w.EXPECT().PlaceLimitOrder(
-		mock.Anything, order.PairSymbol, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything,
+		gomock.Any(), order.PairSymbol, gomock.Any(),
+		gomock.Any(), gomock.Any(), gomock.Any(),
 	).Return(nil, errTestException)
 
 	// when
@@ -320,13 +334,14 @@ func TestPlaceCreateOrderError(t *testing.T) {
 
 func TestPlaceOrderResponseEmpty(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestBotOrder()
 
 	w.EXPECT().PlaceLimitOrder(
-		mock.Anything, order.PairSymbol, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything,
+		gomock.Any(), order.PairSymbol, gomock.Any(),
+		gomock.Any(), gomock.Any(), gomock.Any(),
 	).Return(nil, nil)
 
 	// when
@@ -338,13 +353,14 @@ func TestPlaceOrderResponseEmpty(t *testing.T) {
 
 func TestPlaceOrderConvertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	order := getTestBotOrder()
 
 	w.EXPECT().PlaceLimitOrder(
-		mock.Anything, order.PairSymbol, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything,
+		gomock.Any(), order.PairSymbol, gomock.Any(),
+		gomock.Any(), gomock.Any(), gomock.Any(),
 	).Return(&binance.CreateOrderResponse{
 		Price: "broken data",
 	}, nil)
@@ -358,14 +374,15 @@ func TestPlaceOrderConvertError(t *testing.T) {
 
 func TestGetOrderExecFeeSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	baseAsset := "LTC"
 	quoteAsset := "USDT"
 	pairSymbol := baseAsset + quoteAsset
 
-	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderTradeHistory(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*binance.TradeV3{
 			{
 				Symbol:          pairSymbol,
@@ -409,13 +426,14 @@ func TestGetOrderExecFeeSuccess(t *testing.T) {
 
 func TestGetOrderExecFeeGetHistoryError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	baseAsset := "LTC"
 	quoteAsset := "USDT"
 
-	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderTradeHistory(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, errTestException)
 
 	// when
@@ -432,13 +450,14 @@ func TestGetOrderExecFeeGetHistoryError(t *testing.T) {
 
 func TestGetOrderExecFeeParseError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	baseAsset := "LTC"
 	quoteAsset := "USDT"
 
-	w.EXPECT().GetOrderTradeHistory(mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetOrderTradeHistory(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return([]*binance.TradeV3{
 			{
 				Symbol:          baseAsset + quoteAsset,

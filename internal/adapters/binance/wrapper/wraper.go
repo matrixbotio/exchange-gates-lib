@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 package wrapper
 
 import (
@@ -99,13 +100,6 @@ type BinanceAPIWrapper interface {
 	SubscribeToPriceEvents(
 		pairSymbol string,
 		eventCallback binance.WsBookTickerHandler,
-		errorHandler func(err error),
-	) (doneC chan struct{}, stopC chan struct{}, err error)
-
-	SubscribeToTradeEvents(
-		pairSymbol string,
-		exchangeTag string,
-		eventCallback func(event workers.TradeEvent),
 		errorHandler func(err error),
 	) (doneC chan struct{}, stopC chan struct{}, err error)
 
@@ -318,23 +312,6 @@ func (b *BinanceClientWrapper) SubscribeToPriceEvents(
 	)
 }
 
-func (b *BinanceClientWrapper) SubscribeToTradeEvents(
-	pairSymbol string,
-	exchangeTag string,
-	eventCallback func(event workers.TradeEvent),
-	errorHandler func(err error),
-) (doneC chan struct{}, stopC chan struct{}, err error) {
-	return binance.WsTradeServe(
-		pairSymbol,
-		helpers.GetTradeEventsHandler(
-			exchangeTag,
-			eventCallback,
-			errorHandler,
-		),
-		errorHandler,
-	)
-}
-
 func (b *BinanceClientWrapper) SubscribeToTradeEventsPrivate(
 	exchangeTag string,
 	eventCallback workers.TradeEventPrivateCallback,
@@ -365,6 +342,9 @@ func (b *BinanceClientWrapper) SubscribeToTradeEventsPrivate(
 	}
 
 	doneC, bStopC, err := binance.WsUserDataServe(listenKey, binanceEventCallback, errorHandler)
+	if err != nil {
+		return nil, nil, fmt.Errorf("serve: %w", err)
+	}
 
 	stopC = make(chan struct{})
 

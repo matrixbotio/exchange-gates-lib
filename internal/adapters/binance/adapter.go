@@ -8,23 +8,23 @@ import (
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
-	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/workers"
+	binanceworkers "github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/workers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	iWorkers "github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 const (
 	adapterName = "Binance Spot"
-	adapterTag  = "binance-spot"
 )
 
 type adapter struct {
 	baseadp.AdapterBase
-
 	binanceAPI wrapper.BinanceAPIWrapper
+
+	tradeWorker  *binanceworkers.TradeEventWorkerBinance
+	candleWorker *CandleWorkerBinance
 }
 
 func New(wrapper wrapper.BinanceAPIWrapper) adp.Adapter {
@@ -32,9 +32,11 @@ func New(wrapper wrapper.BinanceAPIWrapper) adp.Adapter {
 		AdapterBase: baseadp.NewAdapterBase(
 			consts.ExchangeIDbinanceSpot,
 			adapterName,
-			adapterTag,
+			consts.BinanceAdapterTag,
 		),
-		binanceAPI: wrapper,
+		binanceAPI:   wrapper,
+		candleWorker: NewCandleWorker(wrapper),
+		tradeWorker:  binanceworkers.NewTradeEventsWorker(wrapper),
 	}
 }
 
@@ -69,19 +71,4 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 
 	a.binanceAPI.Sync(context.Background())
 	return nil
-}
-
-func (a *adapter) GetPriceWorker(callback iWorkers.PriceEventCallback) iWorkers.IPriceWorker {
-	return workers.NewPriceWorker(
-		a.GetTag(),
-		a.binanceAPI,
-		callback,
-	)
-}
-
-func (a *adapter) GetTradeEventsWorker() iWorkers.ITradeEventWorker {
-	return workers.NewTradeEventsWorker(
-		a.GetTag(),
-		a.binanceAPI,
-	)
 }

@@ -13,22 +13,11 @@ import (
 
 const tradeSubscriptionKey = "subscription"
 
-type PriceEventWorkerBingX struct {
-	workers.PriceWorker
-}
-
-func (a *adapter) GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker {
-	w := &PriceEventWorkerBingX{}
-	w.PriceWorker.ExchangeTag = a.Tag
-	w.PriceWorker.HandleEventCallback = callback
-	return w
-}
-
 type CandleEventWorkerBingX struct {
 	workers.CandleWorker
 }
 
-func (a *adapter) GetCandleWorker() workers.ICandleWorker {
+func (a *adapter) CreateCandleWorker() *CandleEventWorkerBingX {
 	w := &CandleEventWorkerBingX{}
 	w.CandleWorker.ExchangeTag = a.GetTag()
 	return w
@@ -40,10 +29,9 @@ type TradeEventWorkerBingX struct {
 	creds  structs.APICredentials
 }
 
-func (a *adapter) GetTradeEventsWorker() workers.ITradeEventWorker {
+func (a *adapter) CreateTradeEventsWorker() *TradeEventWorkerBingX {
 	w := &TradeEventWorkerBingX{client: &a.client, creds: a.creds}
 	w.TradeEventWorker.ExchangeTag = a.GetTag()
-	w.TradeEventWorker.WsChannels = new(structs.WorkerChannels)
 	return w
 }
 
@@ -55,9 +43,7 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 		return nil
 	}
 
-	var err error
-	w.WsChannels = new(structs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsOrderUpdateServe(
+	wsDone, wsStop, err := bingxgo.WsOrderUpdateServe(
 		w.creds.Keypair.Public,
 		w.creds.Keypair.Secret,
 		func(o *bingxgo.WsOrder) {
@@ -76,20 +62,11 @@ func (w *TradeEventWorkerBingX) SubscribeToTradeEventsPrivate(
 	}
 
 	w.TradeEventWorker.Save(
-		nil, // control via worker channels instead of "unsubscriber"
+		workers.CreateChannelsUnsubscriber(wsDone, wsStop),
 		errorHandler,
 		tradeSubscriptionKey,
 	)
 	return nil
-}
-
-// DEPRECATED
-func (w *PriceEventWorkerBingX) SubscribeToPriceEvents(
-	pairSymbols []string,
-	errorHandler func(err error),
-) (map[string]structs.WorkerChannels, error) {
-	// not implemented
-	return nil, nil
 }
 
 func (w *CandleEventWorkerBingX) SubscribeToCandle(
@@ -107,8 +84,7 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 		return nil
 	}
 
-	w.WsChannels = new(structs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = bingxgo.WsKlineServe(
+	wsDone, wsStop, err := bingxgo.WsKlineServe(
 		pairSymbol,
 		bingxInterval,
 		GetBingXCandleEventsHandler(
@@ -122,26 +98,52 @@ func (w *CandleEventWorkerBingX) SubscribeToCandle(
 	}
 
 	w.CandleWorker.Save(
-		nil, // control via worker channels instead of "unsubscriber"
+		workers.CreateChannelsUnsubscriber(wsDone, wsStop),
 		errorHandler,
 		pairSymbol, string(bingxInterval),
 	)
 	return nil
 }
 
-// DEPRECATED
-func (w *CandleEventWorkerBingX) SubscribeToCandlesList(
-	intervalsPerPair map[string]consts.Interval,
+func (a *adapter) SubscribeCandle(
+	pairSymbol string,
+	interval consts.Interval,
 	eventCallback func(event workers.CandleEvent),
 	errorHandler func(err error),
 ) error {
-	for symbol, interval := range intervalsPerPair {
-		if err := w.SubscribeToCandle(
-			symbol, interval,
-			eventCallback, errorHandler,
-		); err != nil {
-			return fmt.Errorf("subscribe to %q: %w", symbol, err)
-		}
+	return a.candleWorker.SubscribeToCandle(
+		pairSymbol,
+		interval,
+		eventCallback,
+		errorHandler,
+	)
+}
+
+func (a *adapter) SubscribeAccountTrades(
+	eventCallback workers.TradeEventPrivateCallback,
+	errorHandler func(err error),
+) error {
+	return a.tradeWorker.SubscribeToTradeEventsPrivate(
+		eventCallback, errorHandler,
+	)
+}
+
+func (a *adapter) UnsubscribeCandle(
+	pairSymbol string,
+	interval consts.Interval,
+) {
+	bingxInterval, err := ConvertIntervalToBingXWs(interval)
+	if err != nil {
+		fmt.Printf(
+			"convert interval %q to bingx: %s\n",
+			interval, err.Error(),
+		)
+		return
 	}
-	return nil
+
+	a.candleWorker.Unsubscribe(pairSymbol, string(bingxInterval))
+}
+
+func (a *adapter) UnsubscribeAccountTrades() {
+	a.tradeWorker.UnsubscribeAll()
 }

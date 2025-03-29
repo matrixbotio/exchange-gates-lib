@@ -8,6 +8,7 @@ import (
 
 	adp "github.com/matrixbotio/exchange-gates-lib/internal/adapters"
 	baseadp "github.com/matrixbotio/exchange-gates-lib/internal/adapters/base"
+	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/bybit/helpers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
@@ -23,6 +24,9 @@ type adapter struct {
 
 	client   *bybit.Client
 	wsClient *bybit.WebSocketClient
+
+	candleWorker *helpers.CandleEventWorkerBybit
+	tradeWorker  *TradeEventWorkerBybit
 }
 
 func New() adp.Adapter {
@@ -60,6 +64,9 @@ func (a *adapter) Connect(credentials pkgStructs.APICredentials) error {
 	if err := a.client.SyncServerTime(); err != nil {
 		return fmt.Errorf("sync time: %w", err)
 	}
+
+	a.candleWorker = a.CreateCandleWorker()
+	a.tradeWorker = a.CreateTradeEventsWorker()
 	return nil
 }
 

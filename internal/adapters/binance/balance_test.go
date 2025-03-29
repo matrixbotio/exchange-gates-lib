@@ -8,8 +8,8 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/errs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func getTestBalances() []binance.Balance {
@@ -29,14 +29,15 @@ func getTestBalances() []binance.Balance {
 
 func TestGetAccountBalanceSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testBalances := &binance.Account{
 		Balances: getTestBalances(),
 	}
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(testBalances, nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(testBalances, nil)
 
 	// when
 	balances, err := a.GetAccountBalance()
@@ -54,10 +55,11 @@ func TestGetAccountBalanceSuccess(t *testing.T) {
 
 func TestGetAccountBalanceError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(nil, errTestException)
 
 	// when
 	_, err := a.GetAccountBalance()
@@ -68,7 +70,8 @@ func TestGetAccountBalanceError(t *testing.T) {
 
 func TestGetAccountBalanceConvertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
 	testBalances := &binance.Account{
@@ -76,7 +79,7 @@ func TestGetAccountBalanceConvertError(t *testing.T) {
 	}
 	testBalances.Balances[0].Free = "broken data"
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(testBalances, nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(testBalances, nil)
 
 	// when
 	_, err := a.GetAccountBalance()
@@ -87,10 +90,11 @@ func TestGetAccountBalanceConvertError(t *testing.T) {
 
 func TestGetAccountBalanceErrorEmptyResponse(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(nil, nil)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(nil, nil)
 
 	// when
 	_, err := a.GetAccountBalance()
@@ -101,7 +105,8 @@ func TestGetAccountBalanceErrorEmptyResponse(t *testing.T) {
 
 func TestGetPairBalanceSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	pairSymbolData := structs.PairSymbolData{
 		BaseTicker:  "LTC",
@@ -109,7 +114,7 @@ func TestGetPairBalanceSuccess(t *testing.T) {
 		Symbol:      "LTCMTXB",
 	}
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(&binance.Account{
+	w.EXPECT().GetAccountData(gomock.Any()).Return(&binance.Account{
 		Balances: getTestBalances(),
 	}, nil)
 
@@ -128,7 +133,8 @@ func TestGetPairBalanceSuccess(t *testing.T) {
 
 func TestGetPairBalanceError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	pairSymbolData := structs.PairSymbolData{
 		BaseTicker:  "LTC",
@@ -136,7 +142,7 @@ func TestGetPairBalanceError(t *testing.T) {
 		Symbol:      "LTCMTXB",
 	}
 
-	w.EXPECT().GetAccountData(mock.Anything).Return(nil, errTestException)
+	w.EXPECT().GetAccountData(gomock.Any()).Return(nil, errTestException)
 
 	// when
 	_, err := a.GetPairBalance(pairSymbolData)

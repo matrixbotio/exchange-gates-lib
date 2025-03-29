@@ -6,23 +6,23 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/helpers/mappers"
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
-	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 const testInterval = consts.Interval15min
 
 func TestGetCandlesSuccess(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
 	interval := testInterval
 
-	w.EXPECT().GetKlines(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetKlines(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(mappers.GetTestKlines(), nil)
 
 	// when
@@ -41,13 +41,14 @@ func TestGetCandlesSuccess(t *testing.T) {
 
 func TestGetCandlesGetKlinesError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
 	interval := testInterval
 
-	w.EXPECT().GetKlines(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetKlines(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, errTestException)
 
 	// when
@@ -59,7 +60,8 @@ func TestGetCandlesGetKlinesError(t *testing.T) {
 
 func TestGetCandlesConvertError(t *testing.T) {
 	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
+	ctrl := gomock.NewController(t)
+	w := wrapper.NewMockBinanceAPIWrapper(ctrl)
 	a := New(w)
 	limit := 5
 	pairSymbol := "LTCUSDT"
@@ -68,7 +70,7 @@ func TestGetCandlesConvertError(t *testing.T) {
 	klines := mappers.GetTestKlines()
 	klines[0].Low = "strange data"
 
-	w.EXPECT().GetKlines(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	w.EXPECT().GetKlines(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(klines, nil)
 
 	// when
@@ -76,131 +78,4 @@ func TestGetCandlesConvertError(t *testing.T) {
 
 	// then
 	require.ErrorContains(t, err, "convert candles")
-}
-
-func TestGetCandleWorkerSuccess(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-
-	// when
-	worker := a.GetCandleWorker()
-
-	// then
-	assert.NotEmpty(t, worker.GetExchangeTag())
-	assert.Equal(t, a.GetTag(), worker.GetExchangeTag())
-}
-
-func TestSubscribeToCandleSuccess(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-	worker := a.GetCandleWorker()
-	interval := testInterval
-
-	w.EXPECT().SubscribeToCandle(
-		mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything,
-	).Return(
-		make(chan struct{}),
-		make(chan struct{}),
-		nil,
-	)
-
-	// when
-	err := worker.SubscribeToCandle(
-		testPairSymbol, interval,
-		func(event workers.CandleEvent) {},
-		func(err error) {},
-	)
-
-	// then
-	require.NoError(t, err)
-}
-
-func TestSubscribeToCandleError(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-	worker := a.GetCandleWorker()
-	interval := testInterval
-
-	w.EXPECT().SubscribeToCandle(
-		mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything,
-	).Return(
-		make(chan struct{}),
-		make(chan struct{}),
-		errTestException,
-	)
-
-	// when
-	err := worker.SubscribeToCandle(
-		testPairSymbol, interval,
-		func(event workers.CandleEvent) {},
-		func(err error) {},
-	)
-
-	// then
-	require.ErrorIs(t, err, errTestException)
-}
-
-func TestSubscribeToCandlesListSuccess(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-	worker := a.GetCandleWorker()
-
-	intervalsPerPair := map[string]consts.Interval{
-		"LTCUSDT": consts.Interval1hour,
-	}
-
-	w.EXPECT().SubscribeToCandlesList(
-		mock.Anything, mock.Anything,
-		mock.Anything,
-	).Return(
-		make(chan struct{}),
-		make(chan struct{}),
-		nil,
-	)
-
-	// when
-	err := worker.SubscribeToCandlesList(
-		intervalsPerPair,
-		func(event workers.CandleEvent) {},
-		func(err error) {},
-	)
-
-	// then
-	require.NoError(t, err)
-}
-
-func TestSubscribeToCandlesListError(t *testing.T) {
-	// given
-	w := wrapper.NewMockBinanceAPIWrapper(t)
-	a := New(w)
-	worker := a.GetCandleWorker()
-
-	intervalsPerPair := map[string]consts.Interval{
-		"LTCUSDT": consts.Interval15min,
-	}
-
-	w.EXPECT().SubscribeToCandlesList(
-		mock.Anything, mock.Anything,
-		mock.Anything,
-	).Return(
-		make(chan struct{}),
-		make(chan struct{}),
-		errTestException,
-	)
-
-	// when
-	err := worker.SubscribeToCandlesList(
-		intervalsPerPair,
-		func(event workers.CandleEvent) {},
-		func(err error) {},
-	)
-
-	// then
-	require.ErrorIs(t, err, errTestException)
 }

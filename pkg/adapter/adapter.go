@@ -27,13 +27,6 @@ type (
 	OrderFees            = structs.OrderFees
 )
 
-type (
-	ICandleWorker      = workers.ICandleWorker
-	IPriceWorker       = workers.IPriceWorker
-	ITradeEventWorker  = workers.ITradeEventWorker
-	PriceEventCallback = workers.PriceEventCallback
-)
-
 type Interval = consts.Interval
 
 const (
@@ -52,8 +45,6 @@ var GetIntervals = consts.GetIntervals
 
 // events
 type (
-	PriceEvent        = workers.PriceEvent
-	TradeEvent        = workers.TradeEvent
 	TradeEventPrivate = workers.TradeEventPrivate
 	OrderEvent        = workers.OrderEvent
 	CandleEvent       = workers.CandleEvent

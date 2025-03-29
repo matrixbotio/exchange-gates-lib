@@ -8,7 +8,6 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/adapters/binance/wrapper"
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
-	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 )
 
 // CandleWorkerBinance - MarketDataWorker for binance
@@ -16,6 +15,14 @@ type CandleWorkerBinance struct {
 	workers.CandleWorker
 
 	binanceAPI wrapper.BinanceAPIWrapper
+}
+
+func NewCandleWorker(binanceAPI wrapper.BinanceAPIWrapper) *CandleWorkerBinance {
+	w := &CandleWorkerBinance{
+		binanceAPI: binanceAPI,
+	}
+	w.ExchangeTag = consts.BinanceAdapterTag
+	return w
 }
 
 func (a *adapter) GetCandles(limit int, pairSymbol string, interval consts.Interval) (
@@ -42,14 +49,6 @@ func (a *adapter) GetCandles(limit int, pairSymbol string, interval consts.Inter
 	return candles, nil
 }
 
-func (a *adapter) GetCandleWorker() workers.ICandleWorker {
-	w := CandleWorkerBinance{
-		binanceAPI: a.binanceAPI,
-	}
-	w.ExchangeTag = a.GetTag()
-	return &w
-}
-
 func convertInterval(ourFormat consts.Interval) string {
 	return string(ourFormat)
 }
@@ -64,9 +63,7 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 		return nil
 	}
 
-	var err error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandle(
+	wsDone, wsStop, err := w.binanceAPI.SubscribeToCandle(
 		pairSymbol,
 		convertInterval(interval),
 		eventCallback,
@@ -78,33 +75,9 @@ func (w *CandleWorkerBinance) SubscribeToCandle(
 
 	// save subscription
 	w.CandleWorker.Save(
-		nil, // control via worker channels instead of "unsibscriber"
+		workers.CreateChannelsUnsubscriber(wsDone, wsStop),
 		errorHandler,
 		pairSymbol, convertInterval(interval),
 	)
-	return nil
-}
-
-// DEPRECATED
-func (w *CandleWorkerBinance) SubscribeToCandlesList(
-	intervalsPerPair map[string]consts.Interval,
-	eventCallback func(event workers.CandleEvent),
-	errorHandler func(err error),
-) error {
-	intervals := map[string]string{}
-	for symbol, interval := range intervalsPerPair {
-		intervals[symbol] = convertInterval(interval)
-	}
-
-	var err error
-	w.WsChannels = new(pkgStructs.WorkerChannels)
-	w.WsChannels.WsDone, w.WsChannels.WsStop, err = w.binanceAPI.SubscribeToCandlesList(
-		intervals,
-		eventCallback,
-		errorHandler,
-	)
-	if err != nil {
-		return fmt.Errorf("subscribe: %w", err)
-	}
 	return nil
 }

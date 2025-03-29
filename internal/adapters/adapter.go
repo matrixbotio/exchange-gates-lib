@@ -78,13 +78,25 @@ type Adapter interface {
 	// GetPairBalance - get pair balance: ticker, quote asset balance for pair symbol
 	GetPairBalance(pair structs.PairSymbolData) (structs.PairBalance, error)
 
-	// WORKERS
-	// GetPriceWorker - create new market data worker
-	GetPriceWorker(callback workers.PriceEventCallback) workers.IPriceWorker
-	// GetCandleWorker - create new market candle worker
-	GetCandleWorker() workers.ICandleWorker
-	// GetTradeEventsWorker - create new market candle worker
-	GetTradeEventsWorker() workers.ITradeEventWorker
+	// SUBSCRIPTIONS
+	SubscribeCandle(
+		pairSymbol string,
+		interval consts.Interval,
+		eventCallback func(event workers.CandleEvent),
+		errorHandler func(err error),
+	) error
+
+	UnsubscribeCandle(
+		pairSymbol string,
+		interval consts.Interval,
+	)
+
+	SubscribeAccountTrades(
+		eventCallback workers.TradeEventPrivateCallback,
+		errorHandler func(err error),
+	) error
+
+	UnsubscribeAccountTrades()
 
 	// CANDLE
 	GetCandles(limit int, symbol string, interval consts.Interval) ([]workers.CandleData, error)
