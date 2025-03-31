@@ -30,6 +30,14 @@ type CandleData struct {
 	Volume    float64         `json:"volume"`
 }
 
+// PriceEvent - data on changes in trade data in the market
+type PriceEvent struct {
+	ExchangeTag string  `json:"exchangeTag"`
+	Symbol      string  `json:"symbol"`
+	Ask         float64 `json:"ask"`
+	Bid         float64 `json:"bid"`
+}
+
 // CandleWorker - worker for subscribtion to exchange candle events
 type CandleWorker struct {
 	workerBase
