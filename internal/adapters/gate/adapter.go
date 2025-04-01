@@ -23,6 +23,7 @@ const (
 	adapterName         = "Gate.io Spot (Beta)"
 	clientOrderIDFormat = "t-%s"
 	spotAccountType     = "spot"
+	channelID           = "matrixbot"
 	requestTimeout      = time.Second * 15
 )
 
@@ -38,13 +39,16 @@ type adapter struct {
 }
 
 func New() adp.Adapter {
+	cfg := gateapi.NewConfiguration()
+	cfg.AddDefaultHeader("X-Gate-Channel-Id", channelID)
+
 	return &adapter{
 		AdapterBase: baseadp.NewAdapterBase(
 			consts.ExchangeIDgateSpot,
 			adapterName,
 			consts.GateAdapterTag,
 		),
-		client: gateapi.NewAPIClient(gateapi.NewConfiguration()),
+		client: gateapi.NewAPIClient(cfg),
 	}
 }
 
