@@ -11,6 +11,7 @@ import (
 )
 
 const pairSymbolFormat = "%s_%s"
+const defaultMaxQty = 9999999999999
 
 func GetPairSymbol(baseTicker, quoteTicker string) string {
 	return fmt.Sprintf(pairSymbolFormat, baseTicker, quoteTicker)
@@ -55,12 +56,16 @@ func ConvertPair(
 	}
 	r.MinQty = minQty.InexactFloat64()
 
-	maxQty, err := decimal.NewFromString(data.MaxBaseAmount)
-	if err != nil {
-		return structs.ExchangePairData{},
-			fmt.Errorf("parse max qty: %w", err)
+	if data.MaxBaseAmount == "" {
+		r.MaxQty = defaultMaxQty
+	} else {
+		maxQty, err := decimal.NewFromString(data.MaxBaseAmount)
+		if err != nil {
+			return structs.ExchangePairData{},
+				fmt.Errorf("parse max qty: %w", err)
+		}
+		r.MaxQty = maxQty.InexactFloat64()
 	}
-	r.MaxQty = maxQty.InexactFloat64()
 
 	minAmount, err := decimal.NewFromString(data.MinQuoteAmount)
 	if err != nil {
@@ -82,7 +87,7 @@ func ConvertPair(
 func getValueStep(precision int32) float64 {
 	// 1 / 10^precision
 	return decimal.NewFromInt(1).
-		Sub(decimal.NewFromInt(10).
+		Div(decimal.NewFromInt(10).
 			Pow(decimal.NewFromInt32(precision)),
 		).InexactFloat64()
 }

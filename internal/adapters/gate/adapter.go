@@ -14,16 +14,16 @@ import (
 	"github.com/matrixbotio/exchange-gates-lib/internal/consts"
 	"github.com/matrixbotio/exchange-gates-lib/internal/structs"
 	"github.com/matrixbotio/exchange-gates-lib/internal/workers"
+	"github.com/matrixbotio/exchange-gates-lib/pkg/errs"
 	pkgStructs "github.com/matrixbotio/exchange-gates-lib/pkg/structs"
 	"github.com/matrixbotio/exchange-gates-lib/pkg/utils"
 )
 
 const (
-	adapterName = "Gate.io Spot (Beta)"
-	adapterTag  = "gate-spot"
-
+	adapterName         = "Gate.io Spot (Beta)"
 	clientOrderIDFormat = "t-%s"
 	spotAccountType     = "spot"
+	channelID           = "matrixbot"
 	requestTimeout      = time.Second * 15
 )
 
@@ -39,13 +39,16 @@ type adapter struct {
 }
 
 func New() adp.Adapter {
+	cfg := gateapi.NewConfiguration()
+	cfg.AddDefaultHeader("X-Gate-Channel-Id", channelID)
+
 	return &adapter{
 		AdapterBase: baseadp.NewAdapterBase(
 			consts.ExchangeIDgateSpot,
 			adapterName,
-			adapterTag,
+			consts.GateAdapterTag,
 		),
-		client: gateapi.NewAPIClient(gateapi.NewConfiguration()),
+		client: gateapi.NewAPIClient(cfg),
 	}
 }
 
@@ -84,29 +87,10 @@ func (a *adapter) getUID() (int64, error) {
 }
 
 func (a *adapter) CanTrade() (bool, error) {
-	uid, err := a.getUID()
-	if err != nil {
+	if _, err := a.getUID(); err != nil {
 		return false, fmt.Errorf("uid: %w", err)
 	}
-
-	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
-	defer ctxCancel()
-
-	keyData, _, err := a.client.SubAccountApi.GetSubAccountKey(
-		ctx,
-		int32(uid),
-		a.creds.Keypair.Public,
-	)
-	if err != nil {
-		return false, fmt.Errorf("get key data: %w", err)
-	}
-
-	for _, permissions := range keyData.Perms {
-		if permissions.Name == spotAccountType {
-			return !permissions.ReadOnly, nil
-		}
-	}
-	return false, nil
+	return true, nil
 }
 
 func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
@@ -125,6 +109,10 @@ func (a *adapter) VerifyAPIKeys(keyPublic, keySecret string) error {
 }
 
 func (a *adapter) GetAccountBalance() ([]structs.Balance, error) {
+	if !a.creds.Keypair.IsSet() {
+		return nil, errs.ErrAPIKeyNotSet
+	}
+
 	ctx, ctxCancel := context.WithTimeout(a.auth, requestTimeout)
 	defer ctxCancel()
 
