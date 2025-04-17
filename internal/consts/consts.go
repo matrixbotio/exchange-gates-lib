@@ -54,6 +54,7 @@ const (
 const (
 	CheckOrdersTimeoutBinance = time.Second * 30
 	CheckOrdersTimeoutBybit   = time.Second * 15
+	CheckOrdersTimeoutBings   = time.Second * 40
 	CheckOrdersTimeoutGate    = time.Second * 15
 )
 
