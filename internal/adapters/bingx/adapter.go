@@ -105,7 +105,7 @@ func (a *adapter) GetCandles(
 		return nil, fmt.Errorf("convert interval: %w", err)
 	}
 
-	klines, err := a.client.GetHistoricalKlines(
+	klines, err := a.client.GetHistoricalCandles(
 		symbol,
 		string(bingxInterval),
 		int64(limit),
